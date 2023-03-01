@@ -27,7 +27,7 @@ jobs:
         working-directory: ./android
         run: | 
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew -Pj=$((`nproc`+0)) -Pabi_arm_32=false assembleExperimentalRelease
       - uses: actions/upload-artifact@v2
         with:
            name: Package
