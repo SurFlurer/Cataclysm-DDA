@@ -38,16 +38,6 @@ jobs:
         run: |
           echo "tag_name=cdda-experimental-${{ steps.get-timestamp.outputs.time }}" >> $GITHUB_OUTPUT
           echo "release_name=Cataclysm-DDA experimental build ${{ steps.get-timestamp.outputs.time }}" >> $GITHUB_OUTPUT
-      - name: Create release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.generate_env_vars.outputs.tag_name }}
-          release_name: ${{ steps.generate_env_vars.outputs.release_name }}
-          draft: false
-          prerelease: true
       - name: Set up JDK 8 (android)
         uses: actions/setup-java@v3
         with:
@@ -71,14 +61,23 @@ jobs:
         working-directory: ./android
         run: | 
           chmod +x gradlew
-          #./gradlew -Pj=$((`nproc`+0)) -Pabi_arm_32=false assembleExperimentalRelease --build-cache
-          mkdir ./app/build/
-          mkdir ./app/build/outputs
-          mkdir ./app/build/outputs/apk
-          mkdir ./app/build/outputs/apk/experimental
-          mkdir ./app/build/outputs/apk/experimental/release
-          echo "shire" > "./app/build/outputs/apk/experimental/release/test.apk"
+          ./gradlew -Pj=$((`nproc`+0)) -Pabi_arm_32=false assembleExperimentalRelease --build-cache
+          #mkdir ./app/build/
+          #mkdir ./app/build/outputs
+          #mkdir ./app/build/outputs/apk
+          #mkdir ./app/build/outputs/apk/experimental
+          #mkdir ./app/build/outputs/apk/experimental/release
+          #echo "shire" > "./app/build/outputs/apk/experimental/release/test.apk"
           mv ./app/build/outputs/apk/experimental/release/*.apk "/home/runner/work/Cataclysm-DDA/${{ steps.generate_env_vars.outputs.release_name }}.apk"
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.generate_env_vars.outputs.tag_name }}
+          release_name: ${{ steps.generate_env_vars.outputs.release_name }}
+          draft: false
       - name: Upload Release APK
         id: upload_release_asset
         uses: actions/upload-release-asset@v1.0.1
