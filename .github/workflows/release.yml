@@ -1,11 +1,10 @@
 name: "Experimental Release"
-concurrency: release
 on:
   push:
     branches:
       - ad1
     paths:
-      #- '.github/workflows/release.yml'
+      - '.github/workflows/release.yml'
       - 'android/**'
       - 'build-data/**'
       - 'cataclysm-launcher'
@@ -18,6 +17,9 @@ on:
       - 'README*'
       - 'src/**'
 
+concurrency:
+  group: cataclysm-build
+  cancel-in-progress: true
 jobs:
   builds:
     runs-on: ubuntu-latest
@@ -39,12 +41,23 @@ jobs:
         working-directory: ./android
         run: | 
           chmod +x gradlew
-          ./gradlew -Pj=$((`nproc`+0)) -Pabi_arm_32=false assembleExperimentalRelease
-      - uses: actions/upload-artifact@v2
+          ./gradlew -Pabi_arm_32=false assembleExperimentalRelease
+           mv ./app/build/outputs/apk/experimental/release/*.apk ~/.
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1.1.4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-           name: Package
-           path: android/app/build/outputs/apk/experimental/release/
-         
-           #path: app/build/outputs/
-           #path: [MODULE]/build/outputs/
-           retention-days: 2
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+      - name: Upload Release APK
+        id: upload_release_asset
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ~/*.apk
+          asset_name: ${{ github.ref }}.apk
+          asset_content_type: application/zip
