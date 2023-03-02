@@ -3,7 +3,6 @@ concurrency: release
 on:
   push:
     branches:
-      - android
       - ad1
 
 jobs:
