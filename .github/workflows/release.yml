@@ -76,7 +76,7 @@ jobs:
          build-root-directory: ./android
          arguments: assembleExperimentalRelease --build-cache
          properties: |
-          j=$((`nproc`+0))
+          j=2
           abi_arm_32=false
       - name: move
         working-directory: ./android
