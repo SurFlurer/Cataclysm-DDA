@@ -72,7 +72,6 @@ jobs:
         run: | 
           chmod +x gradlew
           #./gradlew -Pj=$((`nproc`+0)) -Pabi_arm_32=false assembleExperimentalRelease --build-cache
-          mkdir ./app
           mkdir ./app/build/
           mkdir ./app/build/outputs
           mkdir ./app/build/outputs/apk
