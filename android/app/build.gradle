@@ -146,7 +146,7 @@ task makeLocalization(type: Exec) {
         println("Building with localization")
         switch (OperatingSystem.current()) {
             case OperatingSystem.LINUX:
-                args = ['make', 'localization', 'LANGUAGES=zh_CN']
+                args = ['make', 'localization', 'LANGUAGES=all']
                 break
             case OperatingSystem.WINDOWS:
                 args = ['sh.exe', 'lang/compile_mo.sh']
