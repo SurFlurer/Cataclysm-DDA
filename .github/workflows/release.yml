@@ -48,27 +48,39 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install gettext    
-      - name: Cache node modules
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: ~/.gradle/caches
-          key: gradlecache-${{ steps.generate_env_vars.outputs.tag_name }}
-          restore-keys: |
-            gradlecache
-      - name: Build CDDA (android)
-        working-directory: ./android
-        run: | 
-          chmod +x gradlew
-          ./gradlew -Pj=$((`nproc`+0)) -Pabi_arm_32=false assembleExperimentalRelease --build-cache
+      #- name: Cache node modules
+      #  uses: actions/cache@v2
+      #  env:
+      #    cache-name: cache-node-modules
+      #  with:
+      #    path: ~/.gradle/caches
+      #    key: gradlecache-${{ steps.generate_env_vars.outputs.tag_name }}
+      #    restore-keys: |
+      #      gradlecache
+      #- name: Build CDDA (android)
+      #  working-directory: ./android
+       # run: | 
+       #   chmod +x gradlew
+      #    ./gradlew -Pj=$((`nproc`+0)) -Pabi_arm_32=false assembleExperimentalRelease --build-cache
           #mkdir ./app/build/
           #mkdir ./app/build/outputs
           #mkdir ./app/build/outputs/apk
           #mkdir ./app/build/outputs/apk/experimental
           #mkdir ./app/build/outputs/apk/experimental/release
           #echo "shire" > "./app/build/outputs/apk/experimental/release/test.apk"
-          mv ./app/build/outputs/apk/experimental/release/*.apk "/home/runner/work/Cataclysm-DDA/${{ steps.generate_env_vars.outputs.release_name }}.apk"
+          #mv ./app/build/outputs/apk/experimental/release/*.apk "/home/runner/work/Cataclysm-DDA/${{ steps.generate_env_vars.outputs.release_name }}.apk"
+      - uses: burrunan/gradle-cache-action@v1
+        name: Build CDDA
+        with:
+         job-id: jdk8
+         build-root-directory: ./android
+         arguments: assembleExperimentalRelease --build-cache
+         properties: |
+          j=$((`nproc`+0))
+          abi_arm_32=false
+      - name: move
+        working-directory: ./android
+        run:  mv ./app/build/outputs/apk/experimental/release/*.apk "/home/runner/work/Cataclysm-DDA/${{ steps.generate_env_vars.outputs.release_name }}.apk"
       - name: Create release
         id: create_release
         uses: actions/create-release@v1
