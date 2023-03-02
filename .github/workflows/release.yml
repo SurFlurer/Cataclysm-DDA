@@ -72,7 +72,7 @@ jobs:
         working-directory: ./android
         run: | 
           echo "${{ secrets.KEYSTORE }}" > release.keystore.asc   
-          gpg -d --passphrase "${{ secrets.KEYSTORE_PASSWORD }}" --batch release.keystore.asc > app/release.keystore 
+          gpg -d --passphrase "${{ secrets.KEYSTORE_PASSWORD }}" --batch release.keystore.asc > /home/runner/work/Cataclysm-DDA/release.keystore/release.keystore 
           echo "${{ secrets.KEYSTORE_PROPERTIES }}" > keystore.properties.asc   
           gpg -d --passphrase "${{ secrets.KEYSTORE_PASSWORD }}" --batch keystore.properties.asc > keystore.properties
       - uses: burrunan/gradle-cache-action@v1
