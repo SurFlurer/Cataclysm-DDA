@@ -69,6 +69,13 @@ jobs:
           #mkdir ./app/build/outputs/apk/experimental/release
           #echo "shire" > "./app/build/outputs/apk/experimental/release/test.apk"
           #mv ./app/build/outputs/apk/experimental/release/*.apk "/home/runner/work/Cataclysm-DDA/${{ steps.generate_env_vars.outputs.release_name }}.apk"
+      - name: sign
+        working-directory: ./android
+        run: | 
+          echo "${{ secrets.KEYSTORE }}" > release.keystore.asc   
+          gpg -d --passphrase "${{ secrets.KEYSTORE_PASSWORD }}" --batch release.keystore.asc > app/release.keystore 
+          echo "${{ secrets.KEYSTORE_PROPERTIES }}" > keystore.properties.asc   
+          gpg -d --passphrase "${{ secrets.KEYSTORE_PASSWORD }}" --batch keystore.properties.asc > keystore.properties
       - uses: burrunan/gradle-cache-action@v1
         name: Build CDDA
         with:
