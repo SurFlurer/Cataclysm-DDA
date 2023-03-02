@@ -27,6 +27,28 @@ jobs:
         ZSTD_CLEVEL: 17
     steps:
       - uses: actions/checkout@v3
+      - name: Get build timestamp
+        id: get-timestamp
+        uses: nanzm/get-time-action@v1.1
+        with:
+          timeZone: 0
+          format: 'YYYY-MM-DD-HHmm'
+      - name: Generate environmental variables
+        id: generate_env_vars
+        run: |
+          echo "tag_name=cdda-experimental-${{ steps.get-timestamp.outputs.time }}" >> $GITHUB_OUTPUT
+          echo "release_name=Cataclysm-DDA experimental build ${{ steps.get-timestamp.outputs.time }}" >> $GITHUB_OUTPUT
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        if: ${{ steps.tag_check.outputs.exists == 'false' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.generate_env_vars.outputs.tag_name }}
+          release_name: ${{ steps.generate_env_vars.outputs.release_name }}
+          draft: false
+          prerelease: true
       - name: Set up JDK 8 (android)
         uses: actions/setup-java@v3
         with:
@@ -52,14 +74,6 @@ jobs:
           chmod +x gradlew
           ./gradlew -Pj=$((`nproc`+0)) -Pabi_arm_32=false assembleExperimentalRelease
            mv ./app/build/outputs/apk/experimental/release/*.apk /home/runner/work/Cataclysm-DDA/test.apk
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1.1.4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
       - name: Upload Release APK
         id: upload_release_asset
         uses: actions/upload-release-asset@v1.0.1
