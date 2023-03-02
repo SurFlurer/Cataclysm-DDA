@@ -36,13 +36,22 @@ jobs:
       - name: Setup Build and Dependencies (android)
         run: |
           sudo apt-get update
-          sudo apt-get install gettext          
+          sudo apt-get install gettext    
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ./android
+          key: androidtest
+          restore-keys: |
+            androidtest
       - name: Build CDDA (android)
         working-directory: ./android
         run: | 
           chmod +x gradlew
-          ./gradlew -Pabi_arm_32=false assembleExperimentalRelease
-           mv ./app/build/outputs/apk/experimental/release/*.apk ~/.
+          ./gradlew -Pj=$((`nproc`+0)) -Pabi_arm_32=false assembleExperimentalRelease
+           mv ./app/build/outputs/apk/experimental/release/*.apk home/runner/work/Cataclysm-DDA/test.apk
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1.1.4
@@ -58,6 +67,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ~/*.apk
-          asset_name: ${{ github.ref }}.apk
+          asset_path: home/runner/work/Cataclysm-DDA/test.apk
+          asset_name: test.apk
           asset_content_type: application/zip
