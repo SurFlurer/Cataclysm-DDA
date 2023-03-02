@@ -16,6 +16,7 @@ on:
       - 'Makefile'
       - 'README*'
       - 'src/**'
+      
 concurrency:
   group: cataclysm-build
   cancel-in-progress: true
