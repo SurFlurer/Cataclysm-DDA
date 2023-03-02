@@ -4,6 +4,19 @@ on:
   push:
     branches:
       - ad1
+    paths:
+      #- '.github/workflows/release.yml'
+      - 'android/**'
+      - 'build-data/**'
+      - 'cataclysm-launcher'
+      - 'data/**'
+      - 'doc/**'
+      - 'gfx/**'
+      - 'lang/po/*.po'
+      - 'LICENSE*'
+      - 'Makefile'
+      - 'README*'
+      - 'src/**'
 
 jobs:
   builds:
