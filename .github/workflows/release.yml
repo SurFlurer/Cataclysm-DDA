@@ -31,7 +31,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
            name: Package
-           path: android/app/build/outputs/apk/stable/release/
+           path: android/app/build/outputs/apk/experimental/release/
          
            #path: app/build/outputs/
            #path: [MODULE]/build/outputs/
