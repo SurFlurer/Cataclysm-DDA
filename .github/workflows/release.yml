@@ -72,7 +72,7 @@ jobs:
         run: | 
           chmod +x gradlew
           ./gradlew -Pj=$((`nproc`+0)) -Pabi_arm_32=false assembleExperimentalRelease
-           mv ./app/build/outputs/apk/experimental/release/*.apk /home/runner/work/Cataclysm-DDA/test.apk
+           mv ./app/build/outputs/apk/experimental/release/*.apk /home/runner/work/Cataclysm-DDA/${{ steps.generate_env_vars.outputs.release_name }}.apk
       - name: Upload Release APK
         id: upload_release_asset
         uses: actions/upload-release-asset@v1.0.1
@@ -80,6 +80,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: /home/runner/work/Cataclysm-DDA/test.apk
-          asset_name: test.apk
+          asset_path: /home/runner/work/Cataclysm-DDA/${{ steps.generate_env_vars.outputs.release_name }}.apk
+          asset_name: ${{ steps.generate_env_vars.outputs.release_name }}.apk
           asset_content_type: application/zip
