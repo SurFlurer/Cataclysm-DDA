@@ -54,7 +54,7 @@ jobs:
           cache-name: cache-node-modules
         with:
           path: ~/.gradle/caches
-          key: gradlecache
+          key: gradlecache-${{ steps.generate_env_vars.outputs.tag_name }}
           restore-keys: |
             gradlecache
       - name: Build CDDA (android)
