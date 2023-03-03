@@ -1,7 +1,11 @@
 name: CNK Release
 
 on:
-  push
+  push:
+  workflow_run:
+    workflows: [Sync Fork]
+    types:
+      - completed
 concurrency:
   group: cataclysm-build
   cancel-in-progress: true
