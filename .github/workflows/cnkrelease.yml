@@ -45,7 +45,7 @@ jobs:
           cp -r Kenan-Modpack-Chinese/ data/mods/
       - name: udp
         run: |
-          git clone https://github.com/Theawesomeboophis/UndeadPeopleTileset
+          git clone https://github.com/Theawesomeboophis/UndeadPeopleTileset --depth=1
           cd UndeadPeopleTileset/TILESETS
           cp -r UndeadPeopleTileset/TILESETS/* ./
       - uses: burrunan/gradle-cache-action@v1
