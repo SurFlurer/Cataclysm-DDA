@@ -240,7 +240,7 @@ android {
         versionCode Integer.valueOf(System.env.UPSTREAM_BUILD_NUMBER ?: 1)
         versionName new File("$version_header_path").text.split('\"')[1]
         if (buildAsApplication) {
-            applicationId "com.cleverraven.cataclysmdda"
+            applicationId "com.surflurer.cataclysmdda"
             setProperty("archivesBaseName", "cataclysmdda-" + versionName)
         }
         resValue "string", "app_name", "Cataclysm DDA"
