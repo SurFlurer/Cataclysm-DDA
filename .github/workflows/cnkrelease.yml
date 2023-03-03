@@ -52,14 +52,11 @@ jobs:
           gpg -d --passphrase "${{ secrets.KEYSTORE_PASSWORD }}" --batch keystore.properties.asc > keystore.properties
 #          keytool -genkey -keystore /tmp/a.keystore -keyalg RSA -keysize 2048 -validity 10000 -alias a -dname "cn=a, ou=a, o=a, c=a" -storepass 123456 -keypass 123456
 #          echo -e "keyPassword=123456\nkeyAlias=a\nstorePassword=123456\nstoreFile=/tmp/a.keystore" > keystore.properties
-      - uses: burrunan/gradle-cache-action@v1
-        name: Build CDDA
-        with:
-         job-id: jdk8
-         build-root-directory: ./android
-         arguments: assembleExperimentalRelease --build-cache
-         properties: |
-          j=2
+      - name: Build CDDA
+        working-directory: ./android
+        run: | 
+          chmod +x gradlew
+          ./gradlew -Pj=$((`nproc`+0)) assembleExperimentalRelease
       - name: move
         working-directory: ./android
         run:  mv ./app/build/outputs/apk/experimental/release/*.apk "/home/runner/work/Cataclysm-DDA/${{ steps.generate_env_vars.outputs.release_name }}.apk"
