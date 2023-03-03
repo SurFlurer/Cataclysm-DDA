@@ -7,7 +7,7 @@ on:
 #    types:
 #      - completed
   schedule:
-    - cron: "0 22 * * ?" # 每3小时触发, 对于一些更新不那么频繁的项目可以设置为每天一次, 低碳一点
+    - cron: "1 */6 * * ?" # 每3小时触发, 对于一些更新不那么频繁的项目可以设置为每天一次, 低碳一点
 concurrency:
   group: cataclysm-build
   cancel-in-progress: true
