@@ -1,4 +1,4 @@
-name: "Experimental Release"
+name: "cnk Release"
 on:
   push:
     branches:
