@@ -1,9 +1,7 @@
 name: CNK Release
 
 on:
-  push:
-    branches:
-      - cnk
+  push
       
 concurrency:
   group: cataclysm-build
