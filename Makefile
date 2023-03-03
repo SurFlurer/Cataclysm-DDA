@@ -994,8 +994,8 @@ lang/mo_built.stamp: "$(MO_DEPS)"
 
 localization: lang/mo_built.stamp
 
-$(CHKJSON_BIN): "$(CHKJSON_SOURCES)"
-	$(CXX) $(CXXFLAGS) $(TOOL_CXXFLAGS) -Isrc/chkjson -Isrc -isystem src/third-party "$(CHKJSON_SOURCES)" -o $(CHKJSON_BIN)
+$(CHKJSON_BIN): '$(CHKJSON_SOURCES)'
+	$(CXX) $(CXXFLAGS) $(TOOL_CXXFLAGS) -Isrc/chkjson -Isrc -isystem src/third-party $(CHKJSON_SOURCES) -o $(CHKJSON_BIN)
 
 json-check: $(CHKJSON_BIN)
 	./$(CHKJSON_BIN)
