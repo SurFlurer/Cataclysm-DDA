@@ -2,11 +2,9 @@ name: CNK Release
 
 on:
   push
-      
 concurrency:
   group: cataclysm-build
   cancel-in-progress: true
-  
 jobs:
   builds:
     runs-on: ubuntu-latest
