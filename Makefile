@@ -988,14 +988,14 @@ MO_DEPS := \
   $(wildcard lang/*.sh lang/*.py src/*.cpp src/*.h) \
   $(shell find data/raw data/json data/mods data/core data/help -type f -name '*.json')
 
-lang/mo_built.stamp: $(MO_DEPS)
+lang/mo_built.stamp: "$(MO_DEPS)"
 	$(MAKE) -C lang
 	touch $@
 
 localization: lang/mo_built.stamp
 
-$(CHKJSON_BIN): $(CHKJSON_SOURCES)
-	$(CXX) $(CXXFLAGS) $(TOOL_CXXFLAGS) -Isrc/chkjson -Isrc -isystem src/third-party $(CHKJSON_SOURCES) -o $(CHKJSON_BIN)
+$(CHKJSON_BIN): "$(CHKJSON_SOURCES)"
+	$(CXX) $(CXXFLAGS) $(TOOL_CXXFLAGS) -Isrc/chkjson -Isrc -isystem src/third-party "$(CHKJSON_SOURCES)" -o $(CHKJSON_BIN)
 
 json-check: $(CHKJSON_BIN)
 	./$(CHKJSON_BIN)
