@@ -23,6 +23,17 @@ jobs:
         run: |
           echo "tag_name=cdda-experimental-${{ steps.get-timestamp.outputs.time }}" >> $GITHUB_OUTPUT
           echo "release_name=Cataclysm-DDA experimental build ${{ steps.get-timestamp.outputs.time }}" >> $GITHUB_OUTPUT
+      - name: cnk
+        run: |
+          wget https://github.com/linonetwo/CDDA-Kenan-Modpack-Chinese/releases/latest/download/Kenan-Modpack-Mod.zip
+          unzip Kenan-Modpack-Mod.zip
+          cp -r Kenan-Modpack-Chinese/ data/mods/
+      - name: udp
+        run: |
+          wget https://github.com/Theawesomeboophis/UndeadPeopleTileset/archive/refs/heads/master.zip -O UndeadPeopleTileset-master.zip
+          unzip UndeadPeopleTileset-master.zip
+          cd UndeadPeopleTileset-master/TILESETS
+          cp -r UndeadPeopleTileset-master/TILESETS/* ./
       - name: Set up JDK 8 (android)
         uses: actions/setup-java@v3
         with:
@@ -38,17 +49,6 @@ jobs:
         run: | 
           keytool -genkey -keystore /tmp/a.keystore -keyalg RSA -keysize 2048 -validity 10000 -alias a -dname "cn=a, ou=a, o=a, c=a" -storepass 123456 -keypass 123456
           echo -e "keyPassword=123456\nkeyAlias=a\nstorePassword=123456\nstoreFile=/tmp/a.keystore" > keystore.properties
-      - name: cnk
-        run: |
-          wget https://github.com/linonetwo/CDDA-Kenan-Modpack-Chinese/releases/latest/download/Kenan-Modpack-Mod.zip
-          unzip Kenan-Modpack-Mod.zip
-          cp -r Kenan-Modpack-Chinese/ data/mods/
-      - name: udp
-        run: |
-          wget https://github.com/Theawesomeboophis/UndeadPeopleTileset/archive/refs/heads/master.zip -O UndeadPeopleTileset-master.zip
-          unzip UndeadPeopleTileset-master.zip
-          cd UndeadPeopleTileset-master/TILESETS
-          cp -r UndeadPeopleTileset/TILESETS/* ./
       - uses: burrunan/gradle-cache-action@v1
         name: Build CDDA
         with:
