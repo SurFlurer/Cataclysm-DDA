@@ -4,19 +4,6 @@ on:
   push:
     branches:
       - cnk
-    paths:
-      - '.github/workflows/cnkrelease.yml'
-      - 'android/**'
-      - 'build-data/**'
-      - 'cataclysm-launcher'
-      - 'data/**'
-      - 'doc/**'
-      - 'gfx/**'
-      - 'lang/po/*.po'
-      - 'LICENSE*'
-      - 'Makefile'
-      - 'README*'
-      - 'src/**'
 concurrency:
   group: cataclysm-build
   cancel-in-progress: true
