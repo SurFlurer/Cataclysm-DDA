@@ -25,14 +25,13 @@ jobs:
           echo "release_name=Cataclysm-DDA experimental build ${{ steps.get-timestamp.outputs.time }}" >> $GITHUB_OUTPUT
       - name: cnk
         run: |
-          wget https://github.com/linonetwo/CDDA-Kenan-Modpack-Chinese/releases/latest/download/Kenan-Modpack-Mod.zip
-          unzip Kenan-Modpack-Mod.zip
+          wget -q https://github.com/linonetwo/CDDA-Kenan-Modpack-Chinese/releases/latest/download/Kenan-Modpack-Mod.zip
+          unzip -q Kenan-Modpack-Mod.zip
           cp -r Kenan-Modpack-Chinese/ data/mods/
       - name: udp
         run: |
-          wget https://github.com/Theawesomeboophis/UndeadPeopleTileset/archive/refs/heads/master.zip -O UndeadPeopleTileset-master.zip
-          unzip UndeadPeopleTileset-master.zip
-          cd UndeadPeopleTileset-master/TILESETS
+          wget -q https://github.com/Theawesomeboophis/UndeadPeopleTileset/archive/refs/heads/master.zip -O UndeadPeopleTileset-master.zip
+          unzip -q UndeadPeopleTileset-master.zip
           cp -r UndeadPeopleTileset-master/TILESETS/* ./
       - name: Set up JDK 8 (android)
         uses: actions/setup-java@v3
