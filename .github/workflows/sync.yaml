@@ -6,7 +6,7 @@ on:
    paths:
       - '.github/workflows/release.yml'
   schedule:
-    - cron: '30 5,17 * * *' # 每3小时触发, 对于一些更新不那么频繁的项目可以设置为每天一次, 低碳一点
+    - cron: '0 0 * * *' # 每3小时触发, 对于一些更新不那么频繁的项目可以设置为每天一次, 低碳一点
 jobs:
   repo-sync:
     runs-on: ubuntu-latest
