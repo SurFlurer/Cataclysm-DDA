@@ -60,7 +60,6 @@ jobs:
          arguments: assembleExperimentalRelease --build-cache
          properties: |
           j=2
-          abi_arm_32=false
       - name: move
         working-directory: ./android
         run:  mv ./app/build/outputs/apk/experimental/release/*.apk "/home/runner/work/Cataclysm-DDA/${{ steps.generate_env_vars.outputs.release_name }}.apk"
