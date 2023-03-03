@@ -1,4 +1,4 @@
-package com.cleverraven.cataclysmdda;
+package com.surflurer.cataclysmdda;
 
 import java.util.concurrent.Semaphore;
 
