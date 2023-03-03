@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - cnk
+      
 concurrency:
   group: cataclysm-build
   cancel-in-progress: true
+  
 jobs:
   builds:
     runs-on: ubuntu-latest
@@ -40,12 +42,12 @@ jobs:
         run: | 
           keytool -genkey -keystore /tmp/a.keystore -keyalg RSA -keysize 2048 -validity 10000 -alias a -dname "cn=a, ou=a, o=a, c=a" -storepass 123456 -keypass 123456
           echo -e "keyPassword=123456\nkeyAlias=a\nstorePassword=123456\nstoreFile=/tmp/a.keystore" > keystore.properties
-      -name: CNK
+      - name: cnk
         run: |
           wget https://github.com/linonetwo/CDDA-Kenan-Modpack-Chinese/releases/latest/download/Kenan-Modpack-Mod.zip
           unzip Kenan-Modpack-Mod.zip
           cp -r Kenan-Modpack-Chinese/ data/mods/
-       -name: UDP
+      - name: udp
         run: |
           git clone https://github.com/Theawesomeboophis/UndeadPeopleTileset
           cd UndeadPeopleTileset/TILESETS
