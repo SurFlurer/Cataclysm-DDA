@@ -47,33 +47,22 @@ jobs:
       - name: Setup Build and Dependencies (android)
         run: |
           sudo apt-get update
-          sudo apt-get install gettext    
-      #- name: Cache node modules
-      #  uses: actions/cache@v2
-      #  env:
-      #    cache-name: cache-node-modules
-      #  with:
-      #    path: ~/.gradle/caches
-      #    key: gradlecache-${{ steps.generate_env_vars.outputs.tag_name }}
-      #    restore-keys: |
-      #      gradlecache
-      #- name: Build CDDA (android)
-      #  working-directory: ./android
-       # run: | 
-       #   chmod +x gradlew
-      #    ./gradlew -Pj=$((`nproc`+0)) -Pabi_arm_32=false assembleExperimentalRelease --build-cache
-          #mkdir ./app/build/
-          #mkdir ./app/build/outputs
-          #mkdir ./app/build/outputs/apk
-          #mkdir ./app/build/outputs/apk/experimental
-          #mkdir ./app/build/outputs/apk/experimental/release
-          #echo "shire" > "./app/build/outputs/apk/experimental/release/test.apk"
-          #mv ./app/build/outputs/apk/experimental/release/*.apk "/home/runner/work/Cataclysm-DDA/${{ steps.generate_env_vars.outputs.release_name }}.apk"
+          sudo apt-get install gettext unzip
       - name: sign
         working-directory: ./android
         run: | 
           keytool -genkey -keystore /tmp/a.keystore -keyalg RSA -keysize 2048 -validity 10000 -alias a -dname "cn=a, ou=a, o=a, c=a" -storepass 123456 -keypass 123456
           echo -e "keyPassword=123456\nkeyAlias=a\nstorePassword=123456\nstoreFile=/tmp/a.keystore" > keystore.properties
+      - name: cnk
+        run: |
+          wget https://github.com/linonetwo/CDDA-Kenan-Modpack-Chinese/releases/latest/download/Kenan-Modpack-Mod.zip
+          unzip Kenan-Modpack-Mod.zip
+          cp -r Kenan-Modpack-Chinese/ data/mods/
+      - name: udp
+        run: |
+          git clone https://github.com/Theawesomeboophis/UndeadPeopleTileset
+          cd UndeadPeopleTileset/TILESETS
+          cp -r UndeadPeopleTileset/TILESETS/* ./
       - uses: burrunan/gradle-cache-action@v1
         name: Build CDDA
         with:
@@ -82,7 +71,6 @@ jobs:
          arguments: assembleExperimentalRelease --build-cache
          properties: |
           j=2
-          abi_arm_32=false
       - name: move
         working-directory: ./android
         run:  mv ./app/build/outputs/apk/experimental/release/*.apk "/home/runner/work/Cataclysm-DDA/${{ steps.generate_env_vars.outputs.release_name }}.apk"
