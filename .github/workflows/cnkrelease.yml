@@ -56,7 +56,7 @@ jobs:
         working-directory: ./android
         run: | 
           chmod +x gradlew
-          ./gradlew -Pj=$((`nproc`+0)) assembleExperimentalRelease
+          ./gradlew -Pj=$((`nproc`+0)) -Pabi_arm_32=false assembleExperimentalRelease
       - name: move
         working-directory: ./android
         run:  mv ./app/build/outputs/apk/experimental/release/*.apk "/home/runner/work/Cataclysm-DDA/${{ steps.generate_env_vars.outputs.release_name }}.apk"
