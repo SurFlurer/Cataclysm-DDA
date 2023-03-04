@@ -288,7 +288,7 @@ android {
         experimental {
             dimension "version"
             applicationIdSuffix ".experimental"
-            resValue "string", "app_name", "Cataclysm DDA (experimental)"
+            resValue "string", "app_name", "CDDA中文整合"
         }
     }
 
