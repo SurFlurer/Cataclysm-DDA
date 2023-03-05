@@ -1,4 +1,4 @@
-name: CNK Multi Release
+name: OSX test build
 
 on:
   workflow_dispatch:
