@@ -986,7 +986,7 @@ $(TEST_MO): data/mods/TEST_DATA/lang/po/ru.po
 
 MO_DEPS := \
   $(wildcard lang/*.sh lang/*.py src/*.cpp src/*.h) \
-  $(shell find data/raw data/json data/mods data/core data/help -type f -name '*.json' | sed '/./{s/^/'/;s/$/'/}' )
+  $(shell find data/raw data/json data/mods data/core data/help -type f -name '*.json' | sed "/./{s/^/'/;s/$/'/}" )
 # | sed ":a;N;s/\n/"\n"/g"
 lang/mo_built.stamp: $(MO_DEPS)
 	$(MAKE) -C lang
