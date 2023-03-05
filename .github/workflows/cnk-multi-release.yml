@@ -104,14 +104,6 @@ jobs:
             artifact: linux-tiles-x64
             ext: tar.gz
             content: application/gzip
-          - name: OSX Tiles x64
-            os: macos-10.15
-            mxe: none
-            tiles: 1
-            sound: 0
-            artifact: osx-tiles-x64
-            ext: dmg
-            content: application/x-apple-diskimage
           - name: Android x64
             os: ubuntu-latest
             mxe: none
@@ -198,12 +190,12 @@ jobs:
           pip3 install mac_alias==2.2.0 dmgbuild==1.4.2 biplist
       - name: cnk
         run: |
-          wget -q https://github.com/linonetwo/CDDA-Kenan-Modpack-Chinese/releases/latest/download/Kenan-Modpack-Mod.zip -O '${{ github.workspace }}/Kenan-Modpack-Mod.zip'
+          curl -o '${{ github.workspace }}/Kenan-Modpack-Mod.zip' https://github.com/linonetwo/CDDA-Kenan-Modpack-Chinese/releases/latest/download/Kenan-Modpack-Mod.zip
           unzip -q '${{ github.workspace }}/Kenan-Modpack-Mod.zip'
           mv '${{ github.workspace }}/Kenan-Modpack-Chinese/' '${{ github.workspace }}/data/mods/'
       - name: udp
         run: |
-          wget -q https://github.com/Theawesomeboophis/UndeadPeopleTileset/archive/refs/heads/master.zip -O '${{ github.workspace }}/UndeadPeopleTileset-master.zip'
+          curl -o '${{ github.workspace }}/UndeadPeopleTileset-master.zip' https://github.com/Theawesomeboophis/UndeadPeopleTileset/archive/refs/heads/master.zip
           unzip -q '${{ github.workspace }}/UndeadPeopleTileset-master.zip'
           mv '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/data' '${{ github.workspace }}/data'
           mv '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/gfx' '${{ github.workspace }}/gfx'
