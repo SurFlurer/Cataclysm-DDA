@@ -205,7 +205,8 @@ jobs:
         run: |
           wget -q https://github.com/Theawesomeboophis/UndeadPeopleTileset/archive/refs/heads/master.zip -O '${{ github.workspace }}/UndeadPeopleTileset-master.zip'
           unzip -q '${{ github.workspace }}/UndeadPeopleTileset-master.zip'
-          mv '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/*' '${{ github.workspace }}/'
+          mv '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/data' '${{ github.workspace }}/data'
+          mv '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/gfx' '${{ github.workspace }}/gfx'
       - name: Create VERSION.TXT
         shell: bash
         run: |
