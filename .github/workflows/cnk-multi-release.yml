@@ -131,8 +131,6 @@ jobs:
           matrix = yaml.load(matrix)
           import json; print('matrix='+json.dumps(matrix))
           " >> $GITHUB_OUTPUT
-  fetch:
-    
   builds:
     needs: release
     if: ${{ needs.release.outputs.matrix }}
