@@ -1,6 +1,5 @@
 name: CNK Multi Release
-concurrency: release
-  cancel-in-progress: true
+
 on:
   push:
 #  workflow_run:
@@ -9,6 +8,11 @@ on:
 #      - completed
   schedule:
     - cron: "50 * * * *" # 每3小时触发, 对于一些更新不那么频繁的项目可以设置为每天一次, 低碳一点
+    
+concurrency: 
+  group: release
+  cancel-in-progress: true
+  
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 jobs:
