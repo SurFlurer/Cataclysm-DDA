@@ -80,14 +80,14 @@ jobs:
           pip3 install ruamel.yaml
           python3 -c "
           matrix = '''
-          - name: Windows Tiles x64 MSVC
-            artifact: windows-tiles-x64-msvc
-            arch: x64
-            os: windows-2019
+          - name: OSX Tiles x64
+            os: macos-10.15
             mxe: none
-            ext: zip
-            content: application/zip
+            tiles: 1
             sound: 0
+            artifact: osx-tiles-x64
+            ext: dmg
+            content: application/x-apple-diskimage
           '''
           from ruamel.yaml import YAML; yaml = YAML()
           matrix = yaml.load(matrix)
