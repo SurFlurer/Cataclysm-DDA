@@ -88,13 +88,6 @@ jobs:
             ext: zip
             content: application/zip
             sound: 0
-          - name: Windows Tiles x64
-            mxe: x86_64
-            artifact: windows-tiles-x64
-            os: ubuntu-latest
-            ext: zip
-            content: application/zip
-            sound: 0
           - name: Linux Tiles x64
             os: ubuntu-18.04
             mxe: none
@@ -111,13 +104,6 @@ jobs:
             artifact: android-x64
             ext: apk
             content: application/apk
-          - name: Android x32
-            os: ubuntu-latest
-            mxe: none
-            android: arm32
-            artifact: android-x32
-            ext: apk
-            content: application/apk 
           '''
           from ruamel.yaml import YAML; yaml = YAML()
           matrix = yaml.load(matrix)
