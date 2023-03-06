@@ -152,12 +152,12 @@ jobs:
 #          curl -o '${{ github.workspace }}/Kenan-Modpack-Mod.zip' -L https://github.com/linonetwo/CDDA-Kenan-Modpack-Chinese/releases/latest/download/Kenan-Modpack-Mod.zip
 #          unzip -q '${{ github.workspace }}/Kenan-Modpack-Mod.zip'
 #          mv '${{ github.workspace }}/Kenan-Modpack-Chinese/' '${{ github.workspace }}/data/mods/'
-      - name: udp
-        run: |
-          curl -o '${{ github.workspace }}/UndeadPeopleTileset-master.zip' -L https://github.com/Theawesomeboophis/UndeadPeopleTileset/archive/refs/heads/master.zip
-          unzip -q '${{ github.workspace }}/UndeadPeopleTileset-master.zip'
-          mv '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/data' '${{ github.workspace }}/data'
-          mv '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/gfx' '${{ github.workspace }}/gfx'
+#      - name: udp
+#        run: |
+#          curl -o '${{ github.workspace }}/UndeadPeopleTileset-master.zip' -L https://github.com/Theawesomeboophis/UndeadPeopleTileset/archive/refs/heads/master.zip
+#          unzip -q '${{ github.workspace }}/UndeadPeopleTileset-master.zip'
+#          mv '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/data' '${{ github.workspace }}/data'
+#          mv '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/gfx' '${{ github.workspace }}/gfx'
       - name: Create VERSION.TXT
         shell: bash
         run: |
@@ -195,7 +195,7 @@ jobs:
       - name: Build CDDA (osx)
         if: runner.os == 'macOS'
         run: |
-          make -j3 VERBOSE=1 TILES=${{ matrix.tiles }} SOUND=${{ matrix.tiles }} RELEASE=1 LOCALIZE=1 LANGUAGES=all BACKTRACE=0 PCH=0 USE_HOME_DIR=1 OSX_MIN=10.12 dmgdist
+          make -j3 TILES=${{ matrix.tiles }} SOUND=${{ matrix.tiles }} RELEASE=1 LOCALIZE=1 LANGUAGES=all BACKTRACE=0 PCH=0 USE_HOME_DIR=1 OSX_MIN=10.12 dmgdist
           mv Cataclysm.dmg cdda-${{ matrix.artifact }}-${{ needs.release.outputs.timestamp }}.dmg
       - name: Set up JDK 8 (android)
         if: runner.os == 'Linux' && matrix.android != 'none' && matrix.mxe == 'none'
