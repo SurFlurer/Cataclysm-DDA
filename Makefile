@@ -986,7 +986,7 @@ $(TEST_MO): data/mods/TEST_DATA/lang/po/ru.po
 
 MO_DEPS := \
   $(wildcard lang/*.sh lang/*.py src/*.cpp src/*.h) \
-  $(shell find '"%p"\n' data/raw data/json data/mods data/core data/help -type f -name '*.json')
+  $(shell find -printf '"%p"\n' data/raw data/json data/mods data/core data/help -type f -name '*.json')
 
 lang/mo_built.stamp: $(MO_DEPS)
 	$(MAKE) -C lang
