@@ -986,7 +986,7 @@ $(TEST_MO): data/mods/TEST_DATA/lang/po/ru.po
 
 MO_DEPS := \
   $(wildcard lang/*.sh lang/*.py src/*.cpp src/*.h) \
-  $(shell find data/raw data/json data/mods data/core data/help -type f -name '*.json' )
+  $(shell find data/raw data/json data/mods data/core data/help -type f -name '*.json'  | sed "/./{s/^/'/;s/\$/'/}" )
 # | sed ":a;N;s/\n/"\n"/g"
 lang/mo_built.stamp: $(MO_DEPS)
 	$(MAKE) -C lang
@@ -1243,7 +1243,7 @@ else
 	@echo Cannot run an astyle check, your system either does not have astyle, or it is too old.
 endif
 
-JSON_SOURCES := $(shell find data -name '* *' -prune -o -name "*.json" -print | sed 's/\^/\'/' | sed 's/\$/\'/')
+JSON_SOURCES := $(shell find data -name '* *' -prune -o -name "*.json" -print | sed "/./{s/^/'/;s/\$/'/}")
 JSON_CHECK_STAMPS = $(sort $(patsubst %,$(ODIR)/%,$(JSON_SOURCES:.json=.jstyle-check-stamp)))
 style-json : $(JSON_CHECK_STAMPS) $(JSON_FORMATTER_BIN)
 $(JSON_CHECK_STAMPS) : $(ODIR)/%.jstyle-check-stamp : %.json $(JSON_FORMATTER_BIN)
