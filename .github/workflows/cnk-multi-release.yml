@@ -104,6 +104,14 @@ jobs:
             artifact: android-x64
             ext: apk
             content: application/apk
+          - name: OSX Tiles x64
+            os: macos-10.15
+            mxe: none
+            tiles: 1
+            sound: 0
+            artifact: osx-tiles-x64
+            ext: dmg
+            content: application/x-apple-diskimage
           '''
           from ruamel.yaml import YAML; yaml = YAML()
           matrix = yaml.load(matrix)
