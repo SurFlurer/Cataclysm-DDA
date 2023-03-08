@@ -206,7 +206,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: bash
         run: |
-          lang/compile_mo.sh all
+          lang/compile_mo.sh zh_CN
       - name: Build CDDA (linux)
         if: runner.os == 'Linux' && matrix.mxe == 'none' && matrix.android == 'none'
         run: |
