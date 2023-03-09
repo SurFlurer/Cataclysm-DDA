@@ -132,7 +132,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: '9a5cfabc5884540482df636d2de2d661a376b466'
+          ref: 'cdda-experimental-2023-03-07-1305'
       - name: Get soundpack
         if: matrix.sound == 1
         run: |
