@@ -196,11 +196,11 @@ jobs:
           unzip -q '${{ github.workspace }}/UndeadPeopleTileset-master.zip'
           mv '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/data' '${{ github.workspace }}/data'
           mv '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/gfx' '${{ github.workspace }}/gfx'
-      - name: MyRespectedModdersWork
-        run: |
-          git clone --depth=1 https://github.com/SurFlurer/MyRespectedModdersWork '${{ github.workspace }}/MyRespectedModdersWork'
-          mv '${{ github.workspace }}/MyRespectedModdersWork/LastManBatttalion（cdda mod仅支持实验版）' '${{ github.workspace }}/data/mods/'
-          mv '${{ github.workspace }}/MyRespectedModdersWork/配方回滚' '${{ github.workspace }}/data/mods/'
+#      - name: MyRespectedModdersWork
+#        run: |
+#          git clone --depth=1 https://github.com/SurFlurer/MyRespectedModdersWork '${{ github.workspace }}/MyRespectedModdersWork'
+#          mv '${{ github.workspace }}/MyRespectedModdersWork/LastManBatttalion（cdda mod仅支持实验版）' '${{ github.workspace }}/data/mods/'
+#          mv '${{ github.workspace }}/MyRespectedModdersWork/配方回滚' '${{ github.workspace }}/data/mods/'
       - name: Create VERSION.TXT
         shell: bash
         run: |
