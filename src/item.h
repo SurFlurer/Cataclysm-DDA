@@ -2196,17 +2196,19 @@ class item : public visitable
          */
         void mark_chapter_as_read( const Character &u );
         /**
+         * Returns recipes stored on the item (laptops, smartphones, sd cards etc)
+         * Filters out !is_valid() recipes
+         */
+        std::set<recipe_id> get_saved_recipes() const;
+        /**
+        * Sets recipes stored on the item (laptops, smartphones, sd cards etc)
+        */
+        void set_saved_recipes( const std::set<recipe_id> &recipes );
+        /**
          * Enumerates recipes available from this book and the skill level required to use them.
          */
         std::vector<std::pair<const recipe *, int>> get_available_recipes( const Character &u ) const;
         /*@}*/
-
-        /**
-         * Add a recipe to the EIPC_RECIPES variable.
-         *
-         * @return true if the recipe was added, false if it is a duplicate
-         */
-        bool eipc_recipe_add( const recipe_id &recipe_id );
 
         /**
          * @name Martial art techniques
@@ -2271,6 +2273,7 @@ class item : public visitable
 
         /** Quantity of energy currently loaded in tool or battery */
         units::energy energy_remaining() const;
+
 
         /**
          * Quantity of ammunition currently loaded in tool, gun or auxiliary gunmod. Can include UPS and bionic
@@ -2360,6 +2363,8 @@ class item : public visitable
          *  @param conversion whether to include the effect of any flags or mods which convert the type
          *  @return itype_id::NULL_ID() if item does have a magazine for a specific ammo type */
         itype_id ammo_default( bool conversion = true ) const;
+        // format a string with all the ammo that this mag can use
+        std::string print_ammo( ammotype at ) const;
 
         /** Get default ammo for the first ammotype common to an item and its current magazine or "NULL" if none exists
          * @param conversion whether to include the effect of any flags or mods which convert the type
