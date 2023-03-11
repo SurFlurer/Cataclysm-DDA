@@ -2278,6 +2278,7 @@
     "phase": "liquid",
     "weight": "250 g",
     "volume": "250 ml",
+    "charges": 1,
     "price": 50,
     "symbol": "~",
     "color": "light_blue"
@@ -2491,6 +2492,7 @@
     "price_postapoc": 50,
     "material": [ "milk" ],
     "volume": "250 ml",
+    "charges": 1,
     "phase": "liquid",
     "flags": [ "EATEN_COLD" ],
     "vitamins": [ [ "vitC", 4 ], [ "calcium", 25 ] ],
