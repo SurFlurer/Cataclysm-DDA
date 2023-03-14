@@ -1,4 +1,4 @@
-name: CNK Multi Release
+name: Auto tagging
 
 on:
 #  push:
