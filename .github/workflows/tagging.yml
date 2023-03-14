@@ -1,7 +1,7 @@
 name: Auto tagging
 
 on:
-#  push:
+  push:
   workflow_run:
     workflows: [Sync Fork]
     types:
@@ -11,7 +11,7 @@ on:
 #    - cron: '50 4 * * *' # 每3小时触发, 对于一些更新不那么频繁的项目可以设置为每天一次, 低碳一点
     
 concurrency: 
-  group: cnk-release
+  group: tagging
   cancel-in-progress: true
   
 env:
