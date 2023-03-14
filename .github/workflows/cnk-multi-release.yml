@@ -194,8 +194,8 @@ jobs:
         run: |
           curl -o '${{ github.workspace }}/UndeadPeopleTileset-master.zip' -L https://github.com/Theawesomeboophis/UndeadPeopleTileset/archive/refs/heads/master.zip
           unzip -q '${{ github.workspace }}/UndeadPeopleTileset-master.zip'
-          mv '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/data' '${{ github.workspace }}'
-          mv '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/gfx' '${{ github.workspace }}'
+          cp -r '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/data' '${{ github.workspace }}'
+          cp -r '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/gfx' '${{ github.workspace }}'
       - name: MyRespectedModdersWork
         run: |
           git clone --depth=1 https://github.com/SurFlurer/MyRespectedModdersWork '${{ github.workspace }}/MyRespectedModdersWork'
