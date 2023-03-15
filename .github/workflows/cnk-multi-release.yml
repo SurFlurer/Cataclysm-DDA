@@ -90,7 +90,7 @@ jobs:
             content: application/zip
             sound: 0
           - name: Linux Tiles x64
-            os: ubuntu-latest
+            os: ubuntu-20.04
             mxe: none
             android: none
             tiles: 1
