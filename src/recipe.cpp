@@ -183,15 +183,10 @@ void recipe::load( const JsonObject &jo, const std::string &src )
         never_learn = true;
     } else {
         if( !jo.read( "result", result_, true ) && !result_ ) {
-            if( result_eocs.empty() ) {
-                jo.throw_error( "Recipe missing result" );
-            } else {
-                mandatory( jo, false, "name", name_ );
-                ident_ = recipe_id( jo.get_string( "id" ) );
-            }
-        } else {
-            ident_ = recipe_id( result_.str() );
-        }
+            jo.throw_error( "Recipe missing result" );
+        } 
+        
+        ident_ = recipe_id( result_.str() );
     }
 
     if( type == "recipe" && jo.has_string( "id_suffix" ) ) {
