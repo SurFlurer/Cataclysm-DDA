@@ -1,7 +1,7 @@
 name: CNK Multi Release
 
 on:
-#  push:
+  push:
 #  workflow_run:
 #    workflows: [Sync Fork]
 #    types:
