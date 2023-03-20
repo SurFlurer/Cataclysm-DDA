@@ -1,7 +1,7 @@
 name: CNK test build
 
 on:
-#  push:
+  push:
 #  workflow_run:
 #    workflows: [Sync Fork]
 #    types:
