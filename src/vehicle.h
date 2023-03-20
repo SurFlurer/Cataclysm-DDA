@@ -249,13 +249,14 @@ struct vehicle_part {
         explicit operator bool() const;
 
         bool has_flag( const vp_flag flag ) const noexcept {
-            return static_cast<uint32_t>( flag ) & static_cast<uint32_t>( flags );
+            const uint32_t flag_as_uint32 = static_cast<uint32_t>( flag );
+            return ( flags & flag_as_uint32 ) == flag_as_uint32;
         }
         void set_flag( const vp_flag flag ) noexcept {
-            flags = static_cast<vp_flag>( static_cast<uint32_t>( flags ) | static_cast<uint32_t>( flag ) );
+            flags |= static_cast<uint32_t>( flag );
         }
         void remove_flag( const vp_flag flag ) noexcept {
-            flags = static_cast<vp_flag>( static_cast<uint32_t>( flags ) & ~static_cast<uint32_t>( flag ) );
+            flags &= ~static_cast<uint32_t>( flag );
         }
 
         /**
@@ -477,7 +478,6 @@ struct vehicle_part {
          */
         bool removed = false; // NOLINT(cata-serialize)
         bool enabled = true;
-        vp_flag flags = vp_flag::none;
 
         /** ID of player passenger */
         character_id passenger_id;
@@ -498,6 +498,7 @@ struct vehicle_part {
     private:
         /** What type of part is this? */
         vpart_id id;
+        uint32_t flags = 0;
     public:
         /** If it's a part with variants, which variant it is */
         std::string variant;
@@ -1489,6 +1490,11 @@ class vehicle
          * is the vehicle mostly in water or mostly on fairly dry land?
          */
         bool is_in_water( bool deep_water = false ) const;
+        /**
+         * should vehicle be handled using watercraft logic
+         * as determined by amount of water it is in (and whether it is amphibious)
+         * result being true does not guarantee it is viable boat -- check @ref can_float()
+         */
         bool is_watercraft() const;
         /**
          * is the vehicle flying? is it a rotorcraft?
@@ -2121,9 +2127,11 @@ class vehicle
         // and that's the bit that controls recalculation.  The intent is to only recalculate
         // the coeffs once per turn, even if multiple parts are destroyed in a collision
         mutable bool coeff_air_changed = true; // NOLINT(cata-serialize)
-        // is the vehicle currently mostly in deep water
-        mutable bool is_floating = false;
-        // is the vehicle currently mostly in water
+        // is at least 2/3 of the vehicle on deep water tiles
+        // -- this is the "sink or swim" threshold
+        mutable bool in_deep_water = false;
+        // is at least 1/2 of the vehicle on water tiles
+        // -- fordable for ground vehicles; non-amphibious boats float
         mutable bool in_water = false;
         // is the vehicle currently flying
         mutable bool is_flying = false;
