@@ -1,7 +1,7 @@
 name: CNK test build
 
 on:
-  push:
+#  push:
 #  workflow_run:
 #    workflows: [Sync Fork]
 #    types:
@@ -160,30 +160,6 @@ jobs:
         run: |
           HOMEBREW_NO_AUTO_UPDATE=yes HOMEBREW_NO_INSTALL_CLEANUP=yes brew install sdl2 sdl2_image sdl2_ttf sdl2_mixer gettext ccache parallel unzip
           pip3 install mac_alias==2.2.0 dmgbuild==1.4.2 biplist
-      - name: cnk
-        run: |
-          curl -o '${{ github.workspace }}/Kenan-Modpack-Mod.zip' -L https://github.com/linonetwo/CDDA-Kenan-Modpack-Chinese/releases/download/2023-03-11-1737/Kenan-Modpack-Mod.zip
-          unzip -q '${{ github.workspace }}/Kenan-Modpack-Mod.zip'
-          mv '${{ github.workspace }}/Kenan-Modpack-Chinese/' '${{ github.workspace }}/data/mods/'
-      - name: udp (Linux)
-        if: runner.os != 'Windows'
-        run: |
-          curl -o '${{ github.workspace }}/UndeadPeopleTileset-master.zip' -L https://github.com/Theawesomeboophis/UndeadPeopleTileset/archive/refs/heads/master.zip
-          unzip -q '${{ github.workspace }}/UndeadPeopleTileset-master.zip'
-          cp -r '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/data' '${{ github.workspace }}'
-          cp -r '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/gfx' '${{ github.workspace }}'
-      - name: udp (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          curl -o '${{ github.workspace }}/UndeadPeopleTileset-master.zip' -L https://github.com/Theawesomeboophis/UndeadPeopleTileset/archive/refs/heads/master.zip
-          unzip -q '${{ github.workspace }}/UndeadPeopleTileset-master.zip'
-          mv '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/data' '${{ github.workspace }}'
-          mv '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/gfx' '${{ github.workspace }}'
-      - name: MyRespectedModdersWork
-        run: |
-          git clone --depth=1 https://github.com/SurFlurer/MyRespectedModdersWork '${{ github.workspace }}/MyRespectedModdersWork'
-          mv '${{ github.workspace }}/MyRespectedModdersWork/LastManBatttalion（cdda mod仅支持实验版）' '${{ github.workspace }}/data/mods/'
-          mv '${{ github.workspace }}/MyRespectedModdersWork/配方回滚' '${{ github.workspace }}/data/mods/'
       - name: Create VERSION.TXT
         shell: bash
         run: |
