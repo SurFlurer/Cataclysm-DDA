@@ -1,7 +1,7 @@
-name: CNK Multi Release
+name: CNK test build
 
 on:
-#  push:
+  push:
 #  workflow_run:
 #    workflows: [Sync Fork]
 #    types:
@@ -11,7 +11,7 @@ on:
 #    - cron: '50 4 * * *' # 每3小时触发, 对于一些更新不那么频繁的项目可以设置为每天一次, 低碳一点
     
 concurrency: 
-  group: cnk-release
+  group: cnk-test
   cancel-in-progress: true
   
 env:
@@ -81,23 +81,6 @@ jobs:
           pip3 install ruamel.yaml
           python3 -c "
           matrix = '''
-          - name: Windows Tiles x64 MSVC
-            artifact: windows-tiles-x64-msvc
-            arch: x64
-            os: windows-2019
-            mxe: none
-            ext: zip
-            content: application/zip
-            sound: 0
-          - name: Linux Tiles x64
-            os: ubuntu-20.04
-            mxe: none
-            android: none
-            tiles: 1
-            sound: 0
-            artifact: linux-tiles-x64
-            ext: tar.gz
-            content: application/gzip
           - name: Android x64
             os: ubuntu-latest
             mxe: none
@@ -105,14 +88,6 @@ jobs:
             artifact: android-x64
             ext: apk
             content: application/apk
-          - name: OSX Tiles x64
-            os: macos-10.15
-            mxe: none
-            tiles: 1
-            sound: 0
-            artifact: osx-tiles-x64
-            ext: dmg
-            content: application/x-apple-diskimage
           '''
           from ruamel.yaml import YAML; yaml = YAML()
           matrix = yaml.load(matrix)
