@@ -1684,7 +1684,7 @@ bool bionic::activate_spell( Character &caster ) const
         // the return value tells us if the spell fails. if it has no spell it can't fail
         return true;
     }
-    spell sp = id->spell_on_activate->get_spell();
+    spell sp = id->spell_on_activate->get_spell( caster );
     return caster.cast_spell( sp, true );
 }
 
@@ -2569,10 +2569,6 @@ bool game::do_regular_action( action_id &act, avatar &player_character,
 
         case ACTION_DIARY:
             diary::show_diary_ui( u.get_avatar_diary() );
-            break;
-
-        case ACTION_SCORES:
-            show_scores_ui( *achievements_tracker_ptr, stats(), get_kill_tracker() );
             break;
 
         case ACTION_FACTIONS:
