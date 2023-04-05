@@ -55,6 +55,7 @@
 #include "catacharset.h"
 #include "character.h"
 #include "character_martial_arts.h"
+#include "city.h"
 #include "clzones.h"
 #include "colony.h"
 #include "color.h"
@@ -593,10 +594,10 @@ void game_ui::init_ui()
     get_options().get_option( "TERMINAL_Y" ).setValue( TERMY * get_scaling_factor() );
     get_options().save();
 #else
-    ensure_term_size();
-
     TERMY = getmaxy( catacurses::stdscr );
     TERMX = getmaxx( catacurses::stdscr );
+
+    ensure_term_size();
 
     // try to make FULL_SCREEN_HEIGHT symmetric according to TERMY
     if( TERMY % 2 ) {
@@ -961,12 +962,47 @@ bool game::start_game()
         }
     }
     if( scen->has_flag( "BORDERED" ) ) {
+        const point_abs_omt p_player = get_player_character().global_omt_location().xy();
+        point_abs_om om;
+        point_om_omt omt;
+        std::tie( om, omt ) = project_remain<coords::om>( p_player );
+
+        // The Wall is supposed to be a 100x100 rectangle centered on player,
+        // but if player is spawned next to edges of the overmap we need to make it smaller so it doesn't overlap the overmap's borders
+        int left_x = omt.x() < 50 ? 1 : omt.x() - 50;
+        int right_x = omt.x() > 129 ? 179 : omt.x() + 50;
+        int up_y = omt.y() < 50 ? 1 : omt.y() - 50;
+        int down_y = omt.y() > 129 ? 179 : omt.y() + 50;
+
         overmap &starting_om = get_cur_om();
-        for( int z = -OVERMAP_DEPTH; z <= OVERMAP_HEIGHT; z++ ) {
-            starting_om.place_special_forced( overmap_special_world, { 0, 0, z },
-                                              om_direction::type::north );
+
+        for( int x = left_x; x <= right_x; x++ ) {
+            for( int z = -OVERMAP_DEPTH; z <= OVERMAP_HEIGHT; z++ ) {
+                starting_om.place_special_forced( overmap_special_world, { x, up_y, z },
+                                                  om_direction::type::north );
+            }
         }
 
+        for( int x = left_x; x <= right_x; x++ ) {
+            for( int z = -OVERMAP_DEPTH; z <= OVERMAP_HEIGHT; z++ ) {
+                starting_om.place_special_forced( overmap_special_world, { x, down_y, z },
+                                                  om_direction::type::north );
+            }
+        }
+
+        for( int y = up_y; y <= down_y; y++ ) {
+            for( int z = -OVERMAP_DEPTH; z <= OVERMAP_HEIGHT; z++ ) {
+                starting_om.place_special_forced( overmap_special_world, { left_x, y, z },
+                                                  om_direction::type::north );
+            }
+        }
+
+        for( int y = up_y; y <= down_y; y++ ) {
+            for( int z = -OVERMAP_DEPTH; z <= OVERMAP_HEIGHT; z++ ) {
+                starting_om.place_special_forced( overmap_special_world, { right_x, y, z },
+                                                  om_direction::type::north );
+            }
+        }
     }
     for( item *&e : u.inv_dump() ) {
         e->set_owner( get_player_character() );
@@ -2599,6 +2635,9 @@ bool game::try_get_right_click_action( action_id &act, const tripoint_bub_ms &mo
 
 bool game::is_game_over()
 {
+    if( uquit == QUIT_DIED || uquit == QUIT_WATCH ) {
+        events().send<event_type::avatar_dies>();
+    }
     if( uquit == QUIT_WATCH ) {
         // deny player movement and dodging
         u.moves = 0;
@@ -5807,16 +5846,14 @@ void game::examine( const tripoint &examp, bool with_pickup )
                     return;
                 }
             }
-        } else if( u.is_mounted() ) {
-            add_msg( m_warning, _( "You cannot do that while mounted." ) );
+        } else {
+            u.cant_do_mounted();
         }
         npc *np = dynamic_cast<npc *>( c );
-        if( np != nullptr && !u.is_mounted() ) {
+        if( np != nullptr && !u.cant_do_mounted() ) {
             if( npc_menu( *np ) ) {
                 return;
             }
-        } else if( np != nullptr && u.is_mounted() ) {
-            add_msg( m_warning, _( "You cannot do that while mounted." ) );
         }
     }
 
@@ -5850,15 +5887,11 @@ void game::examine( const tripoint &examp, bool with_pickup )
     const tripoint player_pos = u.pos();
 
     if( m.has_furn( examp ) ) {
-        if( u.is_mounted() ) {
-            add_msg( m_warning, _( "You cannot do that while mounted." ) );
-        } else {
+        if( !u.cant_do_mounted() ) {
             xfurn_t.examine( u, examp );
         }
     } else {
-        if( u.is_mounted() && xter_t.can_examine( examp ) ) {
-            add_msg( m_warning, _( "You cannot do that while mounted." ) );
-        } else {
+        if( xter_t.can_examine( examp ) && !u.is_mounted() ) {
             xter_t.examine( u, examp );
         }
     }

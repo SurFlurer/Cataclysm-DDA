@@ -2834,7 +2834,7 @@ static void get_relative( const JsonObject &jo, const std::string &member, std::
                           T default_val )
 {
     if( jo.has_member( member ) ) {
-        value = value.value_or( static_cast<T>( default_val ) ) + jo.get_float( member );
+        value = static_cast<T>( value.value_or( default_val ) + jo.get_float( member ) );
     }
 }
 
@@ -2843,7 +2843,7 @@ static void get_proportional( const JsonObject &jo, const std::string &member,
                               std::optional<T> &value, T default_val )
 {
     if( jo.has_member( member ) ) {
-        value = value.value_or( static_cast<T>( default_val ) ) * jo.get_float( member );
+        value = static_cast<T>( value.value_or( default_val ) * jo.get_float( member ) );
     }
 }
 
@@ -3089,7 +3089,6 @@ void Item_factory::load( islot_comestible &slot, const JsonObject &jo, const std
     assign( jo, "fatigue_mod", slot.fatigue_mod, strict );
     assign( jo, "healthy", slot.healthy, strict );
     assign( jo, "parasites", slot.parasites, strict, 0 );
-    assign( jo, "radiation", slot.radiation, strict );
     assign( jo, "freezing_point", slot.freeze_point, strict );
     assign( jo, "spoils_in", slot.spoils, strict, 1_hours );
     assign( jo, "cooks_like", slot.cooks_like, strict );

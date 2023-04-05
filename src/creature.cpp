@@ -252,6 +252,18 @@ void Creature::process_turn()
     }
 }
 
+bool Creature::cant_do_underwater( bool msg ) const
+{
+    if( is_underwater() ) {
+        if( msg ) {
+            add_msg_player_or_npc( m_info, _( "You can't do that while underwater." ),
+                                   _( "<npcname> can't do that while underwater." ) );
+        }
+        return true;
+    }
+    return false;
+}
+
 bool Creature::is_underwater() const
 {
     return underwater;
@@ -1834,6 +1846,11 @@ void Creature::set_killer( Creature *const killer )
     if( killer != nullptr && !killer->is_fake() && this->killer == nullptr ) {
         this->killer = killer;
     }
+}
+
+void Creature::clear_killer()
+{
+    killer = nullptr;
 }
 
 int Creature::get_num_blocks() const

@@ -1456,38 +1456,16 @@ static aim_type get_default_aim_type()
 }
 
 using RatingVector = std::vector<std::tuple<double, char, std::string>>;
+
 static std::string get_colored_bar( const double val, const int width, const std::string &label,
                                     RatingVector::iterator begin, RatingVector::iterator end )
 {
-    std::string result;
-
-    result.reserve( width );
-    if( !label.empty() ) {
-        result += label;
-        result += ' ';
-    }
-    const int bar_width = width - utf8_width( result ) - 2; // - 2 for the brackets
-
-    result += '[';
-    if( bar_width > 0 ) {
-        int used_width = 0;
-        for( auto it( begin ); it != end; ++it ) {
-            const double factor = std::min( 1.0, std::max( 0.0, std::get<0>( *it ) * val ) );
-            const int seg_width = static_cast<int>( factor * bar_width ) - used_width;
-
-            if( seg_width <= 0 ) {
-                continue;
-            }
-            used_width += seg_width;
-            result += string_format( "<color_%s>", std::get<2>( *it ) );
-            result.insert( result.end(), seg_width, std::get<1>( *it ) );
-            result += "</color>";
-        }
-        result.insert( result.end(), bar_width - used_width, ' ' );
-    }
-    result += ']';
-
-    return result;
+    return get_labeled_bar<RatingVector::iterator>( val, width, label, begin, end,
+    []( RatingVector::iterator it, int seg_width ) -> std::string {
+        std::string result = string_format( "<color_%s>", std::get<2>( *it ) );
+        result.insert( result.end(), seg_width, std::get<1>( *it ) );
+        result += "</color>";
+        return result;} );
 }
 
 static double target_size_in_moa( int range, double size )
@@ -1597,6 +1575,15 @@ static std::vector<aim_type_prediction> calculate_ranged_chances(
         aim_types = you.get_aim_types( weapon );
     }
 
+    // predict how long it'll take to reach from current recoil
+    // to the ui's selected default aim mode threshold.
+    const recoil_prediction aim_to_selected = predict_recoil( you, weapon, target,
+            ui.get_sight_dispersion(), ui.get_selected_aim_type(), you.recoil );
+
+    const int selected_steadiness = calc_steadiness( you, weapon, pos, aim_to_selected.recoil );
+
+    const int throw_moves = throw_cost( you, weapon );
+
     for( const aim_type &aim_type : aim_types ) {
         const std::vector<input_event> keys = ctxt.keys_bound_to( aim_type.action.empty() ? "FIRE" :
                                               aim_type.action, /*maximum_modifier_count=*/1 );
@@ -1607,20 +1594,11 @@ static std::vector<aim_type_prediction> calculate_ranged_chances(
         prediction.hotkey = ( keys.empty() ? input_event() : keys.front() ).short_description();
 
         if( mode == target_ui::TargetMode::Throw || mode == target_ui::TargetMode::ThrowBlind ) {
-            prediction.moves = throw_cost( you, weapon );
+            prediction.moves = throw_moves;
         } else {
             prediction.moves = you.gun_engagement_moves( weapon, aim_type.threshold, you.recoil, target )
                                + time_to_attack( you, *weapon.type );
         }
-        // predict how long it'll take to reach from current recoil
-        // to the current aim mode's threshold.
-        const recoil_prediction aim_to_type = predict_recoil( you, weapon, target,
-                                              ui.get_sight_dispersion(), aim_type, you.recoil );
-
-        // predict how long it'll take to reach from current recoil
-        // to the ui's selected default aim mode threshold.
-        const recoil_prediction aim_to_selected = predict_recoil( you, weapon, target,
-                ui.get_sight_dispersion(), ui.get_selected_aim_type(), you.recoil );
 
         // if the default method is "behind" the selected; e.g. you are in immediate
         // firing mode with almost close no chances of hitting, but UI has selected
@@ -1631,8 +1609,12 @@ static std::vector<aim_type_prediction> calculate_ranged_chances(
         // no-op.
         if( prediction.is_default ) {
             prediction.moves += aim_to_selected.moves;
-            prediction.steadiness = calc_steadiness( you, weapon, pos, aim_to_selected.recoil );
+            prediction.steadiness = selected_steadiness;
         } else {
+            // predict how long it'll take to reach from current recoil
+            // to the current aim mode's threshold.
+            const recoil_prediction aim_to_type = ( aim_type == ui.get_selected_aim_type() ) ? aim_to_selected :
+                                                  predict_recoil( you, weapon, target, ui.get_sight_dispersion(), aim_type, you.recoil );
             prediction.steadiness = calc_steadiness( you, weapon, pos, aim_to_type.recoil );
         }
 
@@ -1659,6 +1641,40 @@ static std::vector<aim_type_prediction> calculate_ranged_chances(
     return aim_outputs;
 }
 
+static void print_confidence_ratings( const catacurses::window &w,
+                                      const std::vector<confidence_rating> &ratings, int &line_number, int width, int &column_number,
+                                      nc_color col )
+{
+    for( const confidence_rating &cr : ratings ) {
+        std::string label = pgettext( "aim_confidence", cr.label.c_str() );
+        std::string symbols = string_format( "<color_%s>%s</color> = %s", cr.color, cr.symbol, label );
+        int line_len = utf8_width( label ) + 5; // 5 for '# = ' and whitespace at end
+        if( ( width - column_number ) < line_len ) {
+            column_number = 1;
+            line_number++;
+        }
+        print_colored_text( w, point( column_number, line_number ), col, col, symbols );
+        column_number += line_len;
+    }
+    line_number++;
+}
+
+static void print_confidence_rating_bar( const catacurses::window &w,
+        aim_type_prediction prediction, int &line_number, int width, nc_color col )
+{
+    RatingVector confidence_ratings;
+    std::transform( prediction.ratings.begin(), prediction.ratings.end(),
+                    std::back_inserter( confidence_ratings ),
+    [&]( const confidence_rating & config ) {
+        return std::make_tuple( config.aim_level, config.symbol, config.color );
+    } );
+
+    const std::string &confidence_bar = get_colored_bar( prediction.confidence, width, "",
+                                        confidence_ratings.begin(), confidence_ratings.end() );
+
+    print_colored_text( w, point( 1, line_number++ ), col, col, confidence_bar );
+}
+
 static int print_ranged_chance( const catacurses::window &w, int line_number,
                                 const std::vector<aim_type_prediction> &aim_chances )
 {
@@ -1678,7 +1694,8 @@ static int print_ranged_chance( const catacurses::window &w, int line_number,
     nc_color col = c_light_gray;
 
     // Start printing by panel type, inside each branch whether to output numbers or "bars"
-    if( panel_type == "legacy_labels_narrow_sidebar" ) {
+    if( panel_type == "legacy_labels_narrow_sidebar" || panel_type == "legacy_compact_sidebar" ) {
+        bool narrow = panel_type == "legacy_labels_narrow_sidebar";
         // TODO: who uses this? this is broken likely since work started
         // on sidebar widgets and yet nobody complains...
         std::vector<std::string> t_aims( 4 );
@@ -1686,103 +1703,9 @@ static int print_ranged_chance( const catacurses::window &w, int line_number,
         int aim_iter = 0;
         int conf_iter = 0;
         if( !display_numbers ) {
-            width -= bars_pad;
             int column_number = 1;
-            for( const confidence_rating &cr : aim_chances.front().ratings ) {
-                std::string label = pgettext( "aim_confidence", cr.label.c_str() );
-                std::string symbols = string_format( "<color_%s>%s</color> = %s", cr.color, cr.symbol, label );
-                int line_len = utf8_width( label ) + 5; // 5 for '# = ' and whitespace at end
-                if( ( width + bars_pad - column_number ) < line_len ) {
-                    column_number = 1;
-                    line_number++;
-                }
-                print_colored_text( w, point( column_number, line_number ), col, col, symbols );
-                column_number += line_len;
-            }
-            line_number++;
-        } else {
-            std::string symbols = _( " <color_green>Great</color> <color_light_gray>Normal</color>"
-                                     " <color_magenta>Graze</color> <color_dark_gray>Miss</color> <color_light_blue>Moves</color>" );
-            fold_and_print( w, point( 1, line_number++ ), width + bars_pad,
-                            c_dark_gray, symbols );
-            int len = utf8_width( symbols ) - 121; // to subtract color codes
-            if( len > width + bars_pad ) {
-                line_number++;
-            }
-            for( int i = 0; i < width; i++ ) {
-                mvwprintw( w, point( i + 1, line_number ), "-" );
-            }
-        }
-        for( const aim_type_prediction &out : sorted ) {
-            if( display_numbers ) {
-                t_aims[aim_iter] = string_format( "<color_dark_gray>%s:</color>", out.name );
-                t_confidence[( aim_iter * 5 ) + 4] = string_format( "<color_light_blue>%d</color>", out.moves );
-            } else {
-                print_colored_text( w, point( 1, line_number ), col, col, string_format( _( "%s %s:" ), out.name,
-                                    _( "Aim" ) ) );
-                right_print( w, line_number++, 1, c_light_blue, _( "Moves" ) );
-                right_print( w, line_number, 1, c_light_blue, string_format( "%d", out.moves ) );
-            }
-
-            if( display_numbers ) {
-                int last_chance = 0;
-                conf_iter = 0;
-                for( const confidence_rating &cr : aim_chances.front().ratings ) {
-                    int chance = std::min<int>( 100, 100.0 * ( cr.aim_level ) * out.confidence ) - last_chance;
-                    last_chance += chance;
-                    t_confidence[conf_iter + ( aim_iter * 5 )] = string_format( "<color_%s>%3d%%</color>", cr.color,
-                            chance );
-                    conf_iter++;
-                    if( conf_iter == 3 ) {
-                        t_confidence[conf_iter + ( aim_iter * 5 )] = string_format( "<color_%s>%3d%%</color>", "dark_gray",
-                                100 - last_chance );
-                    }
-                }
-                aim_iter++;
-            } else {
-                std::vector<std::tuple<double, char, std::string>> confidence_ratings;
-                std::transform( out.ratings.begin(), out.ratings.end(), std::back_inserter( confidence_ratings ),
-                [&]( const confidence_rating & config ) {
-                    return std::make_tuple( config.aim_level, config.symbol, config.color );
-                } );
-
-                print_colored_text( w, point( 1, line_number++ ), col, col, get_colored_bar( out.confidence, width,
-                                    "", confidence_ratings.begin(), confidence_ratings.end() ) );
-            }
-        }
-
-        // Draw tables for compact Numbers display
-        if( display_numbers ) {
-            const std::string divider = "|";
-            int left_pad = 8;
-            int columns = 5;
-            insert_table( w, left_pad, ++line_number, columns, c_light_gray, divider, true, t_confidence );
-            insert_table( w, 0, line_number, 1, c_light_gray, "", false, t_aims );
-            line_number = line_number + 4; // 4 to account for the tables
-        }
-        return line_number;
-    } else if( panel_type == "legacy_compact_sidebar" ) {
-        // TODO: who uses this? this is broken likely since work started
-        // on sidebar widgets and yet nobody complains...
-        std::vector<std::string> t_aims( 4 );
-        std::vector<std::string> t_confidence( 20 );
-        int aim_iter = 0;
-        int conf_iter = 0;
-        if( !display_numbers ) {
+            print_confidence_ratings( w, aim_chances.front().ratings, line_number, width, column_number, col );
             width -= bars_pad;
-            int column_number = 1;
-            for( const confidence_rating &cr : aim_chances.front().ratings ) {
-                std::string label = pgettext( "aim_confidence", cr.label.c_str() );
-                std::string symbols = string_format( "<color_%s>%s</color> = %s", cr.color, cr.symbol, label );
-                int line_len = utf8_width( label ) + 5; // 5 for '# = ' and whitespace at end
-                if( ( width + bars_pad - column_number ) < line_len ) {
-                    column_number = 1;
-                    line_number++;
-                }
-                print_colored_text( w, point( column_number, line_number ), col, col, symbols );
-                column_number += line_len;
-            }
-            line_number++;
         } else {
             std::string symbols = _( " <color_green>Great</color> <color_light_gray>Normal</color>"
                                      " <color_magenta>Graze</color> <color_dark_gray>Miss</color> <color_light_blue>Moves</color>" );
@@ -1795,7 +1718,6 @@ static int print_ranged_chance( const catacurses::window &w, int line_number,
                 mvwprintw( w, point( i + 1, line_number ), "-" );
             }
         }
-
         for( const aim_type_prediction &out : sorted ) {
             if( display_numbers ) {
                 t_aims[aim_iter] = string_format( "<color_dark_gray>%s:</color>", out.name );
@@ -1810,7 +1732,7 @@ static int print_ranged_chance( const catacurses::window &w, int line_number,
             if( display_numbers ) {
                 int last_chance = 0;
                 conf_iter = 0;
-                for( const confidence_rating &cr : out.ratings ) {
+                for( const confidence_rating &cr : narrow ? aim_chances.front().ratings : out.ratings ) {
                     int chance = std::min<int>( 100, 100.0 * ( cr.aim_level ) * out.confidence ) - last_chance;
                     last_chance += chance;
                     t_confidence[conf_iter + ( aim_iter * 5 )] = string_format( "<color_%s>%3d%%</color>", cr.color,
@@ -1823,14 +1745,7 @@ static int print_ranged_chance( const catacurses::window &w, int line_number,
                 }
                 aim_iter++;
             } else {
-                std::vector<std::tuple<double, char, std::string>> confidence_ratings;
-                std::transform( out.ratings.begin(), out.ratings.end(), std::back_inserter( confidence_ratings ),
-                [&]( const confidence_rating & config ) {
-                    return std::make_tuple( config.aim_level, config.symbol, config.color );
-                } );
-
-                print_colored_text( w, point( 1, line_number++ ), col, col, get_colored_bar( out.confidence, width,
-                                    "", confidence_ratings.begin(), confidence_ratings.end() ) );
+                print_confidence_rating_bar( w, out, line_number, width, col );
             }
         }
 
@@ -1862,19 +1777,7 @@ static int print_ranged_chance( const catacurses::window &w, int line_number,
             column_number += utf8_width( label ) + 1; // 1 for whitespace after 'Symbols:'
         }
 
-        for( const confidence_rating &cr : sorted.front().ratings ) {
-            std::string label = pgettext( "aim_confidence", cr.label.c_str() );
-            std::string symbols = string_format( "<color_%s>%s</color> = %s", cr.color, cr.symbol,
-                                                 label );
-            int line_len = utf8_width( label ) + 5; // 5 for '# = ' and whitespace at end
-            if( ( width + bars_pad - column_number ) < line_len ) {
-                column_number = 1;
-                line_number++;
-            }
-            print_colored_text( w, point( column_number, line_number ), col, col, symbols );
-            column_number += line_len;
-        }
-        line_number++;
+        print_confidence_ratings( w, sorted.front().ratings, line_number, width, column_number, col );
 
         for( const aim_type_prediction &out : sorted ) {
             std::string col_hl = out.is_default ? "light_green" : "light_gray";
@@ -1893,17 +1796,7 @@ static int print_ranged_chance( const catacurses::window &w, int line_number,
 
                 line_number += fold_and_print_from( w, point( 1, line_number ), width, 0, c_dark_gray, line );
             } else {
-                std::vector<std::tuple<double, char, std::string>> confidence_ratings;
-                std::transform( out.ratings.begin(), out.ratings.end(),
-                                std::back_inserter( confidence_ratings ),
-                [&]( const confidence_rating & config ) {
-                    return std::make_tuple( config.aim_level, config.symbol, config.color );
-                } );
-
-                const std::string &confidence_bar = get_colored_bar( out.confidence, width, "",
-                                                    confidence_ratings.begin(), confidence_ratings.end() );
-
-                print_colored_text( w, point( 1, line_number++ ), col, col, confidence_bar );
+                print_confidence_rating_bar( w, out, line_number, width, col );
             }
         }
 
