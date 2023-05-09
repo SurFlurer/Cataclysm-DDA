@@ -909,7 +909,7 @@ bool avatar_action::eat_here( avatar &you )
     return false;
 }
 
-void avatar_action::eat( avatar &you, const item_location &loc )
+void avatar_action::eat( avatar &you, item_location &loc )
 {
     std::string filter;
     if( !you.activity.str_values.empty() ) {
@@ -919,7 +919,7 @@ void avatar_action::eat( avatar &you, const item_location &loc )
                         you.activity.id() );
 }
 
-void avatar_action::eat( avatar &you, const item_location &loc,
+void avatar_action::eat( avatar &you, item_location &loc,
                          const std::vector<int> &consume_menu_selections,
                          const std::vector<item_location> &consume_menu_selected_items,
                          const std::string &consume_menu_filter,
@@ -930,6 +930,7 @@ void avatar_action::eat( avatar &you, const item_location &loc,
         add_msg( _( "Never mind." ) );
         return;
     }
+    loc.overflow();
     you.assign_activity( consume_activity_actor( loc, consume_menu_selections,
                          consume_menu_selected_items, consume_menu_filter, type ) );
     you.last_item = item( *loc ).typeId();
@@ -1090,6 +1091,8 @@ void avatar_action::use_item( avatar &you, item_location &loc, std::string const
             return;
         }
     }
+
+    loc.overflow();
 
     if( loc->is_comestible() && loc->is_frozen_liquid() ) {
         add_msg( _( "Try as you might, you can't consume frozen liquids." ) );
