@@ -69,6 +69,7 @@ jobs:
           - name: Android x64 Sound
             os: ubuntu-latest
             mxe: none
+            sound: 1
             android: arm64
             artifact: android-sound-x64
             ext: apk
