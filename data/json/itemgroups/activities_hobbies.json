@@ -207,8 +207,8 @@
       { "item": "book_archery", "prob": 12 },
       { "item": "protein_shake", "prob": 15 },
       { "item": "sm_extinguisher", "prob": 10, "charges": 10 },
-      { "item": "quikclot", "prob": 10, "charges": [ 1, 6 ] },
-      { "item": "bfipowder", "prob": 15, "charges": [ 1, 4 ] },
+      { "prob": 10, "group": "quikclot_bag_plastic_1_6" },
+      { "prob": 15, "group": "bfipowder_bottle_plastic_small_1_4" },
       { "item": "speargun", "prob": 10 },
       { "item": "minispeargun", "prob": 10 },
       { "item": "doublespeargun", "prob": 8 },
@@ -657,5 +657,21 @@
       "battleship",
       "clue"
     ]
+  },
+  {
+    "type": "item_group",
+    "id": "quikclot_bag_plastic_1_6",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "bag_plastic",
+    "entries": [ { "item": "quikclot", "container-item": "null", "count": [ 1, 6 ] } ]
+  },
+  {
+    "type": "item_group",
+    "id": "bfipowder_bottle_plastic_small_1_4",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "bottle_plastic_small",
+    "entries": [ { "item": "bfipowder", "container-item": "null", "count": [ 1, 4 ] } ]
   }
 ]

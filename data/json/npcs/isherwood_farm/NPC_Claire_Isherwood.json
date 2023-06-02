@@ -93,8 +93,8 @@
       { "item": "cattail_jelly", "prob": 95 },
       { "item": "thyme_oil", "prob": 80, "charges": 2, "container-item": "jar_glass_sealed" },
       { "item": "mugwort_oil", "prob": 80, "charges": 2, "container-item": "jar_glass_sealed" },
-      { "item": "poppy_pain", "prob": 80, "charges": 2, "container-item": "jar_glass_sealed" },
-      { "item": "poppy_sleep", "prob": 80, "charges": 2, "container-item": "jar_glass_sealed" },
+      { "prob": 80, "group": "poppy_pain_jar_glass_sealed_2" },
+      { "prob": 80, "group": "poppy_sleep_jar_glass_sealed_2" },
       { "item": "poppysyrup", "prob": 80, "charges": 10, "container-item": "jar_glass_sealed" },
       { "item": "bee_balm_tea", "prob": 80, "charges": 2, "container-item": "jar_glass_sealed" },
       { "item": "chamomile_tea", "prob": 80, "charges": 2, "container-item": "jar_glass_sealed" },
@@ -378,5 +378,21 @@
       "success_lie": "What?!  You're lying, I can tell!  Did you even bring back my cage?",
       "failure": "Oh no!  I guess they are too nimble for you…"
     }
+  },
+  {
+    "type": "item_group",
+    "id": "poppy_pain_jar_glass_sealed_2",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "jar_glass_sealed",
+    "entries": [ { "item": "poppy_pain", "count": 2 } ]
+  },
+  {
+    "type": "item_group",
+    "id": "poppy_sleep_jar_glass_sealed_2",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "jar_glass_sealed",
+    "entries": [ { "item": "poppy_sleep", "count": 2 } ]
   }
 ]

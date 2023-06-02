@@ -41,8 +41,8 @@
       { "item": "pet_carrier", "prob": 30 },
       { "item": "dogfood", "prob": 30, "container-item": "can_medium" },
       { "item": "catfood", "prob": 30, "container-item": "can_food" },
-      { "item": "dogfood_dry", "prob": 10, "charges": 18, "container-item": "bag_plastic" },
-      { "item": "catfood_dry", "prob": 10, "charges": 18, "container-item": "bag_plastic" },
+      { "prob": 10, "group": "dogfood_dry_bag_plastic_18" },
+      { "prob": 10, "group": "catfood_dry_bag_plastic_18" },
       { "item": "towel", "prob": 20 },
       { "item": "soap", "prob": 10 },
       { "item": "gloves_medical", "prob": 20 },
@@ -508,5 +508,21 @@
         }
       ]
     }
+  },
+  {
+    "type": "item_group",
+    "id": "dogfood_dry_bag_plastic_18",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "bag_plastic",
+    "entries": [ { "item": "dogfood_dry", "container-item": "null", "count": 18 } ]
+  },
+  {
+    "type": "item_group",
+    "id": "catfood_dry_bag_plastic_18",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "bag_plastic",
+    "entries": [ { "item": "catfood_dry", "container-item": "null", "count": 18 } ]
   }
 ]

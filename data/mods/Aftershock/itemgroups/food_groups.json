@@ -81,7 +81,7 @@
     "subtype": "distribution",
     "id": "afs_ruined_food",
     "entries": [
-      { "item": "afs_ruined_food", "prob": 10, "charges": 2, "container-item": "can_food" },
+      { "prob": 10, "group": "afs_ruined_food_can_food_2" },
       { "item": "afs_ruined_food", "prob": 10, "container-item": "afs_foil_bag" }
     ]
   },
@@ -105,5 +105,13 @@
       { "item": "afs_mealgrub_medium", "prob": 80, "count-min": 23, "count-max": 6 },
       { "item": "afs_mealgrub_medium", "prob": 33, "count-min": 2, "count-max": 6 }
     ]
+  },
+  {
+    "type": "item_group",
+    "id": "afs_ruined_food_can_food_2",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "can_food",
+    "entries": [ { "item": "afs_ruined_food", "count": 2 } ]
   }
 ]

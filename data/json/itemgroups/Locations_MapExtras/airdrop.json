@@ -43,7 +43,7 @@
     "type": "item_group",
     "subtype": "collection",
     "container-item": "box_small",
-    "entries": [ { "item": "pur_tablets", "container-item": "bottle_plastic_small", "charges": 15, "count": 8 } ]
+    "entries": [ { "count": 8, "group": "pur_tablets_bottle_plastic_small_15" } ]
   },
   {
     "id": "twoliter_water_batch",
@@ -130,5 +130,13 @@
       { "item": "plastic_chunk", "count": [ 10, 30 ] },
       { "item": "bottle_plastic_small", "count": [ 0, 4 ], "prob": 50 }
     ]
+  },
+  {
+    "type": "item_group",
+    "id": "pur_tablets_bottle_plastic_small_15",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "bottle_plastic_small",
+    "entries": [ { "item": "pur_tablets", "count": 15 } ]
   }
 ]

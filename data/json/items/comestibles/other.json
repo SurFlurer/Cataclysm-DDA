@@ -94,13 +94,12 @@
     "material": [ "honey" ],
     "quench": 4,
     "calories": 67,
-    "charges": 16,
     "fun": 2,
     "comestible_type": "FOOD",
     "flags": [ "NUTRIENT_OVERRIDE" ],
     "vitamins": [ [ "mutant_toxin", 6 ] ],
     "//": "It takes about 30 portions of honeydew to feed an adult (~2000 kkal). 2000 kkal is about 10 raw chunks of mutant meat, which is 250% toxins. Honeydew probably isn't as toxic as meat, so 30 portions of it would give you 180% of toxins.",
-    "volume": "250 ml"
+    "volume": "15 ml"
   },
   {
     "type": "COMESTIBLE",
@@ -120,8 +119,7 @@
     "price": 0,
     "price_postapoc": 0,
     "material": [ "fruit" ],
-    "volume": "250 ml",
-    "stack_size": 4,
+    "volume": "62 ml",
     "flags": [ "MYCUS_OK" ],
     "fun": 30
   },
@@ -143,8 +141,7 @@
     "price": 0,
     "price_postapoc": 0,
     "material": [ "fruit" ],
-    "volume": "100 ml",
-    "stack_size": 10,
+    "volume": "10 ml",
     "fun": 30
   },
   {
@@ -162,8 +159,7 @@
     "price": 0,
     "price_postapoc": 0,
     "material": [ "fruit" ],
-    "volume": "250 ml",
-    "stack_size": 4,
+    "volume": "62 ml",
     "flags": [ "MYCUS_OK" ],
     "vitamins": [ [ "vitC", 25 ], [ "calcium", 25 ], [ "iron", 25 ] ],
     "fun": 30
@@ -183,9 +179,8 @@
     "price": 150,
     "price_postapoc": 50,
     "material": [ "powder" ],
-    "volume": "250 ml",
+    "volume": "10 ml",
     "flags": [ "EDIBLE_FROZEN" ],
-    "charges": 25,
     "fun": -10
   },
   {
@@ -203,9 +198,8 @@
     "price": 150,
     "price_postapoc": 50,
     "material": [ "powder" ],
-    "volume": "250 ml",
+    "volume": "62 ml",
     "flags": [ "EDIBLE_FROZEN" ],
-    "charges": 4,
     "fun": -10
   },
   {
@@ -224,9 +218,8 @@
     "price": 150,
     "price_postapoc": 50,
     "material": [ "powder" ],
-    "volume": "250 ml",
+    "volume": "10 ml",
     "flags": [ "EDIBLE_FROZEN" ],
-    "charges": 25,
     "fun": -10
   },
   {
@@ -241,9 +234,8 @@
     "price": 25,
     "price_postapoc": 10,
     "material": [ "powder" ],
-    "volume": "250 ml",
+    "volume": "62 ml",
     "flags": [ "EDIBLE_FROZEN" ],
-    "charges": 4,
     "fun": -10
   },
   {
@@ -261,9 +253,8 @@
     "price": 150,
     "price_postapoc": 50,
     "material": "powder",
-    "volume": "250 ml",
+    "volume": "10 ml",
     "flags": [ "EDIBLE_FROZEN" ],
-    "charges": 25,
     "fun": -10
   },
   {
@@ -304,9 +295,8 @@
     "price": 0,
     "price_postapoc": 0,
     "material": [ "powder" ],
-    "volume": "250 ml",
+    "volume": "62 ml",
     "flags": [ "EDIBLE_FROZEN" ],
-    "charges": 4,
     "fun": -10
   },
   {
@@ -323,9 +313,8 @@
     "price": 25,
     "price_postapoc": 10,
     "material": [ "powder" ],
-    "volume": "250 ml",
+    "volume": "62 ml",
     "flags": [ "EDIBLE_FROZEN", "NUTRIENT_OVERRIDE" ],
-    "charges": 4,
     "fun": -10
   },
   {
@@ -374,8 +363,7 @@
     "price": 150,
     "price_postapoc": 150,
     "material": [ "bean" ],
-    "volume": "500 ml",
-    "charges": 2,
+    "volume": "250 ml",
     "flags": [ "EATEN_HOT" ],
     "vitamins": [ [ "calcium", 9 ], [ "iron", 24 ] ]
   },
@@ -395,10 +383,9 @@
     "price": 300,
     "price_postapoc": 150,
     "material": [ "bean" ],
-    "volume": "250 ml",
+    "volume": "41 ml",
     "cooks_like": "beans_cooked",
     "flags": [ "EDIBLE_FROZEN" ],
-    "charges": 6,
     "vitamins": [ [ "calcium", 56 ], [ "iron", 22 ] ],
     "fun": -6
   },
@@ -536,9 +523,8 @@
     "price": 20,
     "price_postapoc": 150,
     "material": [ "veggy" ],
-    "volume": "250 ml",
+    "volume": "125 ml",
     "flags": [ "EDIBLE_FROZEN" ],
-    "charges": 2,
     "vitamins": [ [ "calcium", 4 ], [ "iron", 47 ], [ "vitC", 7 ] ],
     "fun": -10
   },
@@ -557,9 +543,8 @@
     "price_postapoc": 50,
     "fun": 10,
     "material": [ "veggy", "blood" ],
-    "volume": "250 ml",
-    "flags": [ "EATEN_HOT" ],
-    "charges": 3
+    "volume": "83 ml",
+    "flags": [ "EATEN_HOT" ]
   },
   {
     "type": "COMESTIBLE",
@@ -575,10 +560,9 @@
     "price": 500,
     "price_postapoc": 1000,
     "material": [ "foodplace_foodstuff" ],
-    "volume": "500 ml",
+    "volume": "125 ml",
     "flags": [ "EDIBLE_FROZEN", "IRREPLACEABLE_CONSUMABLE" ],
     "addiction_potential": 1,
-    "charges": 4,
     "fun": 2
   },
   {
@@ -612,7 +596,7 @@
     "description": "Wet, cooked lentils.  Humble and nutrient-rich, but pretty bland.",
     "price": 0,
     "price_postapoc": 100,
-    "volume": "250 ml",
+    "volume": "125 ml",
     "flags": [ "EATEN_HOT", "FREEZERBURN" ]
   },
   {
@@ -632,10 +616,9 @@
     "price": 900,
     "price_postapoc": 500,
     "material": [ "powder" ],
-    "volume": "250 ml",
+    "volume": "12 ml",
     "flags": [ "EDIBLE_FROZEN", "RAW", "IRREPLACEABLE_CONSUMABLE", "NUTRIENT_OVERRIDE" ],
     "calories": 2,
-    "charges": 20,
     "fun": -5,
     "freezing_point": -274
   },
@@ -647,8 +630,7 @@
     "container": "bag_plastic",
     "description": "Coffee grounds created through washing, cleaning, and roasting the pods from a Kentucky coffeetree.  They can be used to create coffee.",
     "flags": [ "EDIBLE_FROZEN", "NUTRIENT_OVERRIDE" ],
-    "charges": 5,
-    "stack_size": 20
+    "volume": "12 ml"
   },
   {
     "id": "honey_glassed",
@@ -661,13 +643,12 @@
     "price_postapoc": 750,
     "material": [ "honey" ],
     "weight": "51 g",
-    "volume": "250 ml",
+    "volume": "50 ml",
     "comestible_type": "FOOD",
     "container": "jar_glass_sealed",
     "sealed": false,
     "quench": 1,
     "calories": 201,
-    "charges": 5,
     "fun": 2
   },
   {
@@ -687,8 +668,7 @@
     "price": 350,
     "price_postapoc": 100,
     "material": [ "tomato" ],
-    "volume": "250 ml",
-    "stack_size": 2,
+    "volume": "125 ml",
     "vitamins": [ [ "vitC", 26 ], [ "calcium", 9 ], [ "iron", 18 ] ],
     "flags": [ "RAW" ]
   },
@@ -1132,7 +1112,7 @@
     "comestible_type": "FOOD",
     "symbol": "6",
     "description": "A vegetable from the gourd family, bottle gourds were brought to the Americas by the first Native American settlers crossing the Bering strait.  This one has been dried for processing into a watertight container.",
-    "volume": "2500 ml",
+    "volume": "1250 ml",
     "flags": [ "INEDIBLE" ]
   }
 ]

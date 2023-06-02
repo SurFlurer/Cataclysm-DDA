@@ -9,20 +9,20 @@
       { "item": "jar_glass_sealed", "prob": 10 },
       { "item": "jar_3l_glass_sealed", "prob": 10 },
       { "item": "cheese_hard", "prob": 5 },
-      { "item": "veggy_pickled", "prob": 50, "charges": 2, "container-item": "jar_glass_sealed" },
-      { "item": "sauerkraut", "prob": 5, "charges": 2, "container-item": "jar_glass_sealed" },
-      { "item": "meat_pickled", "prob": 20, "charges": 2, "container-item": "jar_glass_sealed" },
-      { "item": "confit_meat", "prob": 20, "charges": 12, "container-item": "jar_3l_glass_sealed" },
-      { "item": "fish_pickled", "prob": 30, "charges": 2, "container-item": "jar_glass_sealed" },
-      { "item": "lobster_canned", "prob": 30, "charges": 2, "container-item": "jar_glass_sealed" },
-      { "item": "meat_canned", "prob": 20, "charges": 12, "container-item": "jar_3l_glass_sealed" },
-      { "item": "veggy_canned", "prob": 40, "charges": 12, "container-item": "jar_3l_glass_sealed" },
-      { "item": "apple_canned", "prob": 30, "charges": 12, "container-item": "jar_3l_glass_sealed" },
-      { "item": "can_tomato", "prob": 40, "charges": 12, "container-item": "jar_3l_glass_sealed" },
-      { "item": "meat_pickled", "prob": 10, "charges": 12, "container-item": "jar_3l_glass_sealed" },
-      { "item": "veggy_pickled", "prob": 20, "charges": 12, "container-item": "jar_3l_glass_sealed" },
+      { "prob": 50, "group": "veggy_pickled_jar_glass_sealed_2" },
+      { "prob": 5, "group": "sauerkraut_jar_glass_sealed_2" },
+      { "prob": 20, "group": "meat_pickled_jar_glass_sealed_2" },
+      { "prob": 20, "group": "confit_meat_jar_3l_glass_sealed_12" },
+      { "prob": 30, "group": "fish_pickled_jar_glass_sealed_2" },
+      { "prob": 30, "group": "lobster_canned_jar_glass_sealed_2" },
+      { "prob": 20, "group": "meat_canned_jar_3l_glass_sealed_12" },
+      { "prob": 40, "group": "veggy_canned_jar_3l_glass_sealed_12" },
+      { "prob": 30, "group": "apple_canned_jar_3l_glass_sealed_12" },
+      { "prob": 40, "group": "can_tomato_jar_3l_glass_sealed_12" },
+      { "prob": 10, "group": "meat_pickled_jar_3l_glass_sealed_12" },
+      { "prob": 20, "group": "veggy_pickled_jar_3l_glass_sealed_12" },
       { "item": "brandied_fruit", "prob": 10, "charges": 12, "container-item": "jar_3l_glass_sealed" },
-      { "item": "fish_pickled", "prob": 40, "charges": 12, "container-item": "jar_3l_glass_sealed" },
+      { "prob": 40, "group": "fish_pickled_jar_3l_glass_sealed_12" },
       { "item": "sauce_red", "prob": 60, "charges": 12, "container-item": "jar_3l_glass_sealed" },
       { "item": "kompot", "prob": 10, "charges": 12, "container-item": "jar_3l_glass_sealed" },
       { "item": "freeze_dried_meal", "prob": 10 }
@@ -35,8 +35,8 @@
     "magazine": 100,
     "subtype": "distribution",
     "entries": [
-      { "item": "flour", "charges": [ 1, 70 ], "prob": 40 },
-      { "item": "flour", "charges": [ 1, 175 ], "prob": 10, "container-item": "bag_plastic" },
+      { "prob": 40, "group": "flour_bag_paper_powder_1_70" },
+      { "prob": 10, "group": "flour_bag_plastic_1_175" },
       { "item": "yeast", "prob": 50 },
       { "item": "yogurt_starter_culture", "prob": 8 },
       { "item": "cornmeal", "prob": 40 },
@@ -66,8 +66,8 @@
       { "item": "birdfood", "prob": 10 },
       { "item": "dogfood", "prob": 30, "container-item": "can_medium" },
       { "item": "catfood", "prob": 30, "container-item": "can_food" },
-      { "item": "dogfood_dry", "prob": 10, "charges": 12, "container-item": "bag_plastic" },
-      { "item": "catfood_dry", "prob": 10, "charges": 12, "container-item": "bag_plastic" }
+      { "prob": 10, "group": "dogfood_dry_bag_plastic_12" },
+      { "prob": 10, "group": "catfood_dry_bag_plastic_12" }
     ]
   },
   {
@@ -162,7 +162,7 @@
       { "item": "can_cheese", "prob": 1 },
       { "item": "fish_canned", "prob": 1 },
       { "item": "lobster_canned", "prob": 1 },
-      { "item": "brown_bread", "charges": 14, "prob": 1 },
+      { "prob": 1, "group": "brown_bread_can_medium_14" },
       { "item": "can_spam", "prob": 1 },
       { "item": "can_sardine", "prob": 1 },
       { "item": "ravioli", "prob": 1 },
@@ -220,7 +220,7 @@
       { "item": "can_chowder", "prob": 35 },
       { "item": "can_herring", "prob": 30 },
       { "item": "can_chicken", "prob": 40 },
-      { "item": "brown_bread", "charges": 14, "prob": 20 },
+      { "prob": 20, "group": "brown_bread_can_medium_14" },
       { "item": "broth", "prob": 15 },
       { "item": "crackers", "prob": 10 },
       { "item": "oyster_crackers", "prob": 10 },
@@ -237,20 +237,14 @@
       { "item": "soup_dumplings", "prob": 15 },
       { "item": "curry_veggy", "prob": 15 },
       { "item": "curry_meat", "prob": 15 },
-      { "item": "flour", "charges": [ 1, 70 ], "prob": 25 },
-      { "item": "flour", "charges": [ 1, 175 ], "prob": 5, "container-item": "bag_plastic" },
+      { "prob": 25, "group": "flour_bag_paper_powder_1_70" },
+      { "prob": 5, "group": "flour_bag_plastic_1_175" },
       { "item": "milk_powder", "prob": 20 },
       { "item": "cornmeal", "prob": 30 },
       { "item": "tortilla_corn", "prob": 20 },
       { "item": "tortilla_flour", "prob": 20 },
       { "item": "powder_eggs", "prob": 20 },
-      {
-        "item": "protein_powder",
-        "prob": 12,
-        "container-item": "bottle_plastic_small",
-        "charges-min": 1,
-        "charges-max": 9
-      },
+      { "prob": 12, "group": "protein_powder_bottle_plastic_small_1_9" },
       { "item": "dry_meat", "prob": 10 },
       { "item": "dry_fish", "prob": 10, "container-item": "wrapper" },
       { "item": "dry_lobster", "prob": 10 },
@@ -274,27 +268,27 @@
       { "item": "vinegar", "prob": 15 },
       { "item": "cooking_oil", "prob": 30 },
       { "item": "cooking_oil2", "prob": 30 },
-      { "item": "veggy_pickled", "prob": 8, "charges": 2, "container-item": "jar_glass_sealed" },
-      { "item": "sauerkraut", "prob": 5, "charges": 2, "container-item": "jar_glass_sealed" },
+      { "prob": 8, "group": "veggy_pickled_jar_glass_sealed_2" },
+      { "prob": 5, "group": "sauerkraut_jar_glass_sealed_2" },
       { "item": "sports_drink", "prob": 10 },
       { "item": "protein_shake", "prob": 10 },
       { "item": "dogfood", "prob": 5, "container-item": "can_medium" },
       { "item": "catfood", "prob": 5, "container-item": "can_food" },
-      { "item": "fish_pickled", "prob": 8, "charges": 2, "container-item": "jar_glass_sealed" },
+      { "prob": 8, "group": "fish_pickled_jar_glass_sealed_2" },
       { "item": "lutefisk", "prob": 1 },
       { "item": "dry_beans", "prob": 40 },
       { "item": "dry_lentils", "prob": 40 },
       { "item": "dry_rice", "prob": 40 },
-      { "item": "meat_pickled", "prob": 6, "charges": 2, "container-item": "jar_glass_sealed" },
-      { "item": "meat_canned", "prob": 4, "charges": 12, "container-item": "jar_3l_glass_sealed" },
-      { "item": "veggy_canned", "prob": 4, "charges": 12, "container-item": "jar_3l_glass_sealed" },
-      { "item": "apple_canned", "prob": 4, "charges": 12, "container-item": "jar_3l_glass_sealed" },
-      { "item": "offal_canned", "prob": 1, "charges": 12, "container-item": "jar_3l_glass_sealed" },
-      { "item": "can_tomato", "prob": 4, "charges": 12, "container-item": "jar_3l_glass_sealed" },
-      { "item": "fish_pickled", "prob": 4, "charges": 12, "container-item": "jar_3l_glass_sealed" },
-      { "item": "meat_pickled", "prob": 4, "charges": 12, "container-item": "jar_3l_glass_sealed" },
-      { "item": "veggy_pickled", "prob": 4, "charges": 12, "container-item": "jar_3l_glass_sealed" },
-      { "item": "fish_pickled", "prob": 4, "charges": 12, "container-item": "jar_3l_glass_sealed" },
+      { "prob": 6, "group": "meat_pickled_jar_glass_sealed_2" },
+      { "prob": 4, "group": "meat_canned_jar_3l_glass_sealed_12" },
+      { "prob": 4, "group": "veggy_canned_jar_3l_glass_sealed_12" },
+      { "prob": 4, "group": "apple_canned_jar_3l_glass_sealed_12" },
+      { "prob": 1, "group": "offal_canned_jar_3l_glass_sealed_12" },
+      { "prob": 4, "group": "can_tomato_jar_3l_glass_sealed_12" },
+      { "prob": 4, "group": "fish_pickled_jar_3l_glass_sealed_12" },
+      { "prob": 4, "group": "meat_pickled_jar_3l_glass_sealed_12" },
+      { "prob": 4, "group": "veggy_pickled_jar_3l_glass_sealed_12" },
+      { "prob": 4, "group": "fish_pickled_jar_3l_glass_sealed_12" },
       { "item": "sauce_red", "prob": 4, "charges": 12, "container-item": "jar_3l_glass_sealed" },
       { "item": "kompot", "prob": 4, "charges": 12, "container-item": "jar_3l_glass_sealed" },
       { "group": "big_canned_food", "prob": 4 },
@@ -307,12 +301,12 @@
     "id": "big_canned_food",
     "subtype": "distribution",
     "entries": [
-      { "item": "can_beans", "prob": 4, "charges": 12, "container-item": "can_food_big" },
-      { "item": "can_tomato", "prob": 4, "charges": 24, "container-item": "can_food_big" },
-      { "item": "can_pineapple", "prob": 3, "charges": 12, "container-item": "can_food_big" },
-      { "item": "can_corn", "prob": 3, "charges": 6, "container-item": "can_food_big" },
+      { "prob": 4, "group": "can_beans_can_food_big_12" },
+      { "prob": 4, "group": "can_tomato_can_food_big_24" },
+      { "prob": 3, "group": "can_pineapple_can_food_big_12" },
+      { "prob": 3, "group": "can_corn_can_food_big_6" },
       { "item": "sauce_red", "prob": 3, "charges": 96, "container-item": "can_food_big" },
-      { "item": "coffee_raw", "prob": 6, "charges": 240, "container-item": "can_food_big" }
+      { "prob": 6, "group": "coffee_raw_can_food_big_240" }
     ]
   },
   {
@@ -327,10 +321,10 @@
       { "item": "ravioli", "prob": 25 },
       { "item": "sauce_red", "prob": 20 },
       { "item": "sauce_pesto", "prob": 15 },
-      { "item": "bread", "charges": 14, "prob": 14 },
-      { "item": "bread_wheat_free", "charges": 14, "prob": 14 },
-      { "item": "cornbread", "charges": 6, "prob": 7 },
-      { "item": "flatbread", "charges": 6, "prob": 7 },
+      { "prob": 14, "group": "bread_bag_plastic_14" },
+      { "prob": 14, "group": "bread_wheat_free_bag_plastic_14" },
+      { "prob": 7, "group": "cornbread_bag_plastic_6" },
+      { "prob": 7, "group": "flatbread_bag_plastic_6" },
       { "item": "crackers", "prob": 20 },
       { "item": "oyster_crackers", "prob": 15 },
       { "item": "grahmcrackers", "prob": 20 },
@@ -817,13 +811,13 @@
       { "item": "irradiated_corn", "prob": 10 },
       { "item": "bacon", "prob": 20 },
       { "item": "potato_baked", "prob": 15 },
-      { "item": "bread", "charges": 14, "prob": 40 },
-      { "item": "bread_wheat_free", "charges": 14, "prob": 40 },
+      { "prob": 40, "group": "bread_bag_plastic_14" },
+      { "prob": 40, "group": "bread_wheat_free_bag_plastic_14" },
       { "group": "ketchup_sealed_rng", "prob": 70 },
       { "group": "mustard_sealed_rng", "prob": 75 },
       { "group": "barbecue_sauce_sealed_rng", "prob": 80 },
       { "group": "honey_mustard_sealed_rng", "prob": 40 },
-      { "item": "pickle", "prob": 20, "charges": 2, "container-item": "jar_glass_sealed" },
+      { "prob": 20, "group": "pickle_jar_glass_sealed_2" },
       { "item": "pickle", "prob": 20 },
       { "item": "cheeseburger", "prob": 20 },
       { "item": "deluxe_cheeseburger", "prob": 50 },
@@ -867,10 +861,10 @@
       { "item": "honey_mustard", "count": [ 0, 3 ], "charges": [ 10, 48 ] },
       { "item": "mayonnaise", "count": [ 0, 3 ], "charges": [ 10, 16 ] },
       { "item": "onion", "count": [ 0, 3 ] },
-      { "item": "chili_pepper", "count": [ 0, 3 ], "charges": [ 1, 3 ] },
-      { "item": "lettuce", "count": [ 0, 3 ], "charges": [ 5, 10 ] },
+      { "item": "chili_pepper", "count": [ 0, 9 ] },
+      { "item": "lettuce", "count": [ 0, 30 ] },
       { "item": "tomato", "count": [ 0, 3 ] },
-      { "item": "cheese", "count": [ 0, 3 ], "charges": [ 4, 8 ] }
+      { "count": [ 0, 3 ], "group": "cheese_bag_plastic_4_8" }
     ]
   },
   {
@@ -906,7 +900,7 @@
       { "item": "soysauce", "prob": 45 },
       { "item": "hot_sauce", "prob": 45 },
       { "item": "horseradish", "prob": 30 },
-      { "item": "pickle", "prob": 40, "charges": 2, "container-item": "jar_glass_sealed" },
+      { "prob": 40, "group": "pickle_jar_glass_sealed_2" },
       { "item": "salt", "prob": 20 },
       { "item": "pepper", "prob": 20 },
       { "item": "meat_smoked", "prob": 4 },
@@ -948,12 +942,12 @@
     "id": "teabag_box",
     "subtype": "distribution",
     "entries": [
-      { "item": "tea_bag", "prob": 20, "container-item": "box_tea", "charges-min": 1, "charges-max": 10 },
-      { "item": "tea_fruit_bag", "prob": 10, "container-item": "box_tea", "charges-min": 1, "charges-max": 10 },
-      { "item": "tea_green_bag", "prob": 10, "container-item": "box_tea", "charges-min": 1, "charges-max": 10 },
-      { "item": "tea_bag_chamomile", "prob": 10, "container-item": "box_tea", "charges-min": 1, "charges-max": 10 },
-      { "item": "herbal_tea_bag", "prob": 5, "container-item": "box_tea", "charges-min": 1, "charges-max": 10 },
-      { "item": "tea_bag_dandelion", "prob": 5, "container-item": "box_tea", "charges-min": 1, "charges-max": 10 }
+      { "prob": 20, "group": "tea_bag_box_tea_1_10" },
+      { "prob": 10, "group": "tea_fruit_bag_box_tea_1_10" },
+      { "prob": 10, "group": "tea_green_bag_box_tea_1_10" },
+      { "prob": 10, "group": "tea_bag_chamomile_box_tea_1_10" },
+      { "prob": 5, "group": "herbal_tea_bag_box_tea_1_10" },
+      { "prob": 5, "group": "tea_bag_dandelion_box_tea_1_10" }
     ]
   },
   {
@@ -967,20 +961,8 @@
     "id": "soup_packet",
     "subtype": "distribution",
     "entries": [
-      {
-        "item": "soup_instant_chicken_noodle_powder",
-        "prob": 50,
-        "container-item": "bag_paper_powder",
-        "charges-min": 1,
-        "charges-max": 1
-      },
-      {
-        "item": "soup_instant_vegetable_powder",
-        "prob": 50,
-        "container-item": "bag_paper_powder",
-        "charges-min": 1,
-        "charges-max": 1
-      }
+      { "prob": 50, "group": "soup_instant_chicken_noodle_powder_bag_paper_powder_1" },
+      { "prob": 50, "group": "soup_instant_vegetable_powder_bag_paper_powder_1" }
     ]
   },
   {
@@ -1019,5 +1001,157 @@
       { "item": "cheeseburger", "prob": 5 },
       { "item": "hamburger", "prob": 5 }
     ]
+  },
+  {
+    "type": "item_group",
+    "id": "confit_meat_jar_3l_glass_sealed_12",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "jar_3l_glass_sealed",
+    "entries": [ { "item": "confit_meat", "container-item": "null", "count": 12 } ]
+  },
+  {
+    "type": "item_group",
+    "id": "lobster_canned_jar_glass_sealed_2",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "jar_glass_sealed",
+    "entries": [ { "item": "lobster_canned", "container-item": "null", "count": 2 } ]
+  },
+  {
+    "type": "item_group",
+    "id": "brown_bread_can_medium_14",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "can_medium",
+    "entries": [ { "item": "brown_bread", "container-item": "null", "count": 14 } ]
+  },
+  {
+    "type": "item_group",
+    "id": "offal_canned_jar_3l_glass_sealed_12",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "jar_3l_glass_sealed",
+    "entries": [ { "item": "offal_canned", "container-item": "null", "count": 12 } ]
+  },
+  {
+    "type": "item_group",
+    "id": "can_beans_can_food_big_12",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "can_food_big",
+    "entries": [ { "item": "can_beans", "container-item": "null", "count": 12 } ]
+  },
+  {
+    "type": "item_group",
+    "id": "can_tomato_can_food_big_24",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "can_food_big",
+    "entries": [ { "item": "can_tomato", "container-item": "null", "count": 24 } ]
+  },
+  {
+    "type": "item_group",
+    "id": "can_pineapple_can_food_big_12",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "can_food_big",
+    "entries": [ { "item": "can_pineapple", "container-item": "null", "count": 12 } ]
+  },
+  {
+    "type": "item_group",
+    "id": "can_corn_can_food_big_6",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "can_food_big",
+    "entries": [ { "item": "can_corn", "container-item": "null", "count": 6 } ]
+  },
+  {
+    "type": "item_group",
+    "id": "coffee_raw_can_food_big_240",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "can_food_big",
+    "entries": [ { "item": "coffee_raw", "container-item": "null", "count": 240 } ]
+  },
+  {
+    "type": "item_group",
+    "id": "bread_wheat_free_bag_plastic_14",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "bag_plastic",
+    "entries": [ { "item": "bread_wheat_free", "container-item": "null", "count": 14 } ]
+  },
+  {
+    "type": "item_group",
+    "id": "cheese_bag_plastic_4_8",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "bag_plastic",
+    "entries": [ { "item": "cheese", "container-item": "null", "count": [ 4, 8 ] } ]
+  },
+  {
+    "type": "item_group",
+    "id": "tea_bag_box_tea_1_10",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "box_tea",
+    "entries": [ { "item": "tea_bag", "container-item": "null", "count-min": 1, "count-max": 10 } ]
+  },
+  {
+    "type": "item_group",
+    "id": "tea_fruit_bag_box_tea_1_10",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "box_tea",
+    "entries": [ { "item": "tea_fruit_bag", "container-item": "null", "count-min": 1, "count-max": 10 } ]
+  },
+  {
+    "type": "item_group",
+    "id": "tea_green_bag_box_tea_1_10",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "box_tea",
+    "entries": [ { "item": "tea_green_bag", "container-item": "null", "count-min": 1, "count-max": 10 } ]
+  },
+  {
+    "type": "item_group",
+    "id": "tea_bag_chamomile_box_tea_1_10",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "box_tea",
+    "entries": [ { "item": "tea_bag_chamomile", "container-item": "null", "count-min": 1, "count-max": 10 } ]
+  },
+  {
+    "type": "item_group",
+    "id": "herbal_tea_bag_box_tea_1_10",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "box_tea",
+    "entries": [ { "item": "herbal_tea_bag", "container-item": "null", "count-min": 1, "count-max": 10 } ]
+  },
+  {
+    "type": "item_group",
+    "id": "tea_bag_dandelion_box_tea_1_10",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "box_tea",
+    "entries": [ { "item": "tea_bag_dandelion", "container-item": "null", "count-min": 1, "count-max": 10 } ]
+  },
+  {
+    "type": "item_group",
+    "id": "soup_instant_chicken_noodle_powder_bag_paper_powder_1",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "bag_paper_powder",
+    "entries": [ { "item": "soup_instant_chicken_noodle_powder", "container-item": "null", "count-min": 1, "count-max": 1 } ]
+  },
+  {
+    "type": "item_group",
+    "id": "soup_instant_vegetable_powder_bag_paper_powder_1",
+    "subtype": "collection",
+    "//": "This group was created automatically and may contain errors.",
+    "container-item": "bag_paper_powder",
+    "entries": [ { "item": "soup_instant_vegetable_powder", "container-item": "null", "count-min": 1, "count-max": 1 } ]
   }
 ]
