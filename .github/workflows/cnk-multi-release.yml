@@ -151,7 +151,7 @@ jobs:
           pip3 install mac_alias==2.2.0 dmgbuild==1.4.2 biplist
       - name: cnk
         run: |
-          curl -o '${{ github.workspace }}/Kenan-Modpack-Mod.zip' -L https://github.com/linonetwo/CDDA-Kenan-Modpack-Chinese/releases/download/2023-05-29-0858/Kenan-Modpack-Mod.zip
+          curl -o '${{ github.workspace }}/Kenan-Modpack-Mod.zip' -L https://github.com/linonetwo/CDDA-Kenan-Modpack-Chinese/releases/download/2023-06-27-1018/Kenan-Modpack-Mod.zip
           unzip -q '${{ github.workspace }}/Kenan-Modpack-Mod.zip'
           mv '${{ github.workspace }}/Kenan-Modpack-Chinese/' '${{ github.workspace }}/data/mods/'
       - name: udp (Linux)
