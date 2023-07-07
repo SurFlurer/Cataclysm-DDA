@@ -105,6 +105,10 @@ static const bionic_id bio_radscrubber( "bio_radscrubber" );
 static const bionic_id bio_shock( "bio_shock" );
 static const bionic_id bio_soporific( "bio_soporific" );
 
+static const character_modifier_id character_modifier_aim_speed_dex_mod( "aim_speed_dex_mod" );
+static const character_modifier_id character_modifier_aim_speed_mod( "aim_speed_mod" );
+static const character_modifier_id character_modifier_aim_speed_skill_mod( "aim_speed_skill_mod" );
+
 static const efftype_id effect_asthma( "asthma" );
 static const efftype_id effect_bandaged( "bandaged" );
 static const efftype_id effect_bite( "bite" );
@@ -2212,11 +2216,13 @@ void npc::aim( const Target_attributes &target_attributes )
 {
     const item_location weapon = get_wielded_item();
     double aim_amount = weapon ? aim_per_move( *weapon, recoil ) : 0.0;
+    const aim_mods_cache &aim_cache = gen_aim_mods_cache( *weapon );
+    auto aim_cache_opt = std::make_optional( std::ref( aim_cache ) );
     while( aim_amount > 0 && recoil > 0 && moves > 0 ) {
         moves--;
         recoil -= aim_amount;
         recoil = std::max( 0.0, recoil );
-        aim_amount = aim_per_move( *weapon, recoil, target_attributes );
+        aim_amount = aim_per_move( *weapon, recoil, target_attributes, aim_cache_opt );
     }
 }
 
