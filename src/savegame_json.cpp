@@ -3873,7 +3873,7 @@ void Creature::store( JsonOut &jsout ) const
 
     jsout.member( "last_updated", last_updated );
 
-    jsout.member( "body", body );
+    jsout.member( "body", body.get_body() );
     jsout.member( "lifespan_end", lifespan_end );
     // fake is not stored, it's temporary anyway, only used to fire with a gun.
 }
@@ -3972,7 +3972,9 @@ void Creature::load( const JsonObject &jsin )
 
     jsin.read( "underwater", underwater );
 
-    jsin.read( "body", body );
+    std::map<bodypart_str_id, bodypart> body_parts_map;
+    jsin.read( "body", body_parts_map );
+    body.set_body( std::move( body_parts_map ) );
 
     fake = false; // see Creature::load
     jsin.read( "lifespan_end", lifespan_end );

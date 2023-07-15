@@ -2088,15 +2088,88 @@ void Creature::set_anatomy( const anatomy_id &anat )
 
 const std::map<bodypart_str_id, bodypart> &Creature::get_body() const
 {
-    return body;
+    return body.get_body();
 }
 
 void Creature::set_body()
 {
+    body.reset_to_anatomy( get_anatomy() );
+}
+
+const std::map<bodypart_str_id, bodypart> &Creature::Body::get_body() const
+{
+    return body;
+}
+
+void Creature::Body::set_body( const std::vector<bodypart_id> &bodyparts )
+{
     body.clear();
-    for( const bodypart_id &bp : get_anatomy()->get_bodyparts() ) {
+    for( const bodypart_id &bp : bodyparts ) {
         body.emplace( bp.id(), bodypart( bp.id() ) );
     }
+}
+
+void Creature::Body::set_body( std::map<bodypart_str_id, bodypart> bodyparts )
+{
+    body = std::move( bodyparts );
+}
+
+void Creature::Body::update_to_body_part_set( const body_part_set &body_set )
+{
+    // first come up with the bodyparts that need to be removed from body
+    for( auto bp_iter = body.begin(); bp_iter != body.end(); ) {
+        if( !body_set.test( bp_iter->first ) ) {
+            bp_iter = body.erase( bp_iter );
+        } else {
+            ++bp_iter;
+        }
+    }
+    // then add the parts in bodyset that are missing from body
+    for( const bodypart_str_id &bp : body_set ) {
+        if( body.find( bp ) == body.end() ) {
+            body[bp] = bodypart( bp );
+        }
+    }
+}
+
+void Creature::Body::reset_to_anatomy( anatomy_id anatomy )
+{
+    set_body( anatomy->get_bodyparts() );
+}
+
+size_t Creature::Body::size() const
+{
+    return body.size();
+}
+
+auto Creature::Body::find( const bodypart_str_id &id ) const -> decltype( body )::const_iterator
+{
+    return body.find( id );
+}
+
+auto Creature::Body::begin() const -> decltype( body )::const_iterator
+{
+    return body.begin();
+}
+
+auto Creature::Body::end() const -> decltype( body )::const_iterator
+{
+    return body.end();
+}
+
+auto Creature::Body::find( const bodypart_str_id &id ) -> decltype( body )::iterator
+{
+    return body.find( id );
+}
+
+auto Creature::Body::begin() -> decltype( body )::iterator
+{
+    return body.begin();
+}
+
+auto Creature::Body::end() -> decltype( body )::iterator
+{
+    return body.end();
 }
 
 void Creature::calc_all_parts_hp( float hp_mod, float hp_adjustment, int str_max, int dex_max,
@@ -2124,7 +2197,7 @@ void Creature::calc_all_parts_hp( float hp_mod, float hp_adjustment, int str_max
 
 bool Creature::has_part( const bodypart_id &id ) const
 {
-    return body.count( id.id() );
+    return body.find( id.id() ) != body.end();
 }
 
 bodypart *Creature::get_part( const bodypart_id &id )
@@ -2584,7 +2657,7 @@ std::vector<bodypart_id> Creature::get_all_body_parts( get_body_part_flags flags
         sort_body_parts( all_bps, this );
     }
 
-    return  all_bps;
+    return all_bps;
 }
 
 bodypart_id Creature::get_root_body_part() const

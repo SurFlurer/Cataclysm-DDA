@@ -748,7 +748,29 @@ class Creature : public viewer
         /**anatomy is the plan of the creature's body*/
         anatomy_id creature_anatomy = anatomy_id( "default_anatomy" );
         /**this is the actual body of the creature*/
-        std::map<bodypart_str_id, bodypart> body;
+        struct Body {
+            private:
+                std::map<bodypart_str_id, bodypart> body;
+            public:
+                const std::map<bodypart_str_id, bodypart> &get_body() const;
+
+                void set_body( const std::vector<bodypart_id> &bodyparts );
+                void set_body( std::map<bodypart_str_id, bodypart> bodyparts );
+
+                void reset_to_anatomy( anatomy_id anatomy );
+                void update_to_body_part_set( const body_part_set &bodyparts );
+
+                size_t size() const;
+
+                decltype( body )::iterator find( const bodypart_str_id &id );
+                decltype( body )::iterator begin();
+                decltype( body )::iterator end();
+
+                decltype( body )::const_iterator find( const bodypart_str_id &id ) const;
+                decltype( body )::const_iterator begin() const;
+                decltype( body )::const_iterator end() const;
+        };
+        Body body;
     public:
         anatomy_id get_anatomy() const;
         void set_anatomy( const anatomy_id &anat );

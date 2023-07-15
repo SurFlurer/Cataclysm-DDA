@@ -218,7 +218,7 @@ float Character::get_limb_score( const limb_score_id &score, const body_part_typ
     }
     // manipulator/swim scores are treated a little special for now
     if( score == limb_score_manip ) {
-        return manipulator_score( body, bp, override_encumb, override_wounds ) * effect_mul;
+        return manipulator_score( body.get_body(), bp, override_encumb, override_wounds ) * effect_mul;
     } else if( score == limb_score_swim ) {
         skill = round( get_skill_level( skill_swimming ) );
     }
