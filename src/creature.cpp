@@ -2137,6 +2137,16 @@ void Creature::Body::reset_to_anatomy( anatomy_id anatomy )
     set_body( anatomy->get_bodyparts() );
 }
 
+std::vector<bodypart_id> Character::Body::get_all_body_parts() const
+{
+    std::vector<bodypart_id> all_bps;
+    all_bps.reserve( body.size() );
+    for( const std::pair<const bodypart_str_id, bodypart> &elem : body ) {
+        all_bps.emplace_back( elem.first );
+    }
+    return  all_bps;
+}
+
 size_t Creature::Body::size() const
 {
     return body.size();
@@ -2643,15 +2653,14 @@ std::vector<bodypart_id> Creature::get_all_body_parts( get_body_part_flags flags
 {
     bool only_main( flags & get_body_part_flags::only_main );
     bool only_minor( flags & get_body_part_flags::only_minor );
-    std::vector<bodypart_id> all_bps;
-    all_bps.reserve( body.size() );
-    for( const std::pair<const bodypart_str_id, bodypart> &elem : body ) {
-        if( ( only_main && elem.first->main_part != elem.first ) || ( only_minor &&
-                elem.first->main_part == elem.first ) ) {
-            continue;
+    std::vector<bodypart_id> all_bps = body.get_all_body_parts();
+    all_bps.erase( std::remove_if( all_bps.begin(), all_bps.end(), [&]( const bodypart_id & bp ) {
+        if( ( only_main && bp->main_part.id() != bp ) || ( only_minor &&
+                bp->main_part.id() == bp ) ) {
+            return true;
         }
-        all_bps.emplace_back( elem.first );
-    }
+        return false;
+    } ), all_bps.end() );
 
     if( flags & get_body_part_flags::sorted ) {
         sort_body_parts( all_bps, this );

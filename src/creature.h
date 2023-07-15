@@ -760,6 +760,8 @@ class Creature : public viewer
                 void reset_to_anatomy( anatomy_id anatomy );
                 void update_to_body_part_set( const body_part_set &bodyparts );
 
+                std::vector<bodypart_id> get_all_body_parts() const;
+
                 size_t size() const;
 
                 decltype( body )::iterator find( const bodypart_str_id &id );
