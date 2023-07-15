@@ -5443,7 +5443,7 @@ void iexamine::autodoc( Character &you, const tripoint &examp )
 
             int broken_limbs_count = 0;
             for( const bodypart_id &part :
-                 patient.get_all_body_parts( get_body_part_flags::only_main ) ) {
+                 patient.get_main_body_parts() ) {
                 const bool broken = patient.is_limb_broken( part );
                 effect &existing_effect = patient.get_effect( effect_mending, part );
                 // Skip part if not broken or already healed 50%
@@ -5527,7 +5527,7 @@ void iexamine::autodoc( Character &you, const tripoint &examp )
             }
 
             for( const bodypart_id &bp_healed :
-                 patient.get_all_body_parts( get_body_part_flags::only_main ) ) {
+                 patient.get_main_body_parts() ) {
                 if( patient.has_effect( effect_bleed, bp_healed.id() ) ) {
                     patient.remove_effect( effect_bleed, bp_healed );
                     patient.add_msg_player_or_npc( m_good,

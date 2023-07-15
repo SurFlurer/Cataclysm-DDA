@@ -1083,7 +1083,7 @@ bodypart_id Character::body_window( const std::string &menu_header,
     };
 
     std::vector<healable_bp> parts;
-    for( const bodypart_id &part : this->get_all_body_parts( get_body_part_flags::only_main ) ) {
+    for( const bodypart_id &part : this->get_main_body_parts() ) {
         // TODO: figure out how to do head and torso bonus?
         parts.push_back( { false, part, part->name.translated(), normal_bonus } );
     }

@@ -214,8 +214,7 @@ enum class FacingDirection : int {
 enum class get_body_part_flags : int {
     none = 0,
     only_main = 1 << 0,
-    sorted = 1 << 1,
-    primary_type = 1 << 2,
+    primary_type = 1 << 1,
     only_minor = 1 << 3
 };
 
@@ -782,11 +781,12 @@ class Creature : public viewer
          * Returns body parts this creature have.
          * @param only_main If true, only displays parts that can have hit points
          */
-        std::vector<bodypart_id> get_all_body_parts(
-            get_body_part_flags = get_body_part_flags::none ) const;
-        std::vector<bodypart_id> get_all_body_parts_of_type(
-            body_part_type::type part_type,
-            get_body_part_flags flags = get_body_part_flags::none ) const;
+        const std::vector<bodypart_id> &get_all_body_parts() const;
+        std::vector<bodypart_id> get_sorted_body_parts() const;
+        std::vector<bodypart_id> get_main_body_parts() const;
+        std::vector<bodypart_id> get_minor_body_parts() const;
+        std::vector<bodypart_id> get_all_body_parts_of_type( body_part_type::type part_type ) const;
+        std::vector<bodypart_id> get_primary_body_parts_of_type( body_part_type::type part_type ) const;
         bodypart_id get_random_body_part_of_type( body_part_type::type part_type ) const;
         bodypart_id get_root_body_part() const;
         /* Returns all body parts with the given flag */

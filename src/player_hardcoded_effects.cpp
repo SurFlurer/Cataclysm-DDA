@@ -156,7 +156,7 @@ static void eff_fun_antifungal( Character &u, effect & )
         }
         u.mod_pain( 1 );
         // not using u.get_random_body_part() as it is weighted & not fully random
-        std::vector<bodypart_id> bparts = u.get_all_body_parts( get_body_part_flags::only_main );
+        std::vector<bodypart_id> bparts = u.get_main_body_parts();
         bodypart_id random_bpart = bparts[ rng( 0, bparts.size() - 1 ) ];
         u.apply_damage( nullptr, random_bpart, 1 );
     }

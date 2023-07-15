@@ -3513,7 +3513,7 @@ bodypart_id heal_actor::use_healing_item( Character &healer, Character &patient,
         // NPCs heal whatever has sustained the most damage that they can heal but don't
         // rebandage parts unless they are bleeding significantly
         int highest_damage = 0;
-        for( bodypart_id part_id : patient.get_all_body_parts( get_body_part_flags::only_main ) ) {
+        for( bodypart_id part_id : patient.get_main_body_parts() ) {
             int damage = 0;
             if( ( !patient.has_effect( effect_bandaged, part_id ) && bandages_power > 0 ) ||
                 ( !patient.has_effect( effect_disinfected, part_id ) && disinfectant_power > 0 ) ) {

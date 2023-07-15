@@ -225,7 +225,7 @@ float Character::get_limb_score( const limb_score_id &score, const body_part_typ
     float total = 0.0f;
     // Avoid call has_flag() in a loop to improve performance
     bool cache_flag_EFFECT_LIMB_SCORE_MOD_LOCAL = has_flag( flag_EFFECT_LIMB_SCORE_MOD_LOCAL );
-    for( const std::pair<const bodypart_str_id, bodypart> &id : body ) {
+    for( const std::pair<const bodypart_str_id, bodypart> &id : body.get_body() ) {
         float mod = 0.0f;
         if( bp == body_part_type::type::num_types ) {
             mod = id.second.get_limb_score( score, skill, override_encumb, override_wounds );

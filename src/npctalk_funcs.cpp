@@ -607,7 +607,7 @@ void talk_function::lesser_give_aid( npc &p )
 {
     Character &player_character = get_player_character();
     for( const bodypart_id &bp :
-         player_character.get_all_body_parts( get_body_part_flags::only_main ) ) {
+         player_character.get_main_body_parts() ) {
         player_character.heal( bp, rng( 5, 15 ) );
         if( player_character.has_effect( effect_bleed, bp.id() ) ) {
             player_character.remove_effect( effect_bleed, bp );
@@ -627,7 +627,7 @@ void talk_function::lesser_give_all_aid( npc &p )
     for( npc &guy : g->all_npcs() ) {
         if( guy.is_walking_with() && rl_dist( guy.pos(), player_character.pos() ) < PICKUP_RANGE ) {
             for( const bodypart_id &bp :
-                 guy.get_all_body_parts( get_body_part_flags::only_main ) ) {
+                 guy.get_main_body_parts() ) {
                 guy.heal( bp, rng( 5, 15 ) );
                 if( guy.has_effect( effect_bleed, bp.id() ) ) {
                     guy.remove_effect( effect_bleed, bp );
@@ -646,7 +646,7 @@ void talk_function::give_aid( npc &p )
 {
     Character &player_character = get_player_character();
     for( const bodypart_id &bp :
-         player_character.get_all_body_parts( get_body_part_flags::only_main ) ) {
+         player_character.get_main_body_parts() ) {
         player_character.heal( bp, 5 * rng( 2, 5 ) );
         if( player_character.has_effect( effect_bite, bp.id() ) ) {
             player_character.remove_effect( effect_bite, bp );
@@ -673,7 +673,7 @@ void talk_function::give_all_aid( npc &p )
     for( npc &guy : g->all_npcs() ) {
         if( guy.is_walking_with() && rl_dist( guy.pos(), player_character.pos() ) < PICKUP_RANGE ) {
             for( const bodypart_id &bp :
-                 guy.get_all_body_parts( get_body_part_flags::only_main ) ) {
+                 guy.get_main_body_parts() ) {
                 guy.heal( bp, 5 * rng( 2, 5 ) );
                 if( guy.has_effect( effect_bite, bp.id() ) ) {
                     guy.remove_effect( effect_bite, bp );

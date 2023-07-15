@@ -1774,7 +1774,7 @@ bool Character::is_dead_state() const
 {
     // we want to warn the player with a debug message if they are invincible. this should be unimportant once wounds exist and bleeding is how you die.
     bool has_vitals = false;
-    for( const bodypart_id &part : get_all_body_parts( get_body_part_flags::only_main ) ) {
+    for( const bodypart_id &part : get_main_body_parts() ) {
         if( part->is_vital ) {
             if( get_part_hp_cur( part ) <= 0 ) {
                 return true;
@@ -3760,8 +3760,7 @@ int Character::avg_encumb_of_limb_type( body_part_type::type part_type ) const
 {
     float limb_encumb = 0.0f;
     int num_limbs = 0;
-    for( const bodypart_id &part : get_all_body_parts_of_type( part_type,
-            get_body_part_flags::primary_type ) ) {
+    for( const bodypart_id &part : get_primary_body_parts_of_type( part_type ) ) {
         limb_encumb += encumb( part );
         num_limbs++;
     }
@@ -4518,7 +4517,7 @@ void Character::regen( int rate_multiplier )
     }
 
     // include healing effects
-    for( const bodypart_id &bp : get_all_body_parts( get_body_part_flags::only_main ) ) {
+    for( const bodypart_id &bp : get_main_body_parts() ) {
         float healing = healing_rate_medicine( rest, bp ) * to_turns<int>( 5_minutes );
         int healing_apply = roll_remainder( healing );
         mod_part_healed_total( bp, healing_apply );
@@ -4902,7 +4901,7 @@ void Character::calc_sleep_recovery_rate( needs_rates &rates ) const
 
     // -5% sleep recovery rate for every main part below cold
     float temp_mod = 0.0f;
-    for( const bodypart_id &bp : get_all_body_parts( get_body_part_flags::only_main ) ) {
+    for( const bodypart_id &bp : get_main_body_parts() ) {
         if( get_part_temp_cur( bp ) <= BODYTEMP_COLD ) {
             temp_mod -= 0.05f;
         }
@@ -5864,7 +5863,7 @@ std::string Character::extended_description() const
 
     ss += "\n--\n";
 
-    const std::vector<bodypart_id> &bps = get_all_body_parts( get_body_part_flags::only_main );
+    const std::vector<bodypart_id> &bps = get_main_body_parts();
     // Find length of bp names, to align
     // accumulate looks weird here, any better function?
     int longest = std::accumulate( bps.begin(), bps.end(), 0,
@@ -7986,7 +7985,7 @@ void Character::hurtall( int dam, Creature *source, bool disturb /*= true*/ )
         return;
     }
 
-    for( const bodypart_id &bp : get_all_body_parts( get_body_part_flags::only_main ) ) {
+    for( const bodypart_id &bp : get_main_body_parts() ) {
         // Don't use apply_damage here or it will annoy the player with 6 queries
         const int dam_to_bodypart = std::min( dam, get_part_hp_cur( bp ) );
         mod_part_hp_cur( bp, - dam_to_bodypart );
@@ -8001,7 +8000,7 @@ void Character::hurtall( int dam, Creature *source, bool disturb /*= true*/ )
 int Character::hitall( int dam, int vary, Creature *source )
 {
     int damage_taken = 0;
-    for( const bodypart_id &bp : get_all_body_parts( get_body_part_flags::only_main ) ) {
+    for( const bodypart_id &bp : get_main_body_parts() ) {
         int ddam = vary ? dam * rng( 100 - vary, 100 ) / 100 : dam;
         // FIXME: Hardcoded damage type
         damage_instance damage( damage_bash, ddam );
@@ -11535,7 +11534,7 @@ int Character::impact( const int force, const tripoint &p )
 
     int total_dealt = 0;
     if( mod * effective_force >= 5 ) {
-        for( const bodypart_id &bp : get_all_body_parts( get_body_part_flags::only_main ) ) {
+        for( const bodypart_id &bp : get_main_body_parts() ) {
             const int bash = effective_force * rng( 60, 100 ) / 100;
             damage_instance di;
             // FIXME: Hardcoded damage types

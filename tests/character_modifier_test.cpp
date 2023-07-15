@@ -365,8 +365,8 @@ TEST_CASE( "Multi-limbscore_modifiers", "[character]" )
     WHEN( "Character has high eye encumbrance" ) {
         item eyecover( "test_goggles_welding" );
         dude.wear_item( eyecover );
-        REQUIRE( dude.encumb( dude.get_all_body_parts_of_type( body_part_type::type::sensor,
-                              get_body_part_flags::primary_type ).front() ) == 60 );
+        REQUIRE( dude.encumb( dude.get_primary_body_parts_of_type( body_part_type::type::sensor ).front() )
+                 == 60 );
         CHECK( dude.get_modifier( character_modifier_test_add_limbscores_mod ) == Approx( 2.0 ).epsilon(
                    0.001 ) );
         CHECK( dude.get_modifier( character_modifier_test_mult_limbscores_mod ) == Approx( 0.1 ).epsilon(
@@ -374,8 +374,7 @@ TEST_CASE( "Multi-limbscore_modifiers", "[character]" )
     }
 
     WHEN( "Character has broken arms" ) {
-        for( const bodypart_id &bid : dude.get_all_body_parts_of_type( body_part_type::type::arm,
-                get_body_part_flags::primary_type ) ) {
+        for( const bodypart_id &bid : dude.get_primary_body_parts_of_type( body_part_type::type::arm ) ) {
             dude.set_part_hp_cur( bid, 0 );
         }
         REQUIRE( dude.get_working_arm_count() == 0 );
@@ -388,13 +387,12 @@ TEST_CASE( "Multi-limbscore_modifiers", "[character]" )
     WHEN( "Character has high eye encumbrance and broken arms" ) {
         item eyecover( "test_goggles_welding" );
         dude.wear_item( eyecover );
-        for( const bodypart_id &bid : dude.get_all_body_parts_of_type( body_part_type::type::arm,
-                get_body_part_flags::primary_type ) ) {
+        for( const bodypart_id &bid : dude.get_primary_body_parts_of_type( body_part_type::type::arm ) ) {
             dude.set_part_hp_cur( bid, 0 );
         }
         REQUIRE( dude.get_working_arm_count() == 0 );
-        REQUIRE( dude.encumb( dude.get_all_body_parts_of_type( body_part_type::type::sensor,
-                              get_body_part_flags::primary_type ).front() ) == 60 );
+        REQUIRE( dude.encumb( dude.get_primary_body_parts_of_type( body_part_type::type::sensor ).front() )
+                 == 60 );
         CHECK( dude.get_modifier( character_modifier_test_add_limbscores_mod ) == Approx( 0.4 ).epsilon(
                    0.001 ) );
         CHECK( dude.get_modifier( character_modifier_test_mult_limbscores_mod ) == Approx( 0.1 ).epsilon(
@@ -413,8 +411,7 @@ TEST_CASE( "Slip_prevention_modifier_/_weighted-list_multi-score_modifiers", "[c
     }
 
     WHEN( "Character has broken arms" ) {
-        for( const bodypart_id &bid : dude.get_all_body_parts_of_type( body_part_type::type::arm,
-                get_body_part_flags::primary_type ) ) {
+        for( const bodypart_id &bid : dude.get_primary_body_parts_of_type( body_part_type::type::arm ) ) {
             dude.set_part_hp_cur( bid, 0 );
         }
         REQUIRE( dude.get_working_arm_count() == 0 );
@@ -425,10 +422,10 @@ TEST_CASE( "Slip_prevention_modifier_/_weighted-list_multi-score_modifiers", "[c
     WHEN( "Character is heavily encumbered" ) {
         item hazmat_suit( "test_hazmat_suit" );
         dude.wear_item( hazmat_suit );
-        REQUIRE( dude.encumb( dude.get_all_body_parts_of_type( body_part_type::type::foot,
-                              get_body_part_flags::primary_type ).front() ) == 37 );
-        REQUIRE( dude.encumb( dude.get_all_body_parts_of_type( body_part_type::type::hand,
-                              get_body_part_flags::primary_type ).front() ) == 37 );
+        REQUIRE( dude.encumb( dude.get_primary_body_parts_of_type( body_part_type::type::foot ).front() ) ==
+                 37 );
+        REQUIRE( dude.encumb( dude.get_primary_body_parts_of_type( body_part_type::type::hand ).front() ) ==
+                 37 );
         CHECK( dude.get_modifier( character_modifier_test_slip_prevent_mod ) == Approx( 0.623 ).epsilon(
                    0.001 ) );
     }
@@ -436,14 +433,13 @@ TEST_CASE( "Slip_prevention_modifier_/_weighted-list_multi-score_modifiers", "[c
     WHEN( "Character has broken arms and is heavily encumbered" ) {
         item hazmat_suit( "test_hazmat_suit" );
         dude.wear_item( hazmat_suit );
-        for( const bodypart_id &bid : dude.get_all_body_parts_of_type( body_part_type::type::arm,
-                get_body_part_flags::primary_type ) ) {
+        for( const bodypart_id &bid : dude.get_primary_body_parts_of_type( body_part_type::type::arm ) ) {
             dude.set_part_hp_cur( bid, 0 );
         }
-        REQUIRE( dude.encumb( dude.get_all_body_parts_of_type( body_part_type::type::foot,
-                              get_body_part_flags::primary_type ).front() ) == 37 );
-        REQUIRE( dude.encumb( dude.get_all_body_parts_of_type( body_part_type::type::hand,
-                              get_body_part_flags::primary_type ).front() ) == 37 );
+        REQUIRE( dude.encumb( dude.get_primary_body_parts_of_type( body_part_type::type::foot ).front() ) ==
+                 37 );
+        REQUIRE( dude.encumb( dude.get_primary_body_parts_of_type( body_part_type::type::hand ).front() ) ==
+                 37 );
         REQUIRE( dude.get_working_arm_count() == 0 );
         CHECK( dude.get_modifier( character_modifier_test_slip_prevent_mod ) == Approx( 0.41 ).epsilon(
                    0.001 ) );

@@ -2185,7 +2185,7 @@ auto Creature::Body::end() -> decltype( body )::iterator
 void Creature::calc_all_parts_hp( float hp_mod, float hp_adjustment, int str_max, int dex_max,
                                   int per_max,  int int_max, int healthy_mod,  int fat_to_max_hp )
 {
-    for( std::pair<const bodypart_str_id, bodypart> &part : body ) {
+    for( std::pair<const bodypart_str_id, bodypart> &part : body.get_body() ) {
         int new_max = ( part.first->base_hp + str_max * part.first->hp_mods.str_mod + dex_max *
                         part.first->hp_mods.dex_mod + int_max * part.first->hp_mods.int_mod + per_max *
                         part.first->hp_mods.per_mod + part.first->hp_mods.health_mod * healthy_mod + fat_to_max_hp +
@@ -2210,6 +2210,7 @@ bool Creature::has_part( const bodypart_id &id ) const
     return body.find( id.id() ) != body.end();
 }
 
+/*
 bodypart *Creature::get_part( const bodypart_id &id )
 {
     auto found = body.find( get_part_id( id ).id() );
@@ -2218,7 +2219,7 @@ bodypart *Creature::get_part( const bodypart_id &id )
         return nullptr;
     }
     return &found->second;
-}
+}*/
 
 const bodypart *Creature::get_part( const bodypart_id &id ) const
 {
@@ -2474,7 +2475,7 @@ void Creature::mod_part_frostbite_timer( const bodypart_id &id, int mod )
 
 void Creature::set_all_parts_temp_cur( int set )
 {
-    for( std::pair<const bodypart_str_id, bodypart> &elem : body ) {
+    for( std::pair<const bodypart_str_id, bodypart> &elem : body.get_body() ) {
         if( elem.first->has_flag( json_flag_IGNORE_TEMP ) ) {
             continue;
         }
@@ -2484,7 +2485,7 @@ void Creature::set_all_parts_temp_cur( int set )
 
 void Creature::set_all_parts_temp_conv( int set )
 {
-    for( std::pair<const bodypart_str_id, bodypart> &elem : body ) {
+    for( std::pair<const bodypart_str_id, bodypart> &elem : body.get_body() ) {
         if( elem.first->has_flag( json_flag_IGNORE_TEMP ) ) {
             continue;
         }
@@ -2494,21 +2495,21 @@ void Creature::set_all_parts_temp_conv( int set )
 
 void Creature::set_all_parts_wetness( int set )
 {
-    for( std::pair<const bodypart_str_id, bodypart> &elem : body ) {
+    for( std::pair<const bodypart_str_id, bodypart> &elem : body.get_body() ) {
         elem.second.set_wetness( set );
     }
 }
 
 void Creature::set_all_parts_hp_cur( const int set )
 {
-    for( std::pair<const bodypart_str_id, bodypart> &elem : body ) {
+    for( std::pair<const bodypart_str_id, bodypart> &elem : body.get_body() ) {
         elem.second.set_hp_cur( set );
     }
 }
 
 void Creature::set_all_parts_hp_to_max()
 {
-    for( std::pair<const bodypart_str_id, bodypart> &elem : body ) {
+    for( std::pair<const bodypart_str_id, bodypart> &elem : body.get_body() ) {
         elem.second.set_hp_to_max();
     }
 }
@@ -2649,24 +2650,23 @@ static void sort_body_parts( std::vector<bodypart_id> &bps, const Creature *c )
     bps = result;
 }
 
-std::vector<bodypart_id> Creature::get_all_body_parts( get_body_part_flags flags ) const
+const std::vector<bodypart_id> &Creature::get_all_body_parts() const
 {
-    bool only_main( flags & get_body_part_flags::only_main );
-    bool only_minor( flags & get_body_part_flags::only_minor );
-    std::vector<bodypart_id> all_bps = body.get_all_body_parts();
-    all_bps.erase( std::remove_if( all_bps.begin(), all_bps.end(), [&]( const bodypart_id & bp ) {
-        if( ( only_main && bp->main_part.id() != bp ) || ( only_minor &&
-                bp->main_part.id() == bp ) ) {
-            return true;
-        }
-        return false;
-    } ), all_bps.end() );
+    return body.get_bodyparts();
+}
 
-    if( flags & get_body_part_flags::sorted ) {
-        sort_body_parts( all_bps, this );
+std::vector<bodypart_id> Creature::get_main_body_parts() const
+{
+    const std::vector<bodypart_id> &all_bps = body.get_bodyparts();
+    std::vector<bodypart_id> main_bps;
+    main_bps.reserve( all_bps.size() );
+    for( const bodypart_id &bp : all_bps ) {
+        if( bp->main_part.id() == bp ) {
+            main_bps.emplace_back( bp );
+        }
     }
 
-    return all_bps;
+    return main_bps;
 }
 
 bodypart_id Creature::get_root_body_part() const
@@ -2680,28 +2680,27 @@ bodypart_id Creature::get_root_body_part() const
     return body_part_head;
 }
 
-std::vector<bodypart_id> Creature::get_all_body_parts_of_type(
-    body_part_type::type part_type, get_body_part_flags flags ) const
+std::vector<bodypart_id> Creature::get_all_body_parts_of_type( body_part_type::type part_type )
+const
 {
-    const bool only_main( flags & get_body_part_flags::only_main );
-    const bool primary( flags & get_body_part_flags::primary_type );
-
     std::vector<bodypart_id> bodyparts;
     for( const std::pair<const bodypart_str_id, bodypart> &elem : body ) {
-        if( only_main && elem.first->main_part != elem.first ) {
-            continue;
-        }
-        if( primary ) {
-            if( elem.first->primary_limb_type() == part_type ) {
-                bodyparts.emplace_back( elem.first );
-            }
-        } else if( elem.first->has_type( part_type ) ) {
+        if( elem.first->has_type( part_type ) ) {
             bodyparts.emplace_back( elem.first );
         }
     }
 
-    if( flags & get_body_part_flags::sorted ) {
-        sort_body_parts( bodyparts, this );
+    return bodyparts;
+}
+
+std::vector<bodypart_id> Creature::get_primary_body_parts_of_type( body_part_type::type part_type )
+const
+{
+    std::vector<bodypart_id> bodyparts;
+    for( const std::pair<const bodypart_str_id, bodypart> &elem : body ) {
+        if( elem.first->primary_limb_type() == part_type ) {
+            bodyparts.emplace_back( elem.first );
+        }
     }
 
     return bodyparts;

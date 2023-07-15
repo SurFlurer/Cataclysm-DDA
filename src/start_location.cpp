@@ -482,7 +482,7 @@ void start_location::add_map_extra( const tripoint_abs_omt &omtstart,
 
 void start_location::handle_heli_crash( avatar &you ) const
 {
-    for( const bodypart_id &bp : you.get_all_body_parts( get_body_part_flags::only_main ) ) {
+    for( const bodypart_id &bp : you.get_main_body_parts() ) {
         if( bp == bodypart_id( "head" ) || bp == bodypart_id( "torso" ) ) {
             continue;// Skip head + torso for balance reasons.
         }

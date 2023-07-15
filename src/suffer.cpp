@@ -1695,7 +1695,7 @@ void suffer::from_tourniquet( Character &you )
     if( !you.worn_with_flag( flag_TOURNIQUET ) ) {
         return;
     }
-    for( const bodypart_id &bp : you.get_all_body_parts( get_body_part_flags::only_main ) ) {
+    for( const bodypart_id &bp : you.get_main_body_parts() ) {
         if( you.worn_with_flag( flag_TOURNIQUET, bp ) && one_turn_in( 30_seconds ) ) {
             you.mod_pain( 1 );
             you.apply_damage( nullptr, bp, 1, true );
@@ -1821,7 +1821,7 @@ void Character::suffer()
 {
     const int current_stim = get_stim();
 
-    for( const bodypart_id &bp : get_all_body_parts( get_body_part_flags::only_main ) ) {
+    for( const bodypart_id &bp : get_main_body_parts() ) {
         if( is_limb_broken( bp ) ) {
             add_effect( effect_disabled, 1_turns, bp, true );
         }

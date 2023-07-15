@@ -1637,7 +1637,7 @@ static void character_edit_hp_menu( Character &you )
         int value;
         if( query_int( value, _( "Set the hitpoints to?  Currently: %d" ), you.get_lowest_hp() ) &&
             value >= 0 ) {
-            for( bodypart_id part_id : you.get_all_body_parts( get_body_part_flags::only_main ) ) {
+            for( bodypart_id part_id : you.get_main_body_parts() ) {
                 you.set_part_hp_cur( part_id, value );
             }
             you.reset_stats();
@@ -3003,8 +3003,7 @@ void debug()
 
         // Damage Self
         case debug_menu_index::DAMAGE_SELF: {
-            const std::vector<bodypart_id> parts = player_character.get_all_body_parts(
-                    get_body_part_flags::only_main );
+            const std::vector<bodypart_id> parts = player_character.get_main_body_parts();
             uilist smenu;
             int i = 0;
             for( const bodypart_id &part : parts ) {

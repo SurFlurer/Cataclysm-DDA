@@ -343,7 +343,7 @@ static medical_column draw_health_summary( const int column_count, avatar *playe
     medical_column health_column = medical_column( column_count, COLUMN_START, COLUMN_BOUNDS );
     const int max_width = health_column.max_width();
 
-    for( const bodypart_id &part : player->get_all_body_parts( get_body_part_flags::sorted ) ) {
+    for( const bodypart_id &part : player->get_sorted_body_parts() ) {
         std::string header; // Bodypart Title
         std::string hp_str; // Bodypart HP
         std::string detail;

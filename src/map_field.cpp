@@ -1652,7 +1652,7 @@ void map::player_in_field( Character &you )
 
                 if( main_part_damage > 0 ) {
                     for( const bodypart_id &bp :
-                         you.get_all_body_parts( get_body_part_flags::only_main ) ) {
+                         you.get_main_body_parts() ) {
                         if( bp == main_part ) {
                             continue;
                         }

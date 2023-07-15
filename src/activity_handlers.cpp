@@ -3625,7 +3625,7 @@ static void blood_magic( Character *you, int cost )
     std::vector<uilist_entry> uile;
     std::vector<bodypart_id> parts;
     int i = 0;
-    for( const bodypart_id &bp : you->get_all_body_parts( get_body_part_flags::only_main ) ) {
+    for( const bodypart_id &bp : you->get_main_body_parts() ) {
         const int hp_cur = you->get_part_hp_cur( bp );
         uilist_entry entry( i, hp_cur > cost, i + 49, body_part_hp_bar_ui_text( bp ) );
 

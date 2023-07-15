@@ -1810,7 +1810,7 @@ healing_options npc::patient_assessment( const Character &c )
     healing_options try_to_fix;
     try_to_fix.clear_all();
 
-    for( bodypart_id part_id : c.get_all_body_parts( get_body_part_flags::only_main ) ) {
+    for( bodypart_id part_id : c.get_main_body_parts() ) {
         if( c.has_effect( effect_bleed, part_id ) ) {
             try_to_fix.bleed = true;
         }
