@@ -55,6 +55,7 @@
 #include "mapgen_functions.h"
 #include "mapgendata.h"
 #include "mapgenformat.h"
+#include "math_parser_jmath.h"
 #include "memory_fast.h"
 #include "mission.h"
 #include "mongroup.h"
@@ -315,6 +316,8 @@ class mapgen_basic_container
 {
     private:
         std::vector<std::shared_ptr<mapgen_function>> mapgens_;
+        //mapgens that need to be recalculated with a function when spawned
+        std::vector<std::shared_ptr<mapgen_function>> mapgens_to_recalc_;
         weighted_int_list<std::shared_ptr<mapgen_function>> weights_;
 
     public:
@@ -335,7 +338,12 @@ class mapgen_basic_container
          * @p hardcoded_weight Weight for an additional entry. If that entry is chosen,
          * false is returned. If unsure, just use 0 for it.
          */
-        bool generate( mapgendata &dat, const int hardcoded_weight ) const {
+        bool generate( mapgendata &dat, const int hardcoded_weight ) {
+            for( const std::shared_ptr<mapgen_function> &ptr : mapgens_to_recalc_ ) {
+                dialogue d( get_talker_for( get_avatar() ), std::make_unique<talker>() );
+                weights_.add_or_replace( ptr, ptr->weight * ptr->weight_function->eval( d ) );
+            }
+
             if( hardcoded_weight > 0 &&
                 rng( 1, weights_.get_weight() + hardcoded_weight ) > weights_.get_weight() ) {
                 return false;
@@ -355,11 +363,16 @@ class mapgen_basic_container
          */
         void setup() {
             for( const std::shared_ptr<mapgen_function> &ptr : mapgens_ ) {
-                const int weight = ptr->weight;
+                int weight = ptr->weight;
                 if( weight < 1 ) {
                     continue; // rejected!
                 }
                 weights_.add( ptr, weight );
+
+                if( !ptr->weight_function.is_empty() ) {
+                    mapgens_to_recalc_.push_back( ptr );
+                }
+
                 ptr->setup();
             }
             // Not needed anymore, pointers are now stored in weights_ (or not used at all)
@@ -467,7 +480,7 @@ class mapgen_factory
             return mapgens_[key].add( ptr );
         }
         /// @see mapgen_basic_container::generate
-        bool generate( mapgendata &dat, const std::string &key, const int hardcoded_weight = 0 ) const {
+        bool generate( mapgendata &dat, const std::string &key, const int hardcoded_weight = 0 ) {
             const auto iter = mapgens_.find( key );
             if( iter == mapgens_.end() ) {
                 return false;
@@ -612,15 +625,19 @@ std::shared_ptr<mapgen_function>
 load_mapgen_function( const JsonObject &jio, const std::string &id_base, const point &offset,
                       const point &total )
 {
-    int mgweight = jio.get_int( "weight", 1000 );
-    if( mgweight <= 0 || jio.get_bool( "disabled", false ) ) {
+    jmath_func_id weight_func;
+    int weight;
+    optional( jio, false, "weight_func", weight_func );
+    optional( jio, false, "weight", weight, 1000 );
+
+    if( jio.get_bool( "disabled", false ) ) {
         jio.allow_omitted_members();
         return nullptr; // nothing
     }
     const std::string mgtype = jio.get_string( "method" );
     if( mgtype == "builtin" ) {
         if( const building_gen_pointer ptr = get_mapgen_cfunction( jio.get_string( "name" ) ) ) {
-            return std::make_shared<mapgen_function_builtin>( ptr, mgweight );
+            return std::make_shared<mapgen_function_builtin>( ptr, weight_func, weight );
         } else {
             jio.throw_error_at( "name", "function does not exist" );
         }
@@ -631,7 +648,7 @@ load_mapgen_function( const JsonObject &jio, const std::string &id_base, const p
         JsonObject jo = jio.get_object( "object" );
         jo.allow_omitted_members();
         return std::make_shared<mapgen_function_json>(
-                   jo, mgweight, "mapgen " + id_base, offset, total );
+                   jo, weight_func, weight, "mapgen " + id_base, offset, total );
     } else {
         jio.throw_error_at( "method", R"(invalid value: must be "builtin" or "json")" );
     }
@@ -812,9 +829,9 @@ mapgen_function_json_base::mapgen_function_json_base(
 
 mapgen_function_json_base::~mapgen_function_json_base() = default;
 
-mapgen_function_json::mapgen_function_json( const JsonObject &jsobj, const int w,
-        const std::string &context, const point &grid_offset, const point &grid_total )
-    : mapgen_function( w )
+mapgen_function_json::mapgen_function_json( const JsonObject &jsobj, jmath_func_id weight_func,
+        const int w, const std::string &context, const point &grid_offset, const point &grid_total )
+    : mapgen_function( weight_func, w )
     , mapgen_function_json_base( jsobj, context )
     , fill_ter( t_null )
     , rotation( 0 )
@@ -2420,7 +2437,7 @@ class jmapgen_monster : public jmapgen_piece
                     { x.get(), y.get(), dat.m.get_abs_sub().z() },
                     friendly, -1, mission_id, name, data );
                 }
-            } else {
+            } else if( ids.is_valid() ) {
                 mtype_id chosen_type = ids.pick()->get( dat );
                 if( !chosen_type.is_null() ) {
                     dat.m.add_spawn( chosen_type, spawn_count * pack_size.get(),
@@ -6735,10 +6752,11 @@ std::unique_ptr<vehicle> map::add_vehicle_to_map(
                     std::vector<int> parts_in_square = veh_to_add->parts_at_relative( source_point, true );
                     std::set<int> parts_to_check;
                     for( int index = parts_in_square.size() - 1; index >= 0; index-- ) {
+                        vehicle_part &vp = veh_to_add->part( parts_in_square[index] );
                         if( handler_ptr ) {
-                            veh_to_add->remove_part( parts_in_square[index], *handler_ptr );
+                            veh_to_add->remove_part( vp, *handler_ptr );
                         } else {
-                            veh_to_add->remove_part( parts_in_square[index] );
+                            veh_to_add->remove_part( vp );
                         }
                         parts_to_check.insert( parts_in_square[index] );
                     }
@@ -7829,7 +7847,8 @@ mapgen_parameters get_map_special_params( const std::string &mapgen_id )
 int register_mapgen_function( const std::string &key )
 {
     if( const building_gen_pointer ptr = get_mapgen_cfunction( key ) ) {
-        return oter_mapgen.add( key, std::make_shared<mapgen_function_builtin>( ptr ) );
+        return oter_mapgen.add( key, std::make_shared<mapgen_function_builtin>( ptr,
+                                jmath_func_id() ) );
     }
     return -1;
 }
