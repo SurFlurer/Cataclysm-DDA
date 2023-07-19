@@ -386,6 +386,19 @@ TEST_CASE( "npc-board-player-vehicle" )
                 optional_vpart_position vp = here.veh_at( p );
                 std::string part_name = vp ? remove_color_tags( vp->part_displayed()->part().name() ) : "";
                 UNSCOPED_INFO( string_format( "target tile: %s - vehicle part: %s", p.to_string(), part_name ) );
+
+                int part = -1;
+                const vehicle *veh = here.veh_at_internal( p, part );
+                if( veh ) {
+                    const auto vpobst = vpart_position( const_cast<vehicle &>( *veh ), part ).obstacle_at_part();
+                    part = vpobst ? vpobst->part_index() : -1;
+                    std::optional<int> open = veh->next_part_to_open( part, true );
+                    std::optional<int> lock = veh->next_part_to_unlock( part, true );
+
+                    // INT_MIN in case for some reason still a negative value hides in the optional
+                    UNSCOPED_INFO( "open part " << ( open ? *open : INT_MIN ) );
+                    UNSCOPED_INFO( "lock part " << ( lock ? *lock : INT_MIN ) );
+                }
             }
             CHECK( companion->pos() == data.npc_target );
         }
