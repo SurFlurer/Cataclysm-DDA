@@ -399,7 +399,7 @@ bool avatar_action::move( avatar &you, map &m, const tripoint &d )
     }
 
     // GRAB: pre-action checking.
-    int dpart = -1;
+    std::optional<int> dpart;
     const optional_vpart_position vp0 = m.veh_at( you.pos() );
     vehicle *const veh0 = veh_pointer_or_null( vp0 );
     const optional_vpart_position vp1 = m.veh_at( dest_loc );
@@ -409,7 +409,7 @@ bool avatar_action::move( avatar &you, map &m, const tripoint &d )
     bool outside_vehicle = veh0 == nullptr || veh0 != veh1;
     if( veh1 != nullptr ) {
         dpart = veh1->next_part_to_open( vp1->part_index(), outside_vehicle );
-        veh_closed_door = dpart >= 0 && !veh1->part( dpart ).open;
+        veh_closed_door = dpart && !veh1->part( *dpart ).open;
     }
 
     if( veh0 != nullptr && std::abs( veh0->velocity ) > 100 ) {
@@ -493,11 +493,11 @@ bool avatar_action::move( avatar &you, map &m, const tripoint &d )
         if( !veh1->handle_potential_theft( you ) ) {
             return true;
         } else {
-            door_name = veh1->part( dpart ).name();
+            door_name = veh1->part( *dpart ).name();
             if( outside_vehicle ) {
-                veh1->open_all_at( dpart );
+                veh1->open_all_at( *dpart );
             } else {
-                veh1->open( dpart );
+                veh1->open( *dpart );
             }
             //~ %1$s - vehicle name, %2$s - part name
             you.add_msg_if_player( _( "You open the %1$s's %2$s." ), veh1->name, door_name );

@@ -2708,7 +2708,7 @@ void vpart_position::set_label( const std::string &text ) const
     }
 }
 
-int vehicle::next_part_to_close( int p, bool outside ) const
+std::optional<int> vehicle::next_part_to_close( int p, bool outside ) const
 {
     std::vector<int> parts_here = parts_at_relative( parts[p].mount, true, true );
 
@@ -2723,10 +2723,10 @@ int vehicle::next_part_to_close( int p, bool outside ) const
             return *part_it;
         }
     }
-    return -1;
+    return std::nullopt;
 }
 
-int vehicle::next_part_to_open( int p, bool outside ) const
+std::optional<int> vehicle::next_part_to_open( int p, bool outside ) const
 {
     const bool has_lock = part_has_lock( p );
     // We want forwards, since we open the outermost thing first (curtains), and then the innermost thing (door)
@@ -2740,7 +2740,7 @@ int vehicle::next_part_to_open( int p, bool outside ) const
             return elem;
         }
     }
-    return -1;
+    return std::nullopt;
 }
 
 bool vehicle::part_has_lock( int p ) const
@@ -2754,10 +2754,10 @@ bool vehicle::part_has_lock( int p ) const
     return false;
 }
 
-int vehicle::next_part_to_lock( int p, bool outside ) const
+std::optional<int> vehicle::next_part_to_lock( int p, bool outside ) const
 {
     if( !part_has_lock( p ) ) {
-        return -1;
+        return std::nullopt;
     }
     std::vector<int> parts_here = parts_at_relative( parts[p].mount, true, true );
     // We want reverse, since we lock the innermost thing first (door), and then the outermost thing
@@ -2770,13 +2770,13 @@ int vehicle::next_part_to_lock( int p, bool outside ) const
             return *part_it;
         }
     }
-    return -1;
+    return std::nullopt;
 }
 
-int vehicle::next_part_to_unlock( int p, bool outside ) const
+std::optional<int> vehicle::next_part_to_unlock( int p, bool outside ) const
 {
     if( !part_has_lock( p ) ) {
-        return -1;
+        return std::nullopt;
     }
     for( const int elem : parts_at_relative( parts[p].mount, true, true ) ) {
         const vehicle_part &vp = part( elem );
@@ -2784,7 +2784,7 @@ int vehicle::next_part_to_unlock( int p, bool outside ) const
             return elem;
         }
     }
-    return -1;
+    return std::nullopt;
 }
 
 vehicle_part_with_feature_range<std::string> vehicle::get_avail_parts( std::string feature ) const

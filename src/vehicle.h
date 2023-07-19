@@ -1230,9 +1230,9 @@ class vehicle
          *
          *  @param p Part who's coordinates provide the location to check
          *  @param outside If true, give parts that can be opened from outside only
-         *  @return part index or -1 if no part
+         *  @return part index or std::nullopt if no part
          */
-        int next_part_to_open( int p, bool outside = false ) const;
+        std::optional<int> next_part_to_open( int p, bool outside = false ) const;
 
         /**
          *  Return the index of the next part to close at `p`
@@ -1242,9 +1242,9 @@ class vehicle
          *
          *  @param p Part who's coordinates provide the location to check
          *  @param outside If true, give parts that can be closed from outside only
-         *  @return part index or -1 if no part
+         *  @return part index or std::nullopt if no part
          */
-        int next_part_to_close( int p, bool outside = false ) const;
+        std::optional<int> next_part_to_close( int p, bool outside = false ) const;
 
         /**
          *  Return the index of the next part to lock at part `p`'s location.
@@ -1254,9 +1254,9 @@ class vehicle
          *
          *  @param p part whose coordinates provide the location to check
          *  @param outside if true, give parts that can be locked from outside only
-         *  @returns a part index or -1 if no part
+         *  @returns a part index or std::nullopt if no part
          */
-        int next_part_to_lock( int p, bool outside = false ) const;
+        std::optional<int> next_part_to_lock( int p, bool outside = false ) const;
 
         /**
          *  Return the index of the next part to unlock at part `p`'s location.
@@ -1266,9 +1266,9 @@ class vehicle
          *
          *  @param p part whose coordinates provide the location to check
          *  @param outside if true, give parts that can be unlocked from outside only
-         *  @returns part index or -1 if no part
+         *  @returns part index or std::nullopt if no part
          */
-        int next_part_to_unlock( int p, bool outside = false ) const;
+        std::optional<int> next_part_to_unlock( int p, bool outside = false ) const;
 
         // returns indices of all parts in the given location slot
         std::vector<int> all_parts_at_location( const std::string &location ) const;

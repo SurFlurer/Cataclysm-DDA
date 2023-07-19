@@ -584,14 +584,14 @@ static void open()
             return;
         }
         // Check if vehicle has a part here that can be opened
-        int openable = veh->next_part_to_open( vp->part_index() );
-        if( openable >= 0 ) {
+        std::optional<int> openable = veh->next_part_to_open( vp->part_index() );
+        if( openable ) {
             // If player is inside vehicle, open the door/window/curtain
             const vehicle *player_veh = veh_pointer_or_null( here.veh_at( player_character.pos() ) );
-            const std::string part_name = veh->part( openable ).name();
+            const std::string part_name = veh->part( *openable ).name();
             bool outside = !player_veh || player_veh != veh;
             if( !outside ) {
-                veh->open( openable );
+                veh->open( *openable );
                 //~ %1$s - vehicle name, %2$s - part name
                 player_character.add_msg_if_player( _( "You open the %1$s's %2$s." ), veh->name, part_name );
             } else {
@@ -599,12 +599,12 @@ static void open()
                 // If there is, we open everything on tile. This means opening a closed,
                 // curtained door from outside is possible, but it will magically open the
                 // curtains as well.
-                int outside_openable = veh->next_part_to_open( vp->part_index(), true );
-                if( outside_openable == -1 ) {
+                std::optional<int> outside_openable = veh->next_part_to_open( vp->part_index(), true );
+                if( !outside_openable ) {
                     add_msg( m_info, _( "That %s can only be opened from the inside." ), part_name );
                     player_character.moves += 100;
                 } else {
-                    veh->open_all_at( openable );
+                    veh->open_all_at( *openable );
                     //~ %1$s - vehicle name, %2$s - part name
                     player_character.add_msg_if_player( _( "You open the %1$s's %2$s." ), veh->name, part_name );
                 }

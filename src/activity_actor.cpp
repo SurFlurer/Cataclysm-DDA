@@ -2448,7 +2448,7 @@ void lockpick_activity_actor::finish( player_activity &act, Character &who )
     const ter_id ter_type = here.ter( target );
     const furn_id furn_type = here.furn( target );
     optional_vpart_position const veh = here.veh_at( target );
-    int locked_part = -1;
+    std::optional<int> locked_part;
     ter_id new_ter_type;
     furn_id new_furn_type;
     std::string open_message = _( "The lock opens…" );
@@ -2472,7 +2472,7 @@ void lockpick_activity_actor::finish( player_activity &act, Character &who )
         if( !furn_type->lockpick_message.empty() ) {
             open_message = furn_type->lockpick_message.translated();
         }
-    } else if( locked_part >= 0 ) {
+    } else if( locked_part ) {
         // no-op.
     } else {
         if( ter_type->lockpick_result.is_null() ) {
@@ -2537,8 +2537,8 @@ void lockpick_activity_actor::finish( player_activity &act, Character &who )
         }
         if( here.has_furn( target ) ) {
             here.furn_set( target, new_furn_type );
-        } else if( locked_part >= 0 ) {
-            veh->vehicle().unlock( locked_part );
+        } else if( locked_part ) {
+            veh->vehicle().unlock( *locked_part );
         } else {
             here.ter_set( target, new_ter_type );
         }

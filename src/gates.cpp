@@ -273,27 +273,28 @@ void doors::close_door( map &m, Creature &who, const tripoint &closep )
         // There is a vehicle part here; see if it has anything that can be closed
         vehicle *const veh = &vp->vehicle();
         const int vpart = vp->part_index();
-        const int closable = veh->next_part_to_close( vpart,
-                             veh_pointer_or_null( m.veh_at( who.pos() ) ) != veh );
-        const int inside_closable = veh->next_part_to_close( vpart );
-        const int openable = veh->next_part_to_open( vpart );
-        if( closable >= 0 ) {
+        const std::optional<int> closable = veh->next_part_to_close( vpart,
+                                            veh_pointer_or_null( m.veh_at( who.pos() ) ) != veh );
+        const std::optional<int> inside_closable = veh->next_part_to_close( vpart );
+        const std::optional<int> openable = veh->next_part_to_open( vpart );
+        if( closable ) {
             if( !veh->handle_potential_theft( get_avatar() ) ) {
                 return;
             }
             Character *ch = who.as_character();
-            if( ch && veh->can_close( closable, *ch ) ) {
-                veh->close( closable );
+            if( ch && veh->can_close( *closable, *ch ) ) {
+                veh->close( *closable );
                 //~ %1$s - vehicle name, %2$s - part name
-                who.add_msg_if_player( _( "You close the %1$s's %2$s." ), veh->name, veh->part( closable ).name() );
+                who.add_msg_if_player( _( "You close the %1$s's %2$s." ), veh->name,
+                                       veh->part( *closable ).name() );
                 didit = true;
             }
-        } else if( inside_closable >= 0 ) {
+        } else if( inside_closable ) {
             who.add_msg_if_player( m_info, _( "That %s can only be closed from the inside." ),
-                                   veh->part( inside_closable ).name() );
-        } else if( openable >= 0 ) {
+                                   veh->part( *inside_closable ).name() );
+        } else if( openable ) {
             who.add_msg_if_player( m_info, _( "That %s is already closed." ),
-                                   veh->part( openable ).name() );
+                                   veh->part( *openable ).name() );
         } else {
             who.add_msg_if_player( m_info, _( "You cannot close the %s." ), veh->part( vpart ).name() );
         }
@@ -363,25 +364,25 @@ bool doors::lock_door( map &m, Creature &who, const tripoint &lockp )
         const int vpart = vp->part_index();
         const bool inside_vehicle = m.veh_at( who.pos() ) &&
                                     &vp->vehicle() == &m.veh_at( who.pos() )->vehicle();
-        const int lockable = veh->next_part_to_lock( vpart, !inside_vehicle );
-        const int inside_lockable = veh->next_part_to_lock( vpart );
-        const int already_locked_part = veh->next_part_to_unlock( vpart );
+        const std::optional<int> lockable = veh->next_part_to_lock( vpart, !inside_vehicle );
+        const std::optional<int> inside_lockable = veh->next_part_to_lock( vpart );
+        const std::optional<int> already_locked_part = veh->next_part_to_unlock( vpart );
 
-        if( lockable >= 0 ) {
+        if( lockable ) {
             if( const Character *const ch = who.as_character() ) {
                 if( !veh->handle_potential_theft( *ch ) ) {
                     return false;
                 }
-                veh->lock( lockable );
-                who.add_msg_if_player( _( "You lock the %1$s's %2$s." ), veh->name, veh->part( lockable ).name() );
+                veh->lock( *lockable );
+                who.add_msg_if_player( _( "You lock the %1$s's %2$s." ), veh->name, veh->part( *lockable ).name() );
                 didit = true;
             }
-        } else if( inside_lockable >= 0 ) {
+        } else if( inside_lockable ) {
             who.add_msg_if_player( m_info, _( "That %s can only be locked from the inside." ),
-                                   veh->part( inside_lockable ).name() );
-        } else if( already_locked_part >= 0 ) {
+                                   veh->part( *inside_lockable ).name() );
+        } else if( already_locked_part ) {
             who.add_msg_if_player( m_info, _( "That %s is already locked." ),
-                                   veh->part( already_locked_part ).name() );
+                                   veh->part( *already_locked_part ).name() );
         } else {
             who.add_msg_if_player( m_info, _( "You cannot lock the %s." ), veh->part( vpart ).name() );
         }
@@ -395,7 +396,7 @@ bool doors::lock_door( map &m, Creature &who, const tripoint &lockp )
 
 bool doors::can_lock_door( const map &m, const Creature &who, const tripoint &lockp )
 {
-    int lockable = -1;
+    std::optional<int> lockable;
     if( const optional_vpart_position vp = m.veh_at( lockp ) ) {
         const vehicle *const veh = &vp->vehicle();
         const bool inside_vehicle = m.veh_at( who.pos() ) &&
@@ -403,7 +404,7 @@ bool doors::can_lock_door( const map &m, const Creature &who, const tripoint &lo
         const int vpart = vp->part_index();
         lockable = veh->next_part_to_lock( vpart, !inside_vehicle );
     }
-    return lockable >= 0;
+    return lockable.has_value();
 }
 
 // If you update this, look at doors::can_unlock_door too.
@@ -416,26 +417,26 @@ bool doors::unlock_door( map &m, Creature &who, const tripoint &lockp )
         const int vpart = vp->part_index();
         const bool inside_vehicle = m.veh_at( who.pos() ) &&
                                     &vp->vehicle() == &m.veh_at( who.pos() )->vehicle();
-        const int already_unlocked_part = veh->next_part_to_lock( vpart );
-        const int inside_unlockable = veh->next_part_to_unlock( vpart );
-        const int unlockable = veh->next_part_to_unlock( vpart, !inside_vehicle );
+        const std::optional<int> already_unlocked_part = veh->next_part_to_lock( vpart );
+        const std::optional<int> inside_unlockable = veh->next_part_to_unlock( vpart );
+        const std::optional<int> unlockable = veh->next_part_to_unlock( vpart, !inside_vehicle );
 
-        if( unlockable >= 0 ) {
+        if( unlockable ) {
             if( const Character *const ch = who.as_character() ) {
                 if( !veh->handle_potential_theft( *ch ) ) {
                     return false;
                 }
-                veh->unlock( unlockable );
+                veh->unlock( *unlockable );
                 who.add_msg_if_player( _( "You unlock the %1$s's %2$s." ), veh->name,
-                                       veh->part( unlockable ).name() );
+                                       veh->part( *unlockable ).name() );
                 didit = true;
             }
-        } else if( inside_unlockable >= 0 ) {
+        } else if( inside_unlockable ) {
             who.add_msg_if_player( m_info, _( "That %s can only be unlocked from the inside." ),
-                                   veh->part( inside_unlockable ).name() );
-        } else if( already_unlocked_part >= 0 ) {
+                                   veh->part( *inside_unlockable ).name() );
+        } else if( already_unlocked_part ) {
             who.add_msg_if_player( m_info, _( "That %s is already unlocked." ),
-                                   veh->part( already_unlocked_part ).name() );
+                                   veh->part( *already_unlocked_part ).name() );
         } else {
             who.add_msg_if_player( m_info, _( "You cannot unlock the %s." ), veh->part( vpart ).name() );
         }
@@ -449,7 +450,7 @@ bool doors::unlock_door( map &m, Creature &who, const tripoint &lockp )
 
 bool doors::can_unlock_door( const map &m, const Creature &who, const tripoint &lockp )
 {
-    int unlockable = -1;
+    std::optional<int> unlockable;
     if( const optional_vpart_position vp = m.veh_at( lockp ) ) {
         const vehicle *const veh = &vp->vehicle();
         const bool inside_vehicle = m.veh_at( who.pos() ) &&
@@ -458,5 +459,5 @@ bool doors::can_unlock_door( const map &m, const Creature &who, const tripoint &
         unlockable = veh->next_part_to_unlock( vpart, !inside_vehicle );
     }
 
-    return unlockable >= 0;
+    return unlockable.has_value();
 }

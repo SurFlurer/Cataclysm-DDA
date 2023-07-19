@@ -138,42 +138,42 @@ void vehicle::control_doors()
 {
     const auto open_or_close_all = [this]( bool new_open, const std::string & require_flag ) {
         for( const vpart_reference &vpr_motor : get_avail_parts( "DOOR_MOTOR" ) ) {
-            const int motorized_idx = new_open
-                                      ? next_part_to_open( vpr_motor.part_index() )
-                                      : next_part_to_close( vpr_motor.part_index() );
-            if( motorized_idx == -1 ) {
+            const std::optional<int> motorized_idx = new_open
+                    ? next_part_to_open( vpr_motor.part_index() )
+                    : next_part_to_close( vpr_motor.part_index() );
+            if( !motorized_idx ) {
                 continue;
             }
-            vehicle_part &vp = part( motorized_idx );
+            vehicle_part &vp = part( *motorized_idx );
             if( !require_flag.empty() && !vp.info().has_flag( require_flag ) ) {
                 continue;
             }
-            if( new_open || can_close( motorized_idx, get_player_character() ) ) {
-                open_or_close( motorized_idx, new_open );
+            if( new_open || can_close( *motorized_idx, get_player_character() ) ) {
+                open_or_close( *motorized_idx, new_open );
             }
         }
     };
     const auto lock_or_unlock_all = [this]( bool new_lock, const std::string & require_flag ) {
         for( const vpart_reference &vpr_motor : get_avail_parts( "DOOR_MOTOR" ) ) {
-            const int motorized_idx = new_lock
-                                      ? next_part_to_lock( vpr_motor.part_index() )
-                                      : next_part_to_unlock( vpr_motor.part_index() );
-            if( motorized_idx == -1 ) {
+            const std::optional<int> motorized_idx = new_lock
+                    ? next_part_to_lock( vpr_motor.part_index() )
+                    : next_part_to_unlock( vpr_motor.part_index() );
+            if( !motorized_idx ) {
                 continue;
             }
-            vehicle_part &vp = part( motorized_idx );
+            vehicle_part &vp = part( *motorized_idx );
             if( !require_flag.empty() && !vp.info().has_flag( require_flag ) ) {
                 continue;
             }
-            lock_or_unlock( motorized_idx, new_lock );
+            lock_or_unlock( *motorized_idx, new_lock );
         }
     };
 
-    const auto add_openable = [this]( veh_menu & menu, int vp_idx ) {
-        if( vp_idx == -1 ) {
+    const auto add_openable = [this]( veh_menu & menu, std::optional<int> vp_idx ) {
+        if( !vp_idx ) {
             return;
         }
-        const vehicle_part &vp = part( vp_idx );
+        const vehicle_part &vp = part( *vp_idx );
         const std::string actname = vp.open ? _( "Close" ) : _( "Open" );
         const bool open = !vp.open;
         menu.add( string_format( "%s %s", actname, vp.name() ) )
@@ -181,18 +181,18 @@ void vehicle::control_doors()
         .location( global_part_pos3( vp ) )
         .keep_menu_open()
         .on_submit( [this, vp_idx, open] {
-            if( can_close( vp_idx, get_player_character() ) )
+            if( can_close( *vp_idx, get_player_character() ) )
             {
-                open_or_close( vp_idx, open );
+                open_or_close( *vp_idx, open );
             }
         } );
     };
 
-    const auto add_lockable = [this]( veh_menu & menu, int vp_idx ) {
-        if( vp_idx == -1 ) {
+    const auto add_lockable = [this]( veh_menu & menu, std::optional<int> vp_idx ) {
+        if( !vp_idx ) {
             return;
         }
-        const vehicle_part &vp = part( vp_idx );
+        const vehicle_part &vp = part( *vp_idx );
         const std::string actname = vp.locked ? _( "Unlock" ) : _( "Lock" );
         const bool lock = !vp.locked;
         menu.add( string_format( "%s %s", actname, vp.name() ) )
@@ -200,7 +200,7 @@ void vehicle::control_doors()
         .location( global_part_pos3( vp ) )
         .keep_menu_open()
         .on_submit( [this, vp_idx, lock] {
-            lock_or_unlock( vp_idx, lock );
+            lock_or_unlock( *vp_idx, lock );
         } );
     };
 
