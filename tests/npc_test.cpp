@@ -383,21 +383,33 @@ TEST_CASE( "npc-board-player-vehicle" )
             CAPTURE( companion->path );
             if( !companion->path.empty() ) {
                 tripoint &p = companion->path.front();
-                optional_vpart_position vp = here.veh_at( p );
-                std::string part_name = vp ? remove_color_tags( vp->part_displayed()->part().name() ) : "";
-                UNSCOPED_INFO( string_format( "target tile: %s - vehicle part: %s", p.to_string(), part_name ) );
 
                 int part = -1;
                 const vehicle *veh = here.veh_at_internal( p, part );
                 if( veh ) {
+                    const vehicle_part &vp = veh->part( part );
+                    CHECK_FALSE( vp.info().has_flag( VPFLAG_OPENABLE ) );
+
+                    std::string part_name = remove_color_tags( vp.name() );
+                    UNSCOPED_INFO( "target tile: " << p.to_string() << " - vehicle part : " << part_name );
+
+                    int hp = vp.hp();
+                    int bash = companion->path_settings->bash_strength;
+                    UNSCOPED_INFO( "part hp: " << hp << " - bash strength: " << bash );
+
                     const auto vpobst = vpart_position( const_cast<vehicle &>( *veh ), part ).obstacle_at_part();
                     part = vpobst ? vpobst->part_index() : -1;
                     std::optional<int> open = veh->next_part_to_open( part, true );
                     std::optional<int> lock = veh->next_part_to_unlock( part, true );
 
-                    // INT_MIN in case for some reason still a negative value hides in the optional
-                    UNSCOPED_INFO( "open part " << ( open ? *open : INT_MIN ) );
-                    UNSCOPED_INFO( "lock part " << ( lock ? *lock : INT_MIN ) );
+                    if( open ) {
+                        const vehicle_part &vp_open = veh->part( *open );
+                        UNSCOPED_INFO( "open part " << vp_open.name() );
+                    }
+                    if( lock ) {
+                        const vehicle_part &vp_lock = veh->part( *lock );
+                        UNSCOPED_INFO( "lock part " << vp_lock.name() );
+                    }
                 }
             }
             CHECK( companion->pos() == data.npc_target );
