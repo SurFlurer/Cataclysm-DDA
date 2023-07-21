@@ -49,6 +49,9 @@ vehicle_part::vehicle_part( const vpart_id &type, item &&base )
 {
     set_base( std::move( base ) );
     variant = info_->variant_default;
+    if( type->has_flag( VPFLAG_CARGO ) ) {
+        items = std::make_shared<cata::colony<item>>();
+    }
 }
 
 const item &vehicle_part::get_base() const

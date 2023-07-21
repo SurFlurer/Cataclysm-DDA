@@ -3351,7 +3351,10 @@ void vehicle_part::deserialize( const JsonObject &data )
     }
 
     data.read( "crew_id", crew_id );
-    data.read( "items", items );
+    if( pid->has_flag( VPFLAG_CARGO ) ) {
+        items = std::make_shared<cata::colony<item>>();
+        data.read( "items", *items );
+    }
     data.read( "tools", tools );
     data.read( "target_first_x", target.first.x );
     data.read( "target_first_y", target.first.y );
@@ -3399,7 +3402,7 @@ void vehicle_part::serialize( JsonOut &json ) const
     if( precalc[0].z ) {
         json.member( "z_offset", precalc[0].z );
     }
-    json.member( "items", items );
+    json.member( "items", items ? *items : cata::colony<item>() );
     json.member( "tools", tools );
     if( target.first != tripoint_min ) {
         json.member( "target_first_x", target.first.x );

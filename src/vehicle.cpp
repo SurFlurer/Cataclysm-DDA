@@ -164,7 +164,8 @@ void DefaultRemovePartHandler::removed( vehicle &veh, const int part )
 
 // Vehicle stack methods.
 vehicle_stack::vehicle_stack( vehicle &veh, vehicle_part &vp ) :
-    item_stack( &vp.items ), veh( veh ), vp( vp ) {}
+    item_stack( vp.items ? vp.items.get() : std::make_shared<cata::colony<item>>().get() ), veh( veh ),
+    vp( vp ) {}
 
 vehicle_stack::iterator vehicle_stack::erase( vehicle_stack::const_iterator it )
 {
@@ -208,6 +209,10 @@ vehicle::vehicle( const vproto_id &proto_id )
         // Copy the already made vehicle. The blueprint is created when the json data is loaded
         // and is guaranteed to be valid (has valid parts etc.).
         *this = *proto.blueprint;
+        // Clear the items of any vehicle parts.
+        for( const vpart_reference &vpr : get_any_parts( VPFLAG_CARGO ) ) {
+            vpr.part().items = std::make_shared<cata::colony<item>>();
+        }
         // The game language may have changed after the blueprint was created,
         // so translated the prototype name again.
         name = proto.name.translated();
@@ -1942,7 +1947,7 @@ bool vehicle::do_remove_part_actual()
             if( vp.is_fake ) {
                 parts[vp.fake_part_to].has_fake = false;
             } else {
-                get_items( vp ).clear();
+                vp.items.reset();
             }
             if( vp.is_real_or_active_fake() ) {
                 const tripoint pt = global_part_pos3( vp );
@@ -5548,7 +5553,7 @@ std::optional<vehicle_stack::iterator> vehicle::add_item( vehicle_part &vp, cons
         itm_copy.spill_contents( global_part_pos3( vp ) );
     }
 
-    const vehicle_stack::iterator new_pos = vp.items.insert( itm_copy );
+    const vehicle_stack::iterator new_pos = vp.items->insert( itm_copy );
     active_items.add( *new_pos, vp.mount );
 
     invalidate_mass();
@@ -5557,7 +5562,7 @@ std::optional<vehicle_stack::iterator> vehicle::add_item( vehicle_part &vp, cons
 
 bool vehicle::remove_item( vehicle_part &vp, item *it )
 {
-    const cata::colony<item> &veh_items = vp.items;
+    const cata::colony<item> &veh_items = *vp.items;
     const cata::colony<item>::const_iterator iter = veh_items.get_iterator_from_pointer( it );
     if( iter == veh_items.end() ) {
         return false;
@@ -5570,7 +5575,7 @@ vehicle_stack::iterator vehicle::remove_item( vehicle_part &vp,
         const vehicle_stack::const_iterator &it )
 {
     invalidate_mass();
-    return vp.items.erase( it );
+    return vp.items->erase( it );
 }
 
 vehicle_stack vehicle::get_items( vehicle_part &vp )
@@ -5776,10 +5781,10 @@ bool vehicle::decrement_summon_timer()
         for( const vpart_reference &vpr : get_all_parts() ) {
             vehicle_part &vp = vpr.part();
             const tripoint_bub_ms pos = bub_part_pos( vp );
-            for( item &it : vp.items ) {
+            for( item &it : *vp.items ) {
                 here.add_item_or_charges( pos, it );
             }
-            vp.items.clear();
+            vp.items->clear();
         }
         add_msg_if_player_sees( global_pos3(), m_info, _( "Your %s winks out of existence." ), name );
         get_map().destroy_vehicle( this );
@@ -7089,12 +7094,12 @@ int vehicle::damage_direct( map &here, vehicle_part &vp, int dmg, const damage_t
 
         // destroyed parts lose any contained fuels, battery charges or ammo
         leak_fuel( vp );
-
-        for( const item &e : vp.items ) {
-            here.add_item_or_charges( vppos, e );
+        if( vp.items ) {
+            for( const item &e : *vp.items ) {
+                here.add_item_or_charges( vppos, e );
+            }
+            vp.items->clear();
         }
-        vp.items.clear();
-
         invalidate_mass();
         coeff_air_changed = true;
 

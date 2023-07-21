@@ -523,7 +523,7 @@ struct vehicle_part {
         // tools attached to VEH_TOOLS parts
         std::vector<item> tools;
         // items of CARGO parts
-        cata::colony<item> items;
+        std::shared_ptr<cata::colony<item>> items;
 
         /** Preferred ammo type when multiple are available */
         itype_id ammo_pref = itype_id::NULL_ID();

@@ -748,7 +748,7 @@ std::list<item> vehicle_cursor::remove_items_with( const
         return res;
     }
 
-    cata::colony<item> &items = veh.part( idx ).items;
+    cata::colony<item> &items = *veh.part( idx ).items;
     for( auto iter = items.begin(); iter != items.end(); ) {
         if( filter( *iter ) ) {
             res.push_back( *iter );
