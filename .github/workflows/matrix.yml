@@ -66,7 +66,6 @@ jobs:
     outputs:
       fail_fast: ${{ steps.matrix_vars.outputs.fail_fast }}
       skip_tests: ${{ steps.matrix_vars.outputs.skip_tests }}
-      max_parallel: ${{ steps.matrix_vars.outputs.max_parallel }}
     steps:
       - id: matrix_vars
         run: |
