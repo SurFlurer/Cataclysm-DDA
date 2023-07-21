@@ -1338,7 +1338,10 @@ void npc::execute_action( npc_action action )
                 move_pause();
                 break;
             }
-
+            std::sort( seats.begin(), seats.end(),
+            []( const std::pair<int, int> &l, const std::pair<int, int> &r ) {
+                return l.first == l.second? l.second > r.second : l.first > r.first;
+            } );
             std::sort( seats.begin(), seats.end(),
             []( const std::pair<int, int> &l, const std::pair<int, int> &r ) {
                 return l.first > r.first;
