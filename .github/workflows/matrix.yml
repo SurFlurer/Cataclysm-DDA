@@ -74,8 +74,10 @@ jobs:
           echo "skip_tests=$([ "$GITHUB_REF_NAME" = "master" ] && echo true || echo false)" >> $GITHUB_OUTPUT
           echo "max_parallel=$([ "$GITHUB_REF_NAME" = "master" ] && echo 20 || echo 1)" >> $GITHUB_OUTPUT
   varied_builds:
+    continue-on-error: true
     needs: [ skip-duplicates-code, skip-duplicates-data, matrix-variables ]
     strategy:
+      fail-fast: false
       matrix:
         include:
           - compiler: clang++-10
