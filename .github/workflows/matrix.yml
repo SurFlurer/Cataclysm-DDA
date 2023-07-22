@@ -76,7 +76,6 @@ jobs:
   varied_builds:
     needs: [ skip-duplicates-code, skip-duplicates-data, matrix-variables ]
     strategy:
-      fail-fast: ${{ fromJSON(needs.matrix-variables.outputs.fail_fast) }}
       matrix:
         include:
           - compiler: clang++-10
