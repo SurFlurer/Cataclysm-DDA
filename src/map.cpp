@@ -4499,14 +4499,15 @@ bool map::open_door( Creature const &u, const tripoint &p, const bool inside,
         const bool creature_outside = !creature_veh.has_value() ||
                                       &creature_veh->vehicle() != &veh_at( p )->vehicle();
 
-        const int openable = vp->vehicle().next_part_to_open( vp->part_index(), creature_outside );
-        if( openable >= 0 ) {
+        const std::optional<int> openable = vp->vehicle().next_part_to_open( vp->part_index(),
+                                            creature_outside );
+        if( openable ) {
             if( !check_only ) {
                 if( ( u.is_npc() || u.is_avatar() ) &&
                     !vp->vehicle().handle_potential_theft( *u.as_character() ) ) {
                     return false;
                 }
-                vp->vehicle().open_all_at( openable );
+                vp->vehicle().open_all_at( *openable );
             }
 
             return true;

@@ -1801,7 +1801,7 @@ void iexamine::locked_object( Character &you, const tripoint &examp )
     item &best_prying = you.best_item_with_quality( qual_PRY );
     item &best_lockpick = you.best_item_with_quality( qual_LOCKPICK );
     optional_vpart_position veh = here.veh_at( examp );
-    int locked_part = -1;
+    std::optional<int> locked_part;
 
     // Check if the locked thing is a lockable door part.
     if( veh ) {
@@ -1814,11 +1814,11 @@ void iexamine::locked_object( Character &you, const tripoint &examp )
     }
 
     const std::string target_name = here.has_furn( examp ) ? here.furnname( examp ) :
-                                    locked_part >= 0 ? veh->vehicle().part( locked_part ).name() :
+                                    locked_part ? veh->vehicle().part( *locked_part ).name() :
                                     here.tername( examp );
     const bool has_prying = !best_prying.is_null();
     const bool can_pick = ( here.has_flag( ter_furn_flag::TFLAG_PICKABLE, examp ) ||
-                            locked_part >= 0 ) &&
+                            locked_part ) &&
                           ( !best_lockpick.is_null() || you.has_bionic( bio_lockpick ) );
     enum act {
         pick = 0,
@@ -1871,7 +1871,7 @@ void iexamine::locked_object_pickable( Character &you, const tripoint &examp )
 {
     map &here = get_map();
     const optional_vpart_position veh = here.veh_at( examp );
-    int locked_part = -1;
+    std::optional<int> locked_part;
 
     if( veh ) {
         const std::vector<vehicle_part *> parts_at_target = veh->vehicle().get_parts_at(
@@ -1883,7 +1883,7 @@ void iexamine::locked_object_pickable( Character &you, const tripoint &examp )
     }
 
     const std::string target_name = here.has_furn( examp ) ? here.furnname( examp ) :
-                                    locked_part >= 0 ? veh->vehicle().part( locked_part ).name() : here.tername( examp );
+                                    locked_part ? veh->vehicle().part( *locked_part ).name() : here.tername( examp );
 
     if( you.has_bionic( bio_lockpick ) ) {
         if( you.get_power_level() >= bio_lockpick->power_activate ) {
