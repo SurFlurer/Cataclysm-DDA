@@ -913,7 +913,7 @@ aim_mods_cache Character::gen_aim_mods_cache( const item &gun )const
 
 double Character::fastest_aiming_method_speed( const item &gun, double recoil,
         const Target_attributes target_attributes,
-        std::optional<std::reference_wrapper<const parallax_cache>> parallax_cache ) const
+        const std::optional<std::reference_wrapper<const parallax_cache>> p_cache ) const
 {
     // Get fastest aiming method that can be used to improve aim further below @ref recoil.
 
@@ -952,9 +952,9 @@ double Character::fastest_aiming_method_speed( const item &gun, double recoil,
     // There are only two kinds of parallaxes, one with zoom and one without. So cache them.
     std::vector<std::optional<int>> parallaxes;
     parallaxes.resize( 2 );
-    if( parallax_cache.has_value() ) {
-        parallaxes[0].emplace( parallax_cache.value().get().parallax_without_zoom );
-        parallaxes[1].emplace( parallax_cache.value().get().parallax_with_zoom );
+    if( p_cache.has_value() ) {
+        parallaxes[0].emplace( p_cache.value().get().parallax_without_zoom );
+        parallaxes[1].emplace( p_cache.value().get().parallax_with_zoom );
     }
     for( const item *e : gun.gunmods() ) {
         const islot_gunmod &mod = *e->type->gunmod;
@@ -1059,14 +1059,15 @@ double Character::aim_factor_from_length( const item &gun ) const
 
 double Character::aim_per_move( const item &gun, double recoil,
                                 const Target_attributes target_attributes,
-                                std::optional<std::reference_wrapper<const aim_mods_cache>> aim_cache ) const
+                                const std::optional<std::reference_wrapper<const aim_mods_cache>> aim_cache ) const
 {
     if( !gun.is_gun() ) {
         return 0.0;
     }
     bool use_cache = aim_cache.has_value();
+    const auto &parallax_cache = use_cache ? aim_cache.value().get().parallaxes : std::nullopt;
     double sight_speed_modifier = fastest_aiming_method_speed( gun, recoil, target_attributes,
-                                  use_cache ? aim_cache.value().get().parallaxes : std::nullopt );
+                                  parallax_cache );
     int limit = use_cache ? aim_cache.value().get().limit :
                 most_accurate_aiming_method_limit( gun );
     if( sight_speed_modifier == INT_MIN ) {
@@ -3282,7 +3283,7 @@ std::string Character::enumerate_unmet_requirements( const item &it, const item 
 {
     std::vector<std::string> unmet_reqs;
 
-    const auto check_req = [ &unmet_reqs ]( const std::string & name, int cur, int req ) {
+    const auto check_req = [ &unmet_reqs ]( const std::string &name, int cur, int req ) {
         if( cur < req ) {
             unmet_reqs.push_back( string_format( "%s %d", name, req ) );
         }
@@ -9488,7 +9489,7 @@ std::vector<run_cost_effect> Character::run_cost_effects( float &movecost ) cons
 {
     std::vector<run_cost_effect> effects;
 
-    auto run_cost_effect_add = [&movecost, &effects]( float mod, const std::string & desc ) {
+    auto run_cost_effect_add = [&movecost, &effects]( float mod, const std::string &desc ) {
         if( mod != 0 ) {
             run_cost_effect effect { desc, 1.0, mod };
             effects.push_back( effect );
@@ -9496,7 +9497,7 @@ std::vector<run_cost_effect> Character::run_cost_effects( float &movecost ) cons
         }
     };
 
-    auto run_cost_effect_mul = [&movecost, &effects]( float mod, const std::string & desc ) {
+    auto run_cost_effect_mul = [&movecost, &effects]( float mod, const std::string &desc ) {
         if( mod != 1.0 ) {
             run_cost_effect effect { desc, mod, 0.0 };
             effects.push_back( effect );
@@ -9888,7 +9889,7 @@ void Character::process_one_effect( effect &it, bool is_new )
     int_bonus_hardcoded += get_int_bonus() - intl;
     per_bonus_hardcoded += get_per_bonus() - per;
 
-    const auto get_effect = [&it, is_new]( const std::string & arg, bool reduced ) {
+    const auto get_effect = [&it, is_new]( const std::string &arg, bool reduced ) {
         if( is_new ) {
             return it.get_amount( arg, reduced );
         }

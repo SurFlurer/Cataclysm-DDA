@@ -688,7 +688,8 @@ class Character : public Creature, public visitable
         int point_shooting_limit( const item &gun ) const;
         double fastest_aiming_method_speed( const item &gun, double recoil,
                                             Target_attributes target_attributes = Target_attributes(),
-                                            std::optional<std::reference_wrapper<const parallax_cache>> parallax_cache = std::nullopt ) const;
+                                            const std::optional<std::reference_wrapper<const parallax_cache>> p_cache = std::nullopt )
+        const;
         int most_accurate_aiming_method_limit( const item &gun ) const;
         double aim_factor_from_volume( const item &gun ) const;
         double aim_factor_from_length( const item &gun ) const;
@@ -711,7 +712,7 @@ class Character : public Creature, public visitable
         */
         double aim_per_move( const item &gun, double recoil,
                              Target_attributes target_attributes = Target_attributes(),
-                             std::optional<std::reference_wrapper<const aim_mods_cache>> aim_cache = std::nullopt ) const;
+                             const std::optional<std::reference_wrapper<const aim_mods_cache>> aim_cache = std::nullopt ) const;
 
         int get_dodges_left() const;
         void set_dodges_left( int dodges );
