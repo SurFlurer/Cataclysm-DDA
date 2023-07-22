@@ -1065,7 +1065,7 @@ double Character::aim_per_move( const item &gun, double recoil,
         return 0.0;
     }
     bool use_cache = aim_cache.has_value();
-    const auto &parallax_cache = use_cache ? aim_cache.value().get().parallaxes : std::nullopt;
+    auto parallax_cache = use_cache ? aim_cache.value().get().parallaxes : std::nullopt;
     double sight_speed_modifier = fastest_aiming_method_speed( gun, recoil, target_attributes,
                                   parallax_cache );
     int limit = use_cache ? aim_cache.value().get().limit :
