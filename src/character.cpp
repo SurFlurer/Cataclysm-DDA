@@ -913,7 +913,7 @@ aim_mods_cache Character::gen_aim_mods_cache( const item &gun )const
 
 double Character::fastest_aiming_method_speed( const item &gun, double recoil,
         const Target_attributes target_attributes,
-        std::optional<std::reference_wrapper<const parallax_cache>> parallax_cache ) const
+        const std::optional<std::reference_wrapper<parallax_cache>> cached_parallax ) const
 {
     // Get fastest aiming method that can be used to improve aim further below @ref recoil.
 
@@ -952,9 +952,9 @@ double Character::fastest_aiming_method_speed( const item &gun, double recoil,
     // There are only two kinds of parallaxes, one with zoom and one without. So cache them.
     std::vector<std::optional<int>> parallaxes;
     parallaxes.resize( 2 );
-    if( parallax_cache.has_value() ) {
-        parallaxes[0].emplace( parallax_cache.value().get().parallax_without_zoom );
-        parallaxes[1].emplace( parallax_cache.value().get().parallax_with_zoom );
+    if( cached_parallax.has_value() ) {
+        parallaxes[0].emplace( cached_parallax.value().get().parallax_without_zoom );
+        parallaxes[1].emplace( cached_parallax.value().get().parallax_with_zoom );
     }
     for( const item *e : gun.gunmods() ) {
         const islot_gunmod &mod = *e->type->gunmod;
