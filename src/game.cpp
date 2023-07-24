@@ -520,7 +520,9 @@ bool game::check_mod_data( const std::vector<mod_id> &opts, loading_ui &ui )
             load_core_data( ui );
 
             // Load any dependencies
-            for( auto &dep : tree.get_dependencies_of_X_as_strings( mod.ident ) ) {
+            std::vector<mod_id> list = tree.get_dependencies_of_X_as_strings( mod.ident );
+            std::set<mod_id> dep_set( list.begin(), list.end() );
+            for( auto &dep : dep_set ) {
                 load_data_from_dir( dep->path, dep->ident.str(), ui );
             }
 
