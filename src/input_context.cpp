@@ -104,7 +104,7 @@ std::string input_context::get_conflicts(
     const input_event &event, const std::string &ignore_action ) const
 {
     return enumerate_as_string( registered_actions.begin(), registered_actions.end(),
-    [ this, &event, &ignore_action ]( const std::string & action ) {
+    [ this, &event, &ignore_action ]( const std::string &action ) {
         return action != ignore_action && action_uses_input( action, event )
                ? get_action_name( action ) : std::string();
     } );
@@ -988,7 +988,7 @@ action_id input_context::display_menu_legacy( const bool permit_execute_action )
     std::vector<std::string> org_registered_actions( registered_actions );
     org_registered_actions.erase( std::remove_if( org_registered_actions.begin(),
                                   org_registered_actions.end(),
-    []( const std::string & a ) {
+    []( const std::string &a ) {
         return a == ANY_INPUT || a == COORDINATE;
     } ), org_registered_actions.end() );
 
@@ -1026,19 +1026,19 @@ action_id input_context::display_menu_legacy( const bool permit_execute_action )
         draw_border( w_help, BORDER_COLOR, _( "Keybindings" ), c_light_red );
         draw_scrollbar( w_help, scroll_offset, display_height,
                         filtered_registered_actions.size(), point( 0, 7 ), c_white, true );
-        fold_and_print( w_help, point( 2, 1 ), legwidth, c_white, legend );
+        const int legend_lines = 1 + fold_and_print( w_help, point( 2, 1 ), legwidth, c_white, legend );
         const auto item_color = []( const int index_to_draw, int index_highlighted ) {
             return index_highlighted == index_to_draw ? h_light_gray : c_light_gray;
         };
-        right_print( w_help, 1, 2,
+        right_print( w_help, legend_lines, 2,
                      item_color( static_cast<int>( kb_btn_idx::remove ), int( highlighted_btn_index ) ),
                      string_format( _( "<[<color_yellow>%c</color>] Remove keybinding>" ),
                                     fallback_keys.at( fallback_action::remove ) ) );
-        right_print( w_help, 2, 2,
+        right_print( w_help, legend_lines, 26,
                      item_color( static_cast<int>( kb_btn_idx::add_local ), int( highlighted_btn_index ) ),
                      string_format( _( "<[<color_yellow>%c</color>] Add local keybinding>" ),
                                     fallback_keys.at( fallback_action::add_local ) ) );
-        right_print( w_help, 3, 2,
+        right_print( w_help, legend_lines, 54,
                      item_color( static_cast<int>( kb_btn_idx::add_global ), int( highlighted_btn_index ) ),
                      string_format( _( "<[<color_yellow>%c</color>] Add global keybinding>" ),
                                     fallback_keys.at( fallback_action::add_global ) ) );
@@ -1329,7 +1329,7 @@ action_id input_context::display_menu_imgui( const bool permit_execute_action )
     std::vector<std::string> org_registered_actions( registered_actions );
     org_registered_actions.erase( std::remove_if( org_registered_actions.begin(),
                                   org_registered_actions.end(),
-    []( const std::string & a ) {
+    []( const std::string &a ) {
         return a == ANY_INPUT || a == COORDINATE;
     } ), org_registered_actions.end() );
 
