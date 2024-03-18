@@ -1004,7 +1004,7 @@ void cata_tiles::draw_om( const point &dest, const tripoint_abs_omt &center_abs_
         };
 
         // draws a black rectangle behind a label for visibility and legibility
-        const auto label_bg = [&]( const tripoint_abs_sm & pos, const std::string & name ) {
+        const auto label_bg = [&]( const tripoint_abs_sm & pos, const std::string &name ) {
             const int name_length = utf8_width( name );
             const point draw_pos = abs_sm_to_draw_label( pos, name_length );
             SDL_Rect clipRect = { draw_pos.x, draw_pos.y, name_length * fontwidth, fontheight };
@@ -1068,7 +1068,7 @@ void cata_tiles::draw_om( const point &dest, const tripoint_abs_omt &center_abs_
     if( !notes_window_text.empty() ) {
         constexpr int padding = 2;
 
-        const auto draw_note_text = [&]( const point & draw_pos, const std::string & name,
+        const auto draw_note_text = [&]( const point & draw_pos, const std::string &name,
         nc_color & color ) {
             char note_fg_color = color == c_yellow ? 11 :
                                  cata_cursesport::colorpairs[color.to_color_pair_index()].FG;
@@ -1155,6 +1155,7 @@ static bool draw_window( Font_Ptr &font, const catacurses::window &w, const poin
                                   WindowHeight / scaling_factor );
     }
 
+    clear_window_area( w );
     cata_cursesport::WINDOW *const win = w.get<cata_cursesport::WINDOW>();
 
     // TODO: Get this from UTF system to make sure it is exactly the kind of space we need
@@ -1162,18 +1163,6 @@ static bool draw_window( Font_Ptr &font, const catacurses::window &w, const poin
 
     bool update = false;
     for( int j = 0; j < win->height; j++ ) {
-        if( !win->line[j].touched ) {
-            continue;
-        }
-
-        // Although it would be simpler to clear the whole window at
-        // once, the code sometimes creates overlapping windows. By
-        // only clearing those lines that are touched, we avoid
-        // clearing lines that were already drawn in a previous
-        // window but are untouched in this one.
-        geometry->rect( renderer, point( win->pos.x * font->width, ( win->pos.y + j ) * font->height ),
-                        win->width * font->width, font->height,
-                        color_as_sdl( catacurses::black ) );
         update = true;
         win->line[j].touched = false;
         for( int i = 0; i < win->width; i++ ) {
