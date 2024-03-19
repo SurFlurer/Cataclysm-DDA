@@ -267,7 +267,6 @@ class input_context
          *
          * If the action is mouse input, returns "MOUSE".
          *
-         * @param timeout in milliseconds.
          * @return One of the input actions formerly registered with
          *         `register_action()`, or "ERROR" if an error happened.
          *

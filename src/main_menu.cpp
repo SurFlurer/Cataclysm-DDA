@@ -108,7 +108,7 @@ void demo_ui::run()
 
     while( is_open ) {
         ui_manager::redraw();
-        action = ctxt.handle_input( 5 );
+        action = ctxt.handle_input();
         if( action == "QUIT" ) {
             break;
         }
