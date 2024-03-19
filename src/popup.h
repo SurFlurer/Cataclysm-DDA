@@ -13,7 +13,9 @@
 #include "input_enums.h"
 
 class ui_adaptor;
+#if !defined(__ANDROID__)
 class query_popup_impl;
+#endif
 
 /**
  * UI class for displaying messages or querying player input with popups.
@@ -35,7 +37,9 @@ class query_popup_impl;
 
 class query_popup
 {
+#if !defined(__ANDROID__)
         friend class query_popup_impl;
+#endif
     public:
         /**
          * Query result returned by `query_once` and `query`.
@@ -202,10 +206,12 @@ class query_popup
          * resizing of the popup.
          */
         std::shared_ptr<ui_adaptor> create_or_get_adaptor();
+#if !defined(__ANDROID__)
         std::shared_ptr<query_popup_impl> create_or_get_impl();
 
         result query_imgui();
         result query_once_imgui();
+#endif
         result query_legacy();
         result query_once_legacy();
 
@@ -239,7 +245,9 @@ class query_popup
         };
 
         std::weak_ptr<ui_adaptor> adaptor;
+#if !defined(__ANDROID__)
         std::weak_ptr<query_popup_impl> p_impl;
+#endif
 
         // UI caches
         mutable catacurses::window win;
@@ -296,7 +304,9 @@ class static_popup : public query_popup
 
     private:
         std::shared_ptr<ui_adaptor> ui;
+#if !defined(__ANDROID__)
         std::shared_ptr<query_popup_impl> ui_imgui;
+#endif
 };
 
 #endif // CATA_SRC_POPUP_H
