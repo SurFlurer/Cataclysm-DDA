@@ -92,7 +92,6 @@ class window
         void mark_resized();
 
     protected:
-        bool force_to_back = false;
         bool is_open;
         std::string id;
         int window_flags;
