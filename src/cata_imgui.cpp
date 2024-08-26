@@ -275,8 +275,7 @@ void cataimgui::client::process_input( void *input )
 bool cataimgui::client::auto_size_frame_active()
 {
     for( const ImGuiWindow *window : GImGui->Windows ) {
-        if( ( window->ContentSize.x == 0 || window->ContentSize.y == 0 ) && ( window->AutoFitFramesX > 0 ||
-                window->AutoFitFramesY > 0 ) ) {
+        if( window->AutoFitFramesX > 0 || window->AutoFitFramesY > 0 ) {
             return true;
         }
     }
@@ -486,15 +485,8 @@ cataimgui::window::window( const std::string &id_, int window_flags ) : window( 
     is_open = true;
 }
 
-cataimgui::window::~window()
-{
-    ImGui::ClearWindowSettings( id.c_str() );
-    p_impl.reset();
-    if( !ui_adaptor::has_imgui() ) {
-        ImGui::GetIO().ClearInputKeys();
-        GImGui->InputEventsQueue.resize( 0 );
-    }
-}
+
+cataimgui::window::~window() = default;
 
 bool cataimgui::window::is_bounds_changed()
 {
