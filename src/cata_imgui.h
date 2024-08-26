@@ -3,16 +3,11 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include <unordered_map>
 
 class nc_color;
 struct input_event;
 
-#if defined(IMTUI) || !(defined(WIN32) || defined(TILES))
-#   define TUI
-#endif
-
-#ifndef TUI
+#if defined(WIN32) || defined(TILES)
 #include "sdl_geometry.h"
 #include "sdl_wrappers.h"
 #include "color_loader.h"
@@ -50,11 +45,11 @@ enum class dialog_result {
 class client
 {
         std::vector<int> cata_input_trail;
-#ifndef TUI
+#if defined(TILES) || defined(WIN32)
         std::unordered_map<uint32_t, unsigned char> sdlColorsToCata;
 #endif
     public:
-#ifdef TUI
+#if !(defined(TILES) || defined(WIN32))
         client();
 #else
         client( const SDL_Renderer_Ptr &sdl_renderer, const SDL_Window_Ptr &sdl_window,
@@ -68,7 +63,7 @@ class client
         void end_frame();
         void process_input( void *input );
         void process_cata_input( const input_event &event );
-#ifdef TUI
+#if !(defined(TILES) || defined(WIN32))
         void upload_color_pair( int p, int f, int b );
         void set_alloced_pair_count( short count );
 #else
@@ -126,7 +121,7 @@ class window
         void draw_filter( const input_context &ctxt, bool filtering_active );
 };
 
-#ifdef TUI
+#if !(defined(TILES) || defined(WIN32))
 void init_pair( int p, int f, int b );
 void load_colors();
 #endif
