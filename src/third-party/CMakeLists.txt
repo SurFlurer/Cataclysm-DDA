@@ -103,7 +103,7 @@ if (TILES)
                 -w
                 )
 
-        target_compile_definitions(imgui PUBLIC IMGUI_DISABLE_OBSOLETE_KEYIO)
+        add_definitions(-DIMGUI_DISABLE_OBSOLETE_KEYIO)
 
         if (NOT DYNAMIC_LINKING)
             target_link_libraries(imgui PUBLIC
