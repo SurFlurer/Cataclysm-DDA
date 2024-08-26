@@ -200,8 +200,7 @@
       {
         "text": "Let's set up a combat strategy.",
         "condition": { "npc_has_var": "general_robofac_merc_1_temporal_follower", "value": "yes" },
-        "topic": "TALK_DONE",
-        "effect": "npc_rules_menu"
+        "topic": "TALK_COMBAT_COMMANDS"
       },
       { "text": "Never mind.", "topic": "TALK_DONE" }
     ]
