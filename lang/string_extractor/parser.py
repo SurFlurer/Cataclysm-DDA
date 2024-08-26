@@ -17,7 +17,6 @@ from .parsers.dream import parse_dream
 from .parsers.effect import parse_effect_on_condition
 from .parsers.effect_type import parse_effect_type
 from .parsers.enchant import parse_enchant
-from .parsers.end_screen import parse_end_screen
 from .parsers.event_statistic import parse_event_statistic
 from .parsers.faction import parse_faction
 from .parsers.fault import parse_fault
@@ -139,7 +138,6 @@ parsers = {
     "effect_type": parse_effect_type,
     "emit": dummy_parser,
     "enchantment": parse_enchant,
-    "end_screen": parse_end_screen,
     "engine": parse_generic,
     "event_statistic": parse_event_statistic,
     "event_transformation": dummy_parser,
