@@ -9,8 +9,6 @@
 
 #include <cstring>
 #include <cstdint>
-#include <vector>
-#include <string>
 
 namespace ImTui {
 
@@ -30,6 +28,7 @@ struct TScreen {
     int nmax = 0;
 
     TCell * data = nullptr;
+
     ~TScreen() {
         if (data) delete [] data;
     }
@@ -53,15 +52,5 @@ struct TScreen {
         data = new TCell[nmax];
     }
 };
-
-struct ImplImtui_Data
-{
-    TScreen Screen;
-};
-
-static ImplImtui_Data* ImTui_Impl_GetBackendData()
-{
-    return ImGui::GetCurrentContext() ? (ImplImtui_Data*)ImGui::GetIO().BackendPlatformUserData : nullptr;
-}
 
 }
