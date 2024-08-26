@@ -92,8 +92,9 @@ void drawTriangle(ImVec2 p0, ImVec2 p1, ImVec2 p2, unsigned char col, ImTui::TSc
             while (len--) {
                 if (x >= 0 && x < screen.nx && y + ymin >= 0 && y + ymin < screen.ny) {
                     auto & cell = screen.data[(y + ymin)*screen.nx + x];
-                    cell.ch = ' ';
-                    cell.bg = col;
+                    cell &= 0x00FF0000;
+                    cell |= ' ';
+                    cell |= ((ImTui::TCell)(col) << 24);
                 }
                 ++x;
             }
@@ -200,8 +201,8 @@ void ImTui_ImplText_RenderDrawData(ImDrawData * drawData) {
                         auto uv2 = cmd_list->VtxBuffer[vidx2].uv;
 
                         auto col0 = cmd_list->VtxBuffer[vidx0].col;
-                        auto col1 = cmd_list->VtxBuffer[vidx1].col;
-                        auto col2 = cmd_list->VtxBuffer[vidx2].col;
+                        //auto col1 = cmd_list->VtxBuffer[vidx1].col;
+                        //auto col2 = cmd_list->VtxBuffer[vidx2].col;
 
                         if (uv0.x != uv1.x || uv0.x != uv2.x || uv1.x != uv2.x ||
                             uv0.y != uv1.y || uv0.y != uv2.y || uv1.y != uv2.y) {
@@ -229,9 +230,9 @@ void ImTui_ImplText_RenderDrawData(ImDrawData * drawData) {
                             if (xx < clip_rect.x || xx >= clip_rect.z || yy < clip_rect.y || yy >= clip_rect.w) {
                             } else {
                                 auto & cell = screen.data[yy*screen.nx + xx];
-                                cell.ch = col1;
-                                cell.chwidth = (uint8_t)col2;
-                                cell.fg = rgbToAnsi256(col0, false);
+                                cell &= 0xFF000000;
+                                cell |= (col0 & 0xff000000) >> 24;
+                                cell |= ((ImTui::TCell)(rgbToAnsi256(col0, false)) << 16);
                             }
                             i += 3;
                         } else {

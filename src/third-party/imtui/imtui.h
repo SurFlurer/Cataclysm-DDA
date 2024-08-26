@@ -18,13 +18,10 @@ using TChar = unsigned char;
 using TColor = unsigned char;
 
 // single screen cell
-struct TCell
-{
-    TColor fg;
-    TColor bg;
-    uint32_t ch;
-    uint8_t chwidth;
-};
+// 0x0000FFFF - char
+// 0x00FF0000 - foreground color
+// 0xFF000000 - background color
+using TCell = uint32_t;
 
 struct TScreen {
     int nx = 0;
