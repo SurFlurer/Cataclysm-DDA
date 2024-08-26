@@ -2851,7 +2851,7 @@ void mission_debug::remove_mission( mission &m )
 
     if( player_character.active_mission == &m ) {
         player_character.active_mission = nullptr;
-        add_msg( _( "Unsetting current objective" ) );
+        add_msg( _( "Unsetting active mission" ) );
     }
 
     npc *giver = g->find_npc( m.npc_id );
