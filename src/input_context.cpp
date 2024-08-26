@@ -1024,8 +1024,7 @@ action_id input_context::display_menu( bool permit_execute_action )
             } else if( action == "TEXT.CONFIRM" ) {
                 kb_menu.status = kb_menu_status::show;
             }
-        } else if( action == "ADD_LOCAL"
-                   || raw_input_char == fallback_keys.at( fallback_action::add_local ) ) {
+        } else if( action == "ADD_LOCAL" ) {
             if( !kb_menu.filtered_registered_actions.empty() ) {
                 kb_menu.status = kb_menu_status::add;
             }
