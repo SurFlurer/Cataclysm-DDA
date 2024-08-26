@@ -14,7 +14,7 @@ struct input_event;
 #endif
 
 struct point;
-struct ImVec2;
+class ImVec2;
 class Font;
 class input_context;
 
