@@ -20,7 +20,6 @@ struct input_event;
 
 struct point;
 struct ImVec2;
-struct ImVec4;
 class Font;
 class input_context;
 
@@ -84,8 +83,6 @@ class client
 void point_to_imvec2( point *src, ImVec2 *dest );
 void imvec2_to_point( ImVec2 *src, point *dest );
 
-ImVec4 imvec4_from_color( nc_color &color );
-
 class window
 {
         std::unique_ptr<class window_impl> p_impl;
@@ -100,9 +97,6 @@ class window
                                 float wrap_width = 0.0F, bool *is_selected = nullptr,
                                 bool *is_focused = nullptr, bool *is_hovered = nullptr );
         void draw_colored_text( std::string const &text, nc_color &color,
-                                float wrap_width = 0.0F, bool *is_selected = nullptr,
-                                bool *is_focused = nullptr, bool *is_hovered = nullptr );
-        void draw_colored_text( std::string const &text,
                                 float wrap_width = 0.0F, bool *is_selected = nullptr,
                                 bool *is_focused = nullptr, bool *is_hovered = nullptr );
         bool action_button( const std::string &action, const std::string &text );

@@ -58,7 +58,8 @@ void query_popup_impl::draw_controls()
     mouse_selected_option = -1;
 
     for( const std::string &line : parent->folded_msg ) {
-        draw_colored_text( line, parent->default_text_color );
+        nc_color col = parent->default_text_color;
+        draw_colored_text( line, col );
     }
 
     if( !parent->buttons.empty() ) {
