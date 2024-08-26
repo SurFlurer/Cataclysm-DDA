@@ -43,7 +43,6 @@ enum class dialog_result {
 
 class client
 {
-        std::vector<int> cata_input_trail;
     public:
 #if !(defined(TILES) || defined(WIN32))
         client();
