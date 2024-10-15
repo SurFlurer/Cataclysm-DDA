@@ -2417,13 +2417,13 @@ std::string map::features( const tripoint &p ) const
 std::string map::features( const tripoint_bub_ms &p ) const
 {
     std::string result;
-    const auto add = [&]( const std::string & text ) {
+    const auto add = [&]( const std::string &text ) {
         if( !result.empty() ) {
             result += " ";
         }
         result += text;
     };
-    const auto add_if = [&]( const bool cond, const std::string & text ) {
+    const auto add_if = [&]( const bool cond, const std::string &text ) {
         if( cond ) {
             add( text );
         }

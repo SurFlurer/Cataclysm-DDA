@@ -83,13 +83,14 @@ void map::add_light_from_items( const tripoint_bub_ms &p, const item_stack &item
         }
     }
 }
-
+static bool vision_transp_resynced = true;
 // TODO: Consider making this just clear the cache and dynamically fill it in as is_transparent() is called
 bool map::build_transparency_cache( const int zlev )
 {
     level_cache &map_cache = get_cache( zlev );
     auto &transparent_cache_wo_fields = map_cache.transparent_cache_wo_fields;
     auto &transparency_cache = map_cache.transparency_cache;
+    auto &vision_transparency_cache = map_cache.vision_transparency_cache;
     auto &outside_cache = map_cache.outside_cache;
 
     if( map_cache.transparency_cache_dirty.none() ) {
@@ -102,6 +103,8 @@ bool map::build_transparency_cache( const int zlev )
     if( rebuild_all ) {
         // Default to just barely not transparent.
         std::uninitialized_fill_n( &transparency_cache[0][0], MAPSIZE_X * MAPSIZE_Y,
+                                   static_cast<float>( LIGHT_TRANSPARENCY_OPEN_AIR ) );
+        std::uninitialized_fill_n( &vision_transparency_cache[0][0], MAPSIZE_X * MAPSIZE_Y,
                                    static_cast<float>( LIGHT_TRANSPARENCY_OPEN_AIR ) );
         for( auto &row : transparent_cache_wo_fields ) {
             row.set(); // true means transparent
@@ -134,7 +137,8 @@ bool map::build_transparency_cache( const int zlev )
 
                 if( !( cur_submap->get_ter( sp ).obj().transparent &&
                        cur_submap->get_furn( sp ).obj().transparent ) ) {
-                    return std::make_pair( LIGHT_TRANSPARENCY_SOLID, LIGHT_TRANSPARENCY_SOLID );
+                    return std::make_tuple( LIGHT_TRANSPARENCY_SOLID, LIGHT_TRANSPARENCY_SOLID,
+                                            LIGHT_TRANSPARENCY_SOLID );
                 }
                 if( outside_cache[p.x()][p.y()] ) {
                     // FIXME: Places inside vehicles haven't been marked as
@@ -152,20 +156,27 @@ bool map::build_transparency_cache( const int zlev )
                     value = value * i_level.translucency;
                 }
                 // TODO: [lightmap] Have glass reduce light as well.
-                // Note, binary transluceny is implemented in build_vision_transparency_cache below
-                return std::make_pair( value, value_wo_fields );
+                float value_for_vision = value;
+                if( cur_submap->get_ter( sp ).obj().has_flag( ter_furn_flag::TFLAG_TRANSLUCENT ) ) {
+                    value_for_vision = LIGHT_TRANSPARENCY_SOLID;
+                }
+                return std::make_tuple( value, value_wo_fields, value_for_vision );
+
             };
 
             if( cur_submap->is_uniform() ) {
                 float value;
                 float dummy;
-                std::tie( value, dummy ) = calc_transp( point_sm_ms( sm_offset ) );
+                float vision;
+                std::tie( value, dummy, vision ) = calc_transp( point_sm_ms( sm_offset ) );
                 // if rebuild_all==true all values were already set to LIGHT_TRANSPARENCY_OPEN_AIR
                 if( !rebuild_all || value != LIGHT_TRANSPARENCY_OPEN_AIR ) {
                     bool opaque = value <= LIGHT_TRANSPARENCY_SOLID;
                     for( int sx = 0; sx < SEEX; ++sx ) {
                         // init all sy indices in one go
                         std::uninitialized_fill_n( &transparency_cache[sm_offset.x + sx][sm_offset.y], SEEY, value );
+                        std::uninitialized_fill_n( &vision_transparency_cache[sm_offset.x + sx][sm_offset.y], SEEY,
+                                                   vision );
                         if( opaque ) {
                             auto &bs = transparent_cache_wo_fields[sm_offset.x + sx];
                             for( int i = 0; i < SEEY; i++ ) {
@@ -180,7 +191,8 @@ bool map::build_transparency_cache( const int zlev )
                     for( int sy = 0; sy < SEEY; ++sy ) {
                         const int y = sy + sm_offset.y;
                         float transp_wo_fields;
-                        std::tie( transparency_cache[x][y], transp_wo_fields ) = calc_transp( {x, y } );
+                        std::tie( transparency_cache[x][y], transp_wo_fields,
+                                  vision_transparency_cache[x][y] ) = calc_transp( {x, y} );
                         transparent_cache_wo_fields[x][y] = transp_wo_fields > LIGHT_TRANSPARENCY_SOLID;
                     }
                 }
@@ -188,61 +200,49 @@ bool map::build_transparency_cache( const int zlev )
         }
     }
     map_cache.transparency_cache_dirty.reset();
+    vision_transp_resynced = true;
     return true;
 }
 
 bool map::build_vision_transparency_cache( const int zlev )
 {
-    level_cache &map_cache = get_cache( zlev );
-    auto &transparency_cache = map_cache.transparency_cache;
-    auto &vision_transparency_cache = map_cache.vision_transparency_cache;
-
-    memcpy( &vision_transparency_cache, &transparency_cache, sizeof( transparency_cache ) );
-
     Character &player_character = get_player_character();
     const tripoint_bub_ms p = player_character.pos_bub();
-
     if( p.z() != zlev ) {
         return false;
     }
-
-    bool dirty = false;
+    level_cache &map_cache = get_cache( zlev );
+    auto &vision_transparency_cache = map_cache.vision_transparency_cache;
 
     // This segment handles vision when the player is crouching or prone. It only checks adjacent tiles.
     // If you change this, also consider creature::sees and map::obstacle_coverage.
-    bool is_crouching = player_character.is_crouching();
-    bool low_profile = player_character.has_effect( effect_quadruped_full ) &&
-                       player_character.is_running();
-    bool is_prone = player_character.is_prone();
-    static move_mode_id previous_move_mode = player_character.current_movement_mode();
+    bool low_profile = player_character.is_crouching() ||
+                       ( player_character.has_effect( effect_quadruped_full ) &&
+                         player_character.is_running() ) || player_character.is_prone();
+    static std::map<tripoint_bub_ms, float> modified_vision_transparency;
+    if( !vision_transp_resynced ) {
+        for( const auto &pair : modified_vision_transparency ) {
+            const tripoint_bub_ms &loc = pair.first;
+            vision_transparency_cache[loc.x()][loc.y()] = pair.second;
+        }
+    }
 
+    modified_vision_transparency.clear();
     for( const tripoint_bub_ms &loc : points_in_radius( p, 1 ) ) {
         if( loc == p ) {
             // The tile player is standing on should always be visible
             vision_transparency_cache[p.x()][p.y()] = LIGHT_TRANSPARENCY_OPEN_AIR;
-        } else if( ( is_crouching || is_prone || low_profile ) && coverage( loc ) >= 30 ) {
-            // If we're crouching or prone behind an obstacle, we can't see past it.
-            if( vision_transparency_cache[loc.x()][loc.y()] != LIGHT_TRANSPARENCY_SOLID ||
-                previous_move_mode != player_character.current_movement_mode() ) {
-                previous_move_mode = player_character.current_movement_mode();
+        } else {
+            if( low_profile && coverage( loc ) >= 30 ) {
+                // If we're crouching or prone behind an obstacle, we can't see past it.
+                modified_vision_transparency.emplace( loc, vision_transparency_cache[loc.x()][loc.y()] );
                 vision_transparency_cache[loc.x()][loc.y()] = LIGHT_TRANSPARENCY_SOLID;
-                dirty = true;
             }
         }
-    }
 
-    // This segment handles blocking vision through TRANSLUCENT flagged terrain.
-    for( const tripoint_bub_ms &loc : points_in_radius( p, MAX_VIEW_DISTANCE ) ) {
-        if( loc == p ) {
-            // The tile player is standing on should always be visible
-            vision_transparency_cache[p.x()][p.y()] = LIGHT_TRANSPARENCY_OPEN_AIR;
-        } else if( map::ter( loc ).obj().has_flag( ter_furn_flag::TFLAG_TRANSLUCENT ) ) {
-            vision_transparency_cache[loc.x()][loc.y()] = LIGHT_TRANSPARENCY_SOLID;
-            dirty = true;
-        }
     }
-
-    return dirty;
+    vision_transp_resynced = false;
+    return false;
 }
 
 void map::apply_character_light( Character &p )
