@@ -206,8 +206,6 @@ bool map::build_vision_transparency_cache( const int zlev )
         return false;
     }
 
-    bool dirty = false;
-
     // This segment handles vision when the player is crouching or prone. It only checks adjacent tiles.
     // If you change this, also consider creature::sees and map::obstacle_coverage.
     bool is_crouching = player_character.is_crouching();
@@ -226,7 +224,6 @@ bool map::build_vision_transparency_cache( const int zlev )
                 previous_move_mode != player_character.current_movement_mode() ) {
                 previous_move_mode = player_character.current_movement_mode();
                 vision_transparency_cache[loc.x()][loc.y()] = LIGHT_TRANSPARENCY_SOLID;
-                dirty = true;
             }
         }
     }
@@ -238,11 +235,10 @@ bool map::build_vision_transparency_cache( const int zlev )
             vision_transparency_cache[p.x()][p.y()] = LIGHT_TRANSPARENCY_OPEN_AIR;
         } else if( map::ter( loc ).obj().has_flag( ter_furn_flag::TFLAG_TRANSLUCENT ) ) {
             vision_transparency_cache[loc.x()][loc.y()] = LIGHT_TRANSPARENCY_SOLID;
-            dirty = true;
         }
     }
 
-    return dirty;
+    return false;
 }
 
 void map::apply_character_light( Character &p )
