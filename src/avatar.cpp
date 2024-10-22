@@ -884,6 +884,7 @@ bool avatar::try_break_relax_gas( const std::string &msg_success, const std::str
     }
 }
 
+
 nc_color avatar::basic_symbol_color() const
 {
     bool in_shell = has_active_mutation( trait_SHELL2 ) ||
