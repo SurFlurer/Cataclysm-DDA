@@ -1,3 +1,4 @@
+#pragma once
 #ifndef CATA_SRC_MATH_PARSER_FUNC_H
 #define CATA_SRC_MATH_PARSER_FUNC_H
 
@@ -170,10 +171,12 @@ constexpr double e_v = 2.7182818284590452354;
 #endif
 } // namespace math_constants
 
-constexpr std::array<math_const, 3> constants{
+constexpr std::array<math_const, 5> constants{
     math_const{ "π", math_constants::pi_v },
     math_const{ "pi", math_constants::pi_v },
     math_const{ "e", math_constants::e_v },
+    math_const{ "true", 1 },
+    math_const{ "false", 0 },
 };
 
 std::vector<std::string_view> tokenize( std::string_view str, std::string_view separators,

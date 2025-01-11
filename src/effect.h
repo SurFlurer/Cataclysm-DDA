@@ -2,11 +2,14 @@
 #ifndef CATA_SRC_EFFECT_H
 #define CATA_SRC_EFFECT_H
 
-#include <iosfwd>
+#include <array>
+#include <cstddef>
+#include <cstdint>
 #include <map>
+#include <optional>
 #include <set>
 #include <string>
-#include <tuple>
+#include <string_view>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -14,27 +17,19 @@
 #include "calendar.h"
 #include "color.h"
 #include "effect_source.h"
+#include "enums.h"
+#include "event.h"
 #include "flat_set.h"
-#include "hash_utils.h"
-#include "translations.h"
+#include "translation.h"
 #include "type_id.h"
 
-class effect_type;
-
-enum game_message_type : int;
-enum class event_type : int;
+class Character;
 class JsonObject;
 class JsonOut;
+class effect_type;
 
 /** Handles the large variety of weed messages. */
 void weed_msg( Character &p );
-
-enum effect_rating {
-    e_good,     // The effect is good for the one who has it.
-    e_neutral,  // There is no effect or the effect is very nominal. This is the default.
-    e_bad,      // The effect is bad for the one who has it.
-    e_mixed     // The effect has good and bad parts to the one who has it.
-};
 
 /** @relates string_id */
 template<>
@@ -97,9 +92,18 @@ struct limb_score_effect {
     void deserialize( const JsonObject &jo );
 };
 
+struct effect_dur_mod {
+    efftype_id effect_id;
+    float modifier;
+    bool same_bp;
+
+    void load( const JsonObject &jo );
+    void deserialize( const JsonObject &jo );
+};
+
 class effect_type
 {
-        friend void load_effect_type( const JsonObject &jo );
+        friend void load_effect_type( const JsonObject &jo, std::string_view src );
         friend class effect;
     public:
         enum class memorial_gender : int {
@@ -112,7 +116,7 @@ class effect_type
         efftype_id id;
 
         /** Returns if an effect is good or bad for message display. */
-        effect_rating get_rating() const;
+        game_message_type get_rating( int intensity = 1 ) const;
 
         /** Returns true if there is a listed name in the JSON entry for each intensity from
          *  1 to max_intensity. */
@@ -121,15 +125,13 @@ class effect_type
          *  from 1 to max_intensity with the matching reduced value. */
         bool use_desc_ints( bool reduced ) const;
 
-        /** Returns the appropriate game_message_type when a new effect is obtained. This is equal to
-         *  an effect's "rating" value. */
-        game_message_type gain_game_message_type() const;
         /** Returns the appropriate game_message_type when an effect is lost. This is opposite to
          *  an effect's "rating" value. */
-        game_message_type lose_game_message_type() const;
+        game_message_type lose_game_message_type( int intensity = 1 ) const;
 
-        /** Returns the message displayed when a new effect is obtained. */
-        std::string get_apply_message() const;
+        // adds a message to the log for applying an effect
+        void add_apply_msg( int intensity ) const;
+
         /** Returns the memorial log added when a new effect is obtained. */
         std::string get_apply_memorial_log( memorial_gender gender ) const;
         /** Returns the message displayed when an effect is removed. */
@@ -151,6 +153,7 @@ class effect_type
         void load_mod_data( const JsonObject &jo );
         bool load_miss_msgs( const JsonObject &jo, std::string_view member );
         bool load_decay_msgs( const JsonObject &jo, std::string_view member );
+        bool load_apply_msgs( const JsonObject &jo, std::string_view member );
 
         /** Verifies data is accurate */
         static void check_consistency();
@@ -226,9 +229,8 @@ class effect_type
 
         std::vector<std::pair<translation, game_message_type>> decay_msgs;
 
-        effect_rating rating = effect_rating::e_neutral;
+        std::vector<std::pair<translation, game_message_type>> apply_msgs;
 
-        translation apply_message;
         std::string apply_memorial_log;
         translation remove_message;
         std::string remove_memorial_log;
@@ -241,6 +243,7 @@ class effect_type
         std::unordered_map<std::string, std::unordered_map<uint32_t, modifier_value_arr>> mod_data;
         std::vector<vitamin_rate_effect> vitamin_data;
         std::vector<limb_score_effect> limb_score_data;
+        std::vector<effect_dur_mod> effect_dur_scaling;
         std::vector<std::pair<int, int>> kill_chance;
         std::vector<std::pair<int, int>> red_kill_chance;
 };
@@ -386,6 +389,8 @@ class effect
         // Extract limb score modifiers for descriptions
         std::vector<limb_score_effect> get_limb_score_data() const;
 
+        std::vector<effect_dur_mod> get_effect_dur_scaling() const;
+
         bool kill_roll( bool reduced ) const;
         std::string get_death_message() const;
         event_type death_event() const;
@@ -439,7 +444,7 @@ class effect
 
 };
 
-void load_effect_type( const JsonObject &jo );
+void load_effect_type( const JsonObject &jo, std::string_view src );
 void reset_effect_types();
 const std::map<efftype_id, effect_type> &get_effect_types();
 

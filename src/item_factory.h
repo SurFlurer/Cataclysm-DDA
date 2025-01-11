@@ -50,7 +50,7 @@ class migration
         int charges = 0;
 
         // if set to true then reset item_vars std::map to the value of itype's item_variables
-        bool reset_item_vars;
+        bool reset_item_vars = false;
 
         class content
         {
@@ -166,16 +166,6 @@ class Item_factory
          * Returns the idents of all item groups that are known.
          */
         std::vector<item_group_id> get_all_group_names();
-        /**
-         * Sets the chance of the specified item in the group.
-         * @param group_id Group to add item to
-         * @param item_id Id of item to add to group
-         * @param chance The relative weight of the item. A value of 0 removes the item from the
-         * group.
-         * @return false if the group doesn't exist.
-         */
-        bool add_item_to_group( const item_group_id &, const itype_id &item_id, int chance );
-        /*@}*/
 
         /**
          * @name Item type loading
@@ -234,6 +224,9 @@ class Item_factory
          */
         void migrate_item( const itype_id &id, item &obj );
 
+        /** applies a migration to the item if one exists with the given from_variant */
+        void migrate_item_from_variant( item &obj, const std::string &from_variant );
+
         /**
          * Check if an item type is known to the Item_factory.
          * @param id Item type id (@ref itype::id).
@@ -247,13 +240,6 @@ class Item_factory
          * @param id Item type id (@ref itype::id).
          */
         const itype *find_template( const itype_id &id ) const;
-
-        /**
-         * Add a passed in itype to the collection of item types.
-         * If the item type overrides an existing type, the existing type is deleted first.
-         * @param def The new item type, must not be null.
-         */
-        void add_item_type( const itype &def );
 
         /**
          * Check if an iuse is known to the Item_factory.
@@ -336,12 +322,14 @@ class Item_factory
         void emplace_usage( std::map<std::string, use_function> &container,
                             const std::string &iuse_id );
 
-        void set_use_methods_from_json( const JsonObject &jo, const std::string &member,
-                                        std::map<std::string, use_function> &use_methods, std::map<std::string, int> &ammo_scale );
+        void set_use_methods_from_json( const JsonObject &jo, const std::string &src,
+                                        const std::string &member, std::map<std::string, use_function> &use_methods,
+                                        std::map<std::string, int> &ammo_scale );
 
         use_function usage_from_string( const std::string &type ) const;
 
-        std::pair<std::string, use_function> usage_from_object( const JsonObject &obj );
+        std::pair<std::string, use_function> usage_from_object( const JsonObject &obj,
+                const std::string & );
 
         /**
          * Helper function for Item_group loading
@@ -365,7 +353,10 @@ class Item_factory
         void set_qualities_from_json( const JsonObject &jo, const std::string &member, itype &def );
         void extend_qualities_from_json( const JsonObject &jo, std::string_view member, itype &def );
         void delete_qualities_from_json( const JsonObject &jo, std::string_view member, itype &def );
-        void set_properties_from_json( const JsonObject &jo, std::string_view member, itype &def );
+        void relative_qualities_from_json( const JsonObject &jo, std::string_view member, itype &def );
+        void set_techniques_from_json( const JsonObject &jo, const std::string_view &member, itype &def );
+        void extend_techniques_from_json( const JsonObject &jo, std::string_view member, itype &def );
+        void delete_techniques_from_json( const JsonObject &jo, std::string_view member, itype &def );
 
         // declared here to have friendship status with itype
         static void npc_implied_flags( itype &item_template );

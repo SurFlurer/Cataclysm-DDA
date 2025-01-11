@@ -1,5 +1,13 @@
 #include "assign.h"
 
+#include <algorithm>
+#include <cstdint>
+#include <vector>
+
+#include "color.h"
+#include "debug.h"
+#include "json_error.h"
+
 void report_strict_violation( const JsonObject &jo, const std::string &message,
                               const std::string_view name )
 {
@@ -30,31 +38,17 @@ bool assign( const JsonObject &jo, const std::string_view name, bool &val, bool 
     return true;
 }
 
-bool assign( const JsonObject &jo, const std::string &name, units::volume &val, bool strict,
+bool assign( const JsonObject &jo, const std::string_view name, units::volume &val, bool strict,
              const units::volume lo, const units::volume hi )
 {
-    const auto parse = [&name]( const JsonObject & obj, units::volume & out ) {
+    const auto parse = [name]( const JsonObject & obj, units::volume & out ) {
         if( obj.has_int( name ) ) {
-            out = obj.get_int( name ) * units::legacy_volume_factor;
+            out = obj.get_int( name ) * 250_ml;
             return true;
         }
 
         if( obj.has_string( name ) ) {
-            units::volume::value_type tmp;
-            std::string suffix;
-            std::istringstream str( obj.get_string( name ) );
-            str.imbue( std::locale::classic() );
-            str >> tmp >> suffix;
-            if( str.peek() != std::istringstream::traits_type::eof() ) {
-                obj.throw_error_at( name, "syntax error when specifying volume" );
-            }
-            if( suffix == "ml" ) {
-                out = units::from_milliliter( tmp );
-            } else if( suffix == "L" ) {
-                out = units::from_milliliter( tmp * 1000 );
-            } else {
-                obj.throw_error_at( name, "unrecognized volumetric unit" );
-            }
+            out = read_from_json_string<units::volume>( obj.get_member( name ), units::volume_units );
             return true;
         }
 
@@ -241,9 +235,15 @@ bool assign( const JsonObject &jo, const std::string_view name, units::money &va
              const units::money lo, const units::money hi )
 {
     const auto parse = [&name]( const JsonObject & obj, units::money & out ) {
+        // Remove after 0.I, int reading should throw a specific error until at least then
         if( obj.has_int( name ) ) {
-            out = units::from_cent( obj.get_int( name ) );
-            return true;
+            std::string error_msg = "Must use denomination for pricing.  Valid units are:";
+            for( const std::pair<std::string, units::money> &denomination : units::money_units ) {
+                error_msg += "\n";
+                error_msg += denomination.first;
+            }
+            obj.throw_error_at( name, error_msg );
+            return false;
         }
         if( obj.has_string( name ) ) {
 

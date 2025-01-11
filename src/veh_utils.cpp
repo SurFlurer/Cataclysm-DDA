@@ -5,16 +5,17 @@
 #include <functional>
 #include <list>
 #include <map>
-#include <type_traits>
 #include <utility>
 #include <vector>
 
+#include "avatar.h"
 #include "calendar.h"
 #include "character.h"
-#include "color.h"
 #include "craft_command.h"
 #include "enums.h"
+#include "game.h"
 #include "game_constants.h"
+#include "input_context.h"
 #include "inventory.h"
 #include "item.h"
 #include "map.h"
@@ -98,12 +99,12 @@ bool repair_part( vehicle &veh, vehicle_part &pt, Character &who )
                                   ? vp.install_requirements()
                                   : vp.repair_requirements() * pt.get_base().repairable_levels();
 
-    const inventory &inv = who.crafting_inventory( who.pos(), PICKUP_RANGE, !who.is_npc() );
+    const inventory &inv = who.crafting_inventory( who.pos_bub(), PICKUP_RANGE, !who.is_npc() );
     inventory map_inv;
     // allow NPCs to use welding rigs they can't see ( on the other side of a vehicle )
     // as they have the handicap of not being able to use the veh interaction menu
     // or able to drag a welding cart etc.
-    map_inv.form_from_map( who.pos(), PICKUP_RANGE, &who, false, !who.is_npc() );
+    map_inv.form_from_map( who.pos_bub(), PICKUP_RANGE, &who, false, !who.is_npc() );
     if( !reqs.can_make_with_inventory( inv, is_crafting_component ) ) {
         who.add_msg_if_player( m_info, _( "You don't meet the requirements to repair the %s." ),
                                pt.name() );
@@ -136,10 +137,10 @@ bool repair_part( vehicle &veh, vehicle_part &pt, Character &who )
     const std::string startdurability = pt.get_base().damage_indicator();
     if( pt.is_broken() ) {
         const vpart_id vpid = pt.info().id;
-        const point mount = pt.mount;
+        const point_rel_ms mount = pt.mount;
         const units::angle direction = pt.direction;
         const std::string variant = pt.variant;
-        get_map().spawn_items( who.pos(), pt.pieces_for_broken_part() );
+        get_map().spawn_items( who.pos_bub(), pt.pieces_for_broken_part() );
         veh.remove_part( pt );
         const int partnum = veh.install_part( mount, vpid, std::move( base ) );
         if( partnum >= 0 ) {
@@ -166,15 +167,39 @@ veh_menu_item &veh_menu_item::text( const std::string &text )
     return *this;
 }
 
+veh_menu_item &veh_menu_item::text_color( const nc_color text_color )
+{
+    this->_text_color = text_color;
+    return *this;
+}
+
 veh_menu_item &veh_menu_item::desc( const std::string &desc )
 {
     this->_desc = desc;
     return *this;
 }
 
+veh_menu_item &veh_menu_item::symbol( const int symbol )
+{
+    this->_symbol = symbol;
+    return *this;
+}
+
+veh_menu_item &veh_menu_item::symbol_color( const nc_color symbol_color )
+{
+    this->_symbol_color = symbol_color;
+    return *this;
+}
+
 veh_menu_item &veh_menu_item::enable( const bool enable )
 {
     this->_enabled = enable;
+    return *this;
+}
+
+veh_menu_item &veh_menu_item::select( const bool select )
+{
+    this->_selected = select;
     return *this;
 }
 
@@ -196,16 +221,10 @@ static std::optional<input_event> veh_keybind( const std::optional<std::string> 
         return std::nullopt;
     }
 
-    const std::vector<input_event> hk_keycode = input_context( "VEHICLE", keyboard_mode::keycode )
-            .keys_bound_to( *hotkey, /* maximum_modifier_count = */ 1 );
-    if( !hk_keycode.empty() ) {
-        return hk_keycode.front(); // try for keycode hotkey first
-    }
-
-    const std::vector<input_event> hk_keychar = input_context( "VEHICLE", keyboard_mode::keychar )
-            .keys_bound_to( *hotkey );
-    if( !hk_keychar.empty() ) {
-        return hk_keychar.front(); // fallback to keychar hotkey
+    const std::vector<input_event> hk = input_context( "VEHICLE" )
+                                        .keys_bound_to( *hotkey, /* maximum_modifier_count = */ 1 );
+    if( !hk.empty() ) {
+        return hk.front();
     }
 
     return input_event();
@@ -215,7 +234,6 @@ veh_menu_item &veh_menu_item::hotkey( const char hotkey_char )
 {
     this->_hotkey_action = std::nullopt;
     this->_hotkey_char = hotkey_char;
-    this->_hotkey_event = std::nullopt;
     return *this;
 }
 
@@ -223,15 +241,6 @@ veh_menu_item &veh_menu_item::hotkey( const std::string &action )
 {
     this->_hotkey_action = action;
     this->_hotkey_char = std::nullopt;
-    this->_hotkey_event = std::nullopt;
-    return *this;
-}
-
-veh_menu_item &veh_menu_item::hotkey( const input_event &ev )
-{
-    this->_hotkey_action = std::nullopt;
-    this->_hotkey_char = std::nullopt;
-    this->_hotkey_event = ev;
     return *this;
 }
 
@@ -239,13 +248,18 @@ veh_menu_item &veh_menu_item::hotkey_auto()
 {
     this->_hotkey_char = std::nullopt;
     this->_hotkey_action = std::nullopt;
-    this->_hotkey_event = std::nullopt;
     return *this;
 }
 
 veh_menu_item &veh_menu_item::on_submit( const std::function<void()> &on_submit )
 {
     this->_on_submit = on_submit;
+    return *this;
+}
+
+veh_menu_item &veh_menu_item::on_select( const std::function<void()> &on_select )
+{
+    this->_on_select = on_select;
     return *this;
 }
 
@@ -289,6 +303,12 @@ std::vector<veh_menu_item> veh_menu::get_items() const
     return items;
 }
 
+void veh_menu::sort( const std::function<int( const veh_menu_item &a, const veh_menu_item &b )>
+                     &comparer )
+{
+    std::sort( items.begin(), items.end(), comparer );
+}
+
 std::vector<tripoint> veh_menu::get_locations() const
 {
     std::vector<tripoint> locations;
@@ -304,7 +324,7 @@ std::vector<tripoint> veh_menu::get_locations() const
 
 void veh_menu::reset( bool keep_last_selected )
 {
-    last_selected = keep_last_selected ? last_selected : 0;
+    last_selected = keep_last_selected ? last_selected : std::nullopt;
     items.clear();
 }
 
@@ -314,19 +334,21 @@ std::vector<uilist_entry> veh_menu::get_uilist_entries() const
 
     for( size_t i = 0; i < items.size(); i++ ) {
         const veh_menu_item &it = items[i];
-        std::optional<input_event> hotkey_event = std::nullopt;
-        if( it._hotkey_event.has_value() ) {
-            hotkey_event = it._hotkey_event.value();
-        } else if( it._hotkey_action.has_value() ) {
-            hotkey_event = veh_keybind( it._hotkey_action );
+        uilist_entry entry( it._text, std::nullopt );
+        if( it._hotkey_action.has_value() ) {
+            entry = uilist_entry( it._text, veh_keybind( it._hotkey_action ) );
         } else if( it._hotkey_char.has_value() ) {
-            hotkey_event = input_event( it._hotkey_char.value(), input_event_t::keyboard_char );
+            entry = uilist_entry( it._text, it._hotkey_char.value() );
         }
-        uilist_entry entry = uilist_entry( it._text, hotkey_event );
 
         entry.retval = static_cast<int>( i );
         entry.desc = it._desc;
         entry.enabled = it._enabled;
+        entry.text_color = it._text_color;
+        if( it._symbol != 0 ) {
+            entry.extratxt.color = it._symbol_color;
+            entry.extratxt.sym = it._symbol;
+        }
 
         if( it._check_locked && veh.is_locked ) {
             entry.enabled = false;
@@ -341,6 +363,56 @@ std::vector<uilist_entry> veh_menu::get_uilist_entries() const
 
     return entries;
 }
+
+class veh_menu_cb : public uilist_callback
+{
+    public:
+        explicit veh_menu_cb( const std::vector<tripoint> &pts ) : points( pts ) {
+            last = INT_MIN;
+            avatar &player_character = get_avatar();
+            last_view = player_character.view_offset;
+            terrain_draw_cb = make_shared_fast<game::draw_callback_t>( [this, &player_character]() {
+                if( draw_trail && last >= 0 && static_cast<size_t>( last ) < points.size() ) {
+                    g->draw_trail_to_square( player_character.view_offset, true );
+                }
+            } );
+            g->add_draw_callback( terrain_draw_cb );
+        }
+
+        ~veh_menu_cb() override {
+            get_avatar().view_offset = last_view;
+        }
+
+        std::function<void()> on_select;
+        bool draw_trail;
+    private:
+        const std::vector< tripoint > &points;
+        int last; // to suppress redrawing
+        tripoint_rel_ms last_view; // to reposition the view after selecting
+        shared_ptr_fast<game::draw_callback_t> terrain_draw_cb;
+
+        void select( uilist *menu ) override {
+            if( last == menu->selected ) {
+                return;
+            }
+            last = menu->selected;
+            avatar &player_character = get_avatar();
+            if( menu->selected < 0 || menu->selected >= static_cast<int>( points.size() ) ) {
+                player_character.view_offset = tripoint_rel_ms::zero;
+            } else {
+                const tripoint &center = points[menu->selected];
+                player_character.view_offset = tripoint_rel_ms( center - player_character.pos_bub().raw() );
+                // Remove next line if/when it's wanted/safe to shift view to other zlevels
+                player_character.view_offset.z() = 0;
+            }
+            g->invalidate_main_ui_adaptor();
+            if( on_select ) {
+                on_select();
+                map &m = get_map();
+                m.invalidate_map_cache( m.get_abs_sub().z() );
+            }
+        }
+};
 
 bool veh_menu::query()
 {
@@ -360,7 +432,6 @@ bool veh_menu::query()
 
     menu.title = title;
     menu.entries = get_uilist_entries();
-    menu.desc_lines_hint = desc_lines_hint;
     menu.desc_enabled = std::any_of( menu.entries.begin(), menu.entries.end(),
     []( const uilist_entry & it ) {
         return !it.desc.empty();
@@ -368,15 +439,30 @@ bool veh_menu::query()
     menu.hilight_disabled = true;
 
     const std::vector<tripoint> locations = get_locations();
-    pointmenu_cb callback( locations );
+    veh_menu_cb cb( locations );
+
+    cb.on_select = [this, &menu]() {
+        if( items[menu.selected]._on_select ) {
+            items[menu.selected]._on_select();
+        }
+    };
+
     if( locations.size() == items.size() ) { // all items have valid location attached
-        menu.callback = &callback;
-        menu.w_x_setup = 4; // move menu to the left so more space around vehicle is visible
+        menu.callback = &cb;
+        menu.desired_bounds = { 4.0, -1.0, -1.0, -1.0 };
     } else {
         menu.callback = nullptr;
     }
 
-    menu.selected = last_selected;
+    if( last_selected.has_value() ) { // have selection from previous query
+        menu.selected = std::min( static_cast<int>( items.size() ), last_selected.value() );
+    } else { // find first element with select enabled
+        for( menu.selected = 0; menu.selected < static_cast<int>( items.size() ); menu.selected++ ) {
+            if( items[menu.selected]._selected ) {
+                break; // found first selected element
+            }
+        }
+    }
     menu.query();
     last_selected = menu.selected;
 
@@ -399,6 +485,7 @@ bool veh_menu::query()
 
     veh.refresh();
     map &m = get_map();
+    m.invalidate_visibility_cache();
     m.invalidate_map_cache( m.get_abs_sub().z() );
 
     return chosen._keep_menu_open;

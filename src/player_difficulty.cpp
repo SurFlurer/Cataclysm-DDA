@@ -10,6 +10,10 @@
 
 static const damage_type_id damage_bash( "bash" );
 
+static const itype_id itype_bat( "bat" );
+static const itype_id itype_knife_combat( "knife_combat" );
+static const itype_id itype_machete( "machete" );
+
 static const profession_id profession_unemployed( "unemployed" );
 
 player_difficulty::player_difficulty()
@@ -29,7 +33,6 @@ void player_difficulty::npc_from_avatar( const avatar &u, npc &dummy )
     dummy.int_max = u.int_max;
     dummy.per_max = u.per_max;
 
-
     // set skills
     for( const auto &t : u.get_all_skills() ) {
         dummy.set_skill_level( t.first, t.second.level() );
@@ -40,12 +43,12 @@ void player_difficulty::npc_from_avatar( const avatar &u, npc &dummy )
     dummy.hobbies = u.hobbies;
 
     // set mutations
-    for( const trait_id &t : u.get_mutations( true ) ) {
+    for( const trait_id &t : u.get_functioning_mutations( true ) ) {
         dummy.set_mutation( t );
     }
 
     dummy.reset();
-    dummy.initialize();
+    dummy.initialize( false );
 }
 
 void player_difficulty::reset_npc( Character &dummy )
@@ -54,7 +57,7 @@ void player_difficulty::reset_npc( Character &dummy )
     dummy.normalize(); // In particular this clears martial arts style
 
     // delete all worn items.
-    dummy.worn.clear();
+    dummy.clear_worn();
     dummy.calc_encumbrance();
     dummy.inv->clear();
     dummy.remove_weapon();
@@ -67,7 +70,7 @@ void player_difficulty::reset_npc( Character &dummy )
     dummy.clear_vitamins();
 
     // This sets HP to max, clears addictions and morale,
-    // and sets hunger, thirst, fatigue and such to zero
+    // and sets hunger, thirst, sleepiness and such to zero
     dummy.environmental_revert_effect();
     // However, the above does not set stored kcal
     dummy.set_stored_kcal( dummy.get_healthy_kcal() );
@@ -86,6 +89,10 @@ void player_difficulty::reset_npc( Character &dummy )
     for( const proficiency_id &prof : dummy.known_proficiencies() ) {
         dummy.lose_proficiency( prof, true );
     }
+    dummy.add_default_background();
+    dummy.set_proficiencies_from_hobbies();
+    dummy.set_skills_from_hobbies();
+
 
     // Reset cardio_acc to baseline
     dummy.reset_cardio_acc();
@@ -177,15 +184,13 @@ double player_difficulty::calc_dps_value( const Character &u )
 {
     // check against the big three
     // efficient early weapons you can easily get access to
-    item early_piercing = item( "knife_combat" );
-    item early_cutting = item( "machete" );
-    item early_bashing = item( "bat" );
+    item early_piercing = item( itype_knife_combat );
+    item early_cutting = item( itype_machete );
+    item early_bashing = item( itype_bat );
 
     double baseline = std::max( u.weapon_value( early_piercing ),
                                 u.weapon_value( early_cutting ) );
     baseline = std::max( baseline, u.weapon_value( early_bashing ) );
-
-
 
     // check any other items the character has on them
     if( u.prof ) {
@@ -228,7 +233,6 @@ std::string player_difficulty::get_genetics_difficulty( const Character &u ) con
     // the percent margin between result bands
     const float percent_band = 2.5f;
 
-
     int genetics_total = u.str_max + u.dex_max + u.per_max + u.int_max;
     genetics_total += std::max( 0, u.str_max - HIGH_STAT ) * high_stat_penalty;
     genetics_total += std::max( 0, u.dex_max - HIGH_STAT ) * high_stat_penalty;
@@ -252,10 +256,22 @@ std::string player_difficulty::get_genetics_difficulty( const Character &u ) con
     return format_output( percent_band, per );
 }
 
+static int get_character_skill_value( const Character &u )
+{
+    // sum player skills and proficiencies
+    int character_skills = 0;
+    // every skill point is worth 1 point of value
+    for( const auto &t : u.get_all_skills() ) {
+        // combat skills will be handled in offence
+        if( !t.first->is_combat_skill() ) {
+            character_skills += t.second.level();
+        }
+    }
+    return character_skills;
+}
+
 std::string player_difficulty::get_expertise_difficulty( const Character &u ) const
 {
-    // a bit extra over multipool since you get 2 points per in multi
-    const int average_skill_ranks = 4;
     const float percent_band = 0.6f;
 
     // how much each proficiency is valued compared to a skill point
@@ -267,18 +283,13 @@ std::string player_difficulty::get_expertise_difficulty( const Character &u ) co
     const float learn_weighting = 2.0f;
     const float focus_weighting = 2.0f;
 
-
     // sum player skills and proficiencies
-    int player_skills = 0;
-    // every skill point is worth 1 point of value
-    for( const auto &t : u.get_all_skills() ) {
-        // combat skills will be handled in offence
-        if( !t.first->is_combat_skill() ) {
-            player_skills += t.second.level();
-        }
-    }
+    int player_skills = get_character_skill_value( u );
+    int average_skill_ranks = get_character_skill_value( average );
+
     // every proficiency is worth about the value of 2 skill points
     player_skills += proficiency_value * u._proficiencies->known_profs().size();
+    average_skill_ranks += proficiency_value * average._proficiencies->known_profs().size();
 
     // skills and professions
     float per = skill_weighting * static_cast<float>( player_skills - average_skill_ranks ) /
@@ -297,11 +308,8 @@ std::string player_difficulty::get_expertise_difficulty( const Character &u ) co
     per += learn_weighting * static_cast<float>( u.adjust_for_focus( 100 ) -
             average.adjust_for_focus( 100 ) ) / static_cast<float>( average.adjust_for_focus( 100 ) );
 
-
-
     return format_output( percent_band, per );
 }
-
 
 int player_difficulty::calc_social_value( const Character &u, const npc &compare )
 {
@@ -327,7 +335,6 @@ std::string player_difficulty::get_social_difficulty( const Character &u ) const
     int average_val = calc_social_value( average, average );
 
     const float percent_band = 0.6f;
-
 
     float per = static_cast<float>( player_val - average_val ) / static_cast<float>
                 ( average_val );
@@ -376,12 +383,22 @@ std::string player_difficulty::difficulty_to_string( const avatar &u ) const
     std::string combat = get_combat_difficulty( n );
     std::string defense = get_defense_difficulty( n );
 
-
-    return string_format( "%s |  %s: %s  %s: %s  %s: %s  %s: %s  %s: %s",
-                          _( "Summary" ),
-                          _( "Lifestyle" ), genetics,
-                          _( "Knowledge" ), expertise,
-                          _( "Offense" ), combat,
-                          _( "Defense" ), defense,
-                          _( "Social" ), socials );
+    if( get_option<bool>( "SCREEN_READER_MODE" ) ) {
+        // Put value before label to ensure the screen reader reads the label when the value changes
+        return string_format( "%s | %s %s, %s %s, %s %s, %s %s, %s %s",
+                              _( "Summary" ),
+                              genetics, _( "Lifestyle" ),
+                              expertise, _( "Knowledge" ),
+                              combat, _( "Offense" ),
+                              defense, _( "Defense" ),
+                              socials, _( "Social" ) );
+    } else {
+        return string_format( "%s |  %s: %s  %s: %s  %s: %s  %s: %s  %s: %s",
+                              _( "Summary" ),
+                              _( "Lifestyle" ), genetics,
+                              _( "Knowledge" ), expertise,
+                              _( "Offense" ), combat,
+                              _( "Defense" ), defense,
+                              _( "Social" ), socials );
+    }
 }

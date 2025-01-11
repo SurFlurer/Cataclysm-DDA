@@ -10,12 +10,12 @@
 #include "cata_catch.h"
 #include "game.h"
 #include "item.h"
-#include "item_pocket.h"
 #include "map_helpers.h"
 #include "npc.h"
 #include "options_helpers.h"
 #include "pimpl.h"
 #include "player_helpers.h"
+#include "pocket_type.h"
 #include "ret_val.h"
 #include "type_id.h"
 #include "units.h"
@@ -32,8 +32,17 @@ static const bionic_id bio_power_storage( "bio_power_storage" );
 // Change to some other weapon CBM if bio_surgical_razor is ever removed
 static const bionic_id bio_surgical_razor( "bio_surgical_razor" );
 // Any item that can be wielded
+
 static const flag_id json_flag_PSEUDO( "PSEUDO" );
+
+static const itype_id fuel_type_gasoline( "gasoline" );
+static const itype_id itype_UPS_ON( "UPS_ON" );
+static const itype_id itype_backpack( "backpack" );
+static const itype_id itype_jumper_cable( "jumper_cable" );
+static const itype_id itype_light_battery_cell( "light_battery_cell" );
+static const itype_id itype_pants_cargo( "pants_cargo" );
 static const itype_id itype_solarpack_on( "solarpack_on" );
+static const itype_id itype_splinter( "splinter" );
 static const itype_id itype_test_backpack( "test_backpack" );
 
 TEST_CASE( "Bionic_power_capacity", "[bionics] [power]" )
@@ -392,10 +401,10 @@ TEST_CASE( "fueled_bionics", "[bionics] [item]" )
         REQUIRE( !dummy.has_power() );
 
         // Add fuel. Now it turns on and generates power.
-        item gasoline = item( "gasoline" );
+        item gasoline = item( fuel_type_gasoline );
         gasoline.charges = 2;
         CHECK( gasoline_tank->can_reload_with( gasoline, true ) );
-        gasoline_tank->put_in( gasoline, item_pocket::pocket_type::CONTAINER );
+        gasoline_tank->put_in( gasoline, pocket_type::CONTAINER );
         REQUIRE( gasoline_tank->only_item().charges == 2 );
         CHECK( dummy.activate_bionic( bio ) );
         CHECK_FALSE( dummy.get_bionic_fuels( bio.id ).empty() );
@@ -427,9 +436,9 @@ TEST_CASE( "fueled_bionics", "[bionics] [item]" )
         REQUIRE( !dummy.has_power() );
 
         // Add empty battery. Still won't work
-        item battery = item( "light_battery_cell" );
+        item battery = item( itype_light_battery_cell );
         CHECK( bat_compartment->can_reload_with( battery, true ) );
-        bat_compartment->put_in( battery, item_pocket::pocket_type::MAGAZINE_WELL );
+        bat_compartment->put_in( battery, pocket_type::MAGAZINE_WELL );
         REQUIRE( bat_compartment->ammo_remaining() == 0 );
         CHECK( dummy.get_bionic_fuels( bio.id ).empty() );
         CHECK( dummy.get_cable_ups().empty() );
@@ -470,12 +479,11 @@ TEST_CASE( "fueled_bionics", "[bionics] [item]" )
         REQUIRE( !dummy.has_power() );
 
         // Connect to empty ups. Bionic shouldn't work
-        dummy.worn.wear_item( dummy, item( "backpack" ), false, false );
-        item_location ups = dummy.i_add( item( "UPS_ON" ) );
-        item_location cable = dummy.i_add( item( "jumper_cable" ) );
-        cable->link = cata::make_value<item::link_data>();
-        cable->link->s_state = link_state::ups;
-        cable->link->t_state = link_state::bio_cable;
+        dummy.worn.wear_item( dummy, item( itype_backpack ), false, false );
+        item_location ups = dummy.i_add( item( itype_UPS_ON ) );
+        item_location cable = dummy.i_add( item( itype_jumper_cable ) );
+        cable->link().source = link_state::ups;
+        cable->link().target = link_state::bio_cable;
         ups->set_var( "cable", "plugged_in" );
         cable->active = true;
 
@@ -490,7 +498,7 @@ TEST_CASE( "fueled_bionics", "[bionics] [item]" )
 
         // Put empty battery into ups. Still does not work.
         item ups_mag( ups->magazine_default() );
-        ups->put_in( ups_mag, item_pocket::pocket_type::MAGAZINE_WELL );
+        ups->put_in( ups_mag, pocket_type::MAGAZINE_WELL );
         REQUIRE( ups->ammo_remaining() == 0 );
         CHECK( dummy.get_bionic_fuels( bio.id ).empty() );
         CHECK_FALSE( dummy.activate_bionic( bio ) );
@@ -523,18 +531,17 @@ TEST_CASE( "fueled_bionics", "[bionics] [item]" )
         g->reset_light_level();
         scoped_weather_override weather_clear( WEATHER_CLEAR );
         calendar::turn = calendar::turn_zero + 12_hours;
-        REQUIRE( g->is_in_sunlight( dummy.pos() ) );
+        REQUIRE( g->is_in_sunlight( dummy.pos_bub() ) );
 
         // Connect solar backpack
-        dummy.worn.wear_item( dummy, item( "pants_cargo" ), false, false );
+        dummy.worn.wear_item( dummy, item( itype_pants_cargo ), false, false );
         dummy.worn.wear_item( dummy, item( itype_solarpack_on ), false, false );
         // Unsafe way to get the worn solar backpack
         item_location solar_pack = dummy.top_items_loc()[1];
         REQUIRE( solar_pack->typeId() == itype_solarpack_on );
-        item_location cable = dummy.i_add( item( "jumper_cable" ) );
-        cable->link = cata::make_value<item::link_data>();
-        cable->link->s_state = link_state::solarpack;
-        cable->link->t_state = link_state::bio_cable;
+        item_location cable = dummy.i_add( item( itype_jumper_cable ) );
+        cable->link().source = link_state::solarpack;
+        cable->link().target = link_state::bio_cable;
         solar_pack->set_var( "cable", "plugged_in" );
         cable->active = true;
 
@@ -561,11 +568,11 @@ TEST_CASE( "fueled_bionics", "[bionics] [item]" )
         REQUIRE( !dummy.has_power() );
 
         // Add two splints. Now it turns on and generates power.
-        item wood = item( "splinter" );
-        item wood_2 = item( "splinter" );
+        item wood = item( itype_splinter );
+        item wood_2 = item( itype_splinter );
         REQUIRE_FALSE( wood.count_by_charges() );
-        woodshed->put_in( wood, item_pocket::pocket_type::CONTAINER );
-        woodshed->put_in( wood_2, item_pocket::pocket_type::CONTAINER );
+        woodshed->put_in( wood, pocket_type::CONTAINER );
+        woodshed->put_in( wood_2, pocket_type::CONTAINER );
         REQUIRE( woodshed->all_items_ptr().size() == 2 );
         CHECK( dummy.activate_bionic( bio ) );
         CHECK_FALSE( dummy.get_bionic_fuels( bio.id ).empty() );

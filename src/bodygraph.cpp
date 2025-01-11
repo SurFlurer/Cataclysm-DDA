@@ -1,12 +1,39 @@
-#include "avatar.h"
 #include "bodygraph.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <initializer_list>
+#include <memory>
+#include <set>
+#include <tuple>
+
 #include "bodypart.h"
+#include "cata_utility.h"
+#include "catacharset.h"
+#include "character.h"
+#include "character_attire.h"
+#include "creature.h"
 #include "cursesdef.h"
 #include "damage.h"
+#include "debug.h"
+#include "enums.h"
+#include "flexbuffer_json-inl.h"
+#include "flexbuffer_json.h"
 #include "generic_factory.h"
-#include "input.h"
+#include "init.h"
+#include "input_context.h"
+#include "json_error.h"
 #include "make_static.h"
+#include "memory_fast.h"
+#include "output.h"
+#include "point.h"
+#include "string_formatter.h"
+#include "subbodypart.h"
+#include "translation.h"
+#include "translations.h"
+#include "ui.h"
 #include "ui_manager.h"
+#include "units.h"
 #include "weather.h"
 
 #define BPGRAPH_MAXROWS 20
@@ -110,6 +137,11 @@ void bodygraph::load( const JsonObject &jo, const std::string_view )
             parts.emplace( sym, bpg );
         }
     }
+
+    if( jo.has_string( "label_fill" ) ) {
+        label_fill = jo.get_string( "label_fill" );
+    }
+
 }
 
 void bodygraph::finalize()
@@ -354,7 +386,7 @@ void bodygraph_display::draw_partlist()
     werase( w_partlist );
     int y = 0;
     for( int i = top_part; y < all_height - 2 && i < static_cast<int>( partlist.size() ); i++ ) {
-        const auto bgt = partlist[i];
+        const auto &bgt = partlist[i];
         std::string txt = !std::get<1>( bgt ) ?
                           std::get<0>( bgt )->name.translated() :
                           std::get<1>( bgt )->name.translated();
@@ -402,9 +434,7 @@ void bodygraph_display::draw_info()
         int y = 0;
         for( unsigned i = top_info; i < info_txt.size() && y < all_height - 2; i++, y++ ) {
             if( info_txt[i] == "--" ) {
-                for( int x = 1; x < info_width - 2; x++ ) {
-                    mvwputch( w_info, point( x, y ), c_dark_gray, LINE_OXOX );
-                }
+                mvwhline( w_info, point( 1, y ), c_dark_gray, LINE_OXOX, info_width - 3 );
             } else {
                 trim_and_print( w_info, point( 1, y ), info_width - 2, c_white, info_txt[i] );
             }
@@ -419,11 +449,11 @@ void bodygraph_display::prepare_partlist()
     for( const auto &bgp : id->parts ) {
         for( const bodypart_id &bid : bgp.second.bodyparts ) {
             partlist.emplace_back( bid, static_cast<const sub_body_part_type *>( nullptr ),
-                                   &bgp.second, u->has_part( bid ) );
+                                   &bgp.second, u->has_part( bid, body_part_filter::equivalent ) );
         }
         for( const sub_bodypart_id &sid : bgp.second.sub_bodyparts ) {
             const bodypart_id bid = sid->parent.id();
-            partlist.emplace_back( bid, &*sid, &bgp.second, u->has_part( bid ) );
+            partlist.emplace_back( bid, &*sid, &bgp.second, u->has_part( bid, body_part_filter::equivalent ) );
         }
     }
     std::sort( partlist.begin(), partlist.end(),
@@ -491,7 +521,7 @@ void bodygraph_display::prepare_infotext( bool reset_pos )
     info_txt.emplace_back( string_format( "%s: %d%%", colorize( _( "Wetness" ), c_magenta ),
                                           static_cast<int>( info.wetness * 100.0f ) ) );
     // part temperature
-    const bool temp_precise = u->has_item_with_flag( STATIC( flag_id( "THERMOMETER" ) ) ) ||
+    const bool temp_precise = u->cache_has_item_with( STATIC( flag_id( "THERMOMETER" ) ) ) ||
                               u->has_flag( STATIC( json_character_flag( "THERMOMETER" ) ) );
     const units::temperature temp = units::from_fahrenheit( info.temperature.first / 50.0 );
     info_txt.emplace_back( string_format( "%s: %s", colorize( _( "Body temp" ), c_magenta ),
@@ -502,9 +532,9 @@ void bodygraph_display::prepare_infotext( bool reset_pos )
     info_txt.emplace_back( string_format( "%s:", colorize( _( "Effects" ), c_magenta ) ) );
     for( const effect &eff : info.effects ) {
         if( eff.get_id()->is_show_in_info() ) {
-            effect_rating rt = eff.get_id()->get_rating();
+            game_message_type rt = eff.get_id()->get_rating( eff.get_intensity() );
             info_txt.emplace_back( string_format( "  %s", colorize( eff.disp_name(),
-                                                  rt == e_good ? c_green : rt == e_bad ? c_red : c_yellow ) ) );
+                                                  rt == m_good ? c_green : rt == m_bad ? c_red : c_yellow ) ) );
         }
     }
     info_txt.emplace_back( "--" );
@@ -540,10 +570,13 @@ void bodygraph_display::prepare_infotext( bool reset_pos )
         txt.insert( txt.begin(), res_avail > 4 ? 4 : res_avail, ' ' );
         return txt;
     };
+    auto get_env_str = [&]( const damage_type_id & dt ) -> std::string {
+        return colorize( string_format( "    %5.2f", info.best_case.type_resist( dt ) ), c_white );
+    };
     for( const damage_type &dt : damage_type::get_all() ) {
         if( info.best_case.type_resist( dt.id ) > 1 ) {
             info_txt.emplace_back( string_format( "  %s:", uppercase_first_letter( dt.name.translated() ) ) );
-            info_txt.emplace_back( get_res_str( dt.id ) );
+            info_txt.emplace_back( dt.env ? get_env_str( dt.id ) : get_res_str( dt.id ) );
         }
     }
 }
@@ -619,7 +652,8 @@ void display_bodygraph( const Character &u, const bodygraph_id &id )
 }
 
 std::vector<std::string> get_bodygraph_lines( const Character &u,
-        const bodygraph_callback &fragment_cb, const bodygraph_id &id, int width, int height )
+        const bodygraph_callback &fragment_cb, const bodygraph_id &id, int width, int height,
+        const std::string_view &label )
 {
     width = ( width <= 0 || width > BPGRAPH_MAXCOLS ) ? BPGRAPH_MAXCOLS : width;
     height = ( height <= 0 || height > BPGRAPH_MAXROWS ) ? BPGRAPH_MAXROWS : height;
@@ -627,7 +661,7 @@ std::vector<std::string> get_bodygraph_lines( const Character &u,
     std::vector<std::string> ret;
 
     // Bodypart not present on character
-    if( !!id->parent_bp && !u.has_part( *id->parent_bp ) ) {
+    if( !!id->parent_bp && !u.has_part( *id->parent_bp, body_part_filter::equivalent ) ) {
         std::string txt = string_format( u.is_avatar() ?
                                          //~ 1$ = 2nd person pronoun (You), 2$ = body part (left arm)
                                          _( "%1$s do not have a %2$s." ) :
@@ -650,24 +684,37 @@ std::vector<std::string> get_bodygraph_lines( const Character &u,
     for( int i = 0; static_cast<size_t>( i ) < rid->rows.size() && i < height; i++ ) {
         std::string ret_row;
         int j = hflip ? rid->rows[i].size() - 1 : 0;
+        size_t label_i = 0;
         for( int x = 0 ; x < width && j < BPGRAPH_MAXCOLS && j >= 0; hflip ? j-- : j++, x++ ) {
-            std::string sym = id->fill_sym.empty() ? rid->rows[i][j] : id->fill_sym;
-            auto iter = id->parts.find( rid->rows[i][j] );
+            std::string sym = " ";
+            const std::string &r = rid->rows[i][j];
+            bool label_sym = false;
+            if( !id->fill_rows.empty() && id->label_fill == id->fill_rows[i][j] ) {
+                if( label_i < label.length() ) {
+                    label_sym = true;
+                    sym = label[label_i++];
+                }
+            } else {
+                sym = id->fill_sym.empty() ? r : id->fill_sym;
+            }
+            auto iter = id->parts.find( r );
             const bodygraph_part *bgp = nullptr;
             if( iter != id->parts.end() ) {
                 bgp = &iter->second;
                 bool missing_section = true;
                 for( const bodypart_id &bp : iter->second.bodyparts ) {
-                    if( u.has_part( bp ) ) {
+                    if( u.has_part( bp, body_part_filter::equivalent ) ) {
                         missing_section = false;
                     }
                 }
                 for( const sub_bodypart_id &sp : iter->second.sub_bodyparts ) {
-                    if( u.has_part( sp->parent ) ) {
+                    if( u.has_part( sp->parent, body_part_filter::equivalent ) ) {
                         missing_section = false;
                     }
                 }
-                sym = missing_section ? " " : ( id->fill_rows.empty() ? iter->second.sym : id->fill_rows[i][j] );
+                if( !label_sym ) {
+                    sym = missing_section ? " " : ( id->fill_rows.empty() ? iter->second.sym : id->fill_rows[i][j] );
+                }
             }
             if( rid->rows[i][j] == " " ) {
                 sym = " ";

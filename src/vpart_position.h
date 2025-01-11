@@ -70,9 +70,11 @@ class vpart_position
         // @return reference to unbroken CARGO part at this position or std::nullopt
         std::optional<vpart_reference> cargo() const;
         /// @see vehicle::part_with_feature
-        std::optional<vpart_reference> part_with_feature( const std::string &f, bool unbroken ) const;
+        std::optional<vpart_reference> part_with_feature( const std::string &f, bool unbroken,
+                bool include_fake = false ) const;
         /// @see vehicle::part_with_feature
-        std::optional<vpart_reference> part_with_feature( vpart_bitflags f, bool unbroken ) const;
+        std::optional<vpart_reference> part_with_feature( vpart_bitflags f, bool unbroken,
+                bool include_fake = false ) const;
         /// @see vehicle::part_with_feature
         std::optional<vpart_reference> avail_part_with_feature( const std::string &f ) const;
         /// @see vehicle::part_with_feature
@@ -91,7 +93,7 @@ class vpart_position
         // Finds vpart_reference to inner part with specified tool
         std::optional<vpart_reference> part_with_tool( const itype_id &tool_type ) const;
         // Returns a list of all tools provided by vehicle and their hotkey
-        std::map<item, input_event> get_tools() const;
+        std::map<item, int> get_tools() const;
         // Forms inventory for inventory::form_from_map
         void form_inventory( inventory &inv ) const;
 
@@ -102,14 +104,13 @@ class vpart_position
          * `g->m.veh_at( this->pos() )` (there is a vehicle there)
          * `g->m.veh_at( this->pos() )->vehicle() == this->vehicle()` (it's this one)
          */
-        // Name chosen to match Creature::pos
-        tripoint pos() const;
+        tripoint_bub_ms pos_bub() const;
         /**
          * Returns the mount point: the point in the vehicles own coordinate system.
          * This system is independent of movement / rotation.
          */
         // TODO: change to return tripoint.
-        point mount() const;
+        point_rel_ms mount_pos() const;
 
         // implementation required for using as std::map key
         bool operator<( const vpart_position &other ) const;
@@ -138,7 +139,7 @@ class optional_vpart_position : public std::optional<vpart_position>
         std::optional<vpart_reference> obstacle_at_part() const;
         std::optional<vpart_reference> part_displayed() const;
         std::optional<vpart_reference> part_with_tool( const itype_id &tool_type ) const;
-        std::string extended_description() const;
+        std::vector<std::string> extended_description() const;
 };
 
 /**

@@ -1,3 +1,4 @@
+#pragma once
 // NOLINTNEXTLINE(cata-header-guard)
 // Due to an inability to suppress assert popups when building against mingw-w64
 // and running on wine, and to suppress unused variable warnings in release builds,
@@ -27,7 +28,7 @@
         if( expression ) { \
             break; \
         } \
-        fprintf( stderr, "%s at %s:%d: Assertion `%s` failed.\n", __func__, __FILE__, __LINE__, #expression ); \
+        (void) fprintf( stderr, "%s at %s:%d: Assertion `%s` failed.\n", __func__, __FILE__, __LINE__, #expression ); \
         std::abort(); \
     } while( false )
 #else
