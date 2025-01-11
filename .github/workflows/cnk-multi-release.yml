@@ -50,23 +50,23 @@ jobs:
             ext: zip
             content: application/zip
             sound: 0
-          - name: Linux Tiles x64
-            os: ubuntu-20.04
-            mxe: none
-            android: none
-            libbacktrace: 1
-            tiles: 1
-            sound: 0
-            artifact: linux-with-graphics-x64
-            ext: tar.gz
-            content: application/gzip
-          - name: Android x64
-            os: ubuntu-latest
-            mxe: none
-            android: arm64
-            artifact: android-x64
-            ext: apk
-            content: application/apk
+          #- name: Linux Tiles x64
+          #  os: ubuntu-20.04
+          #  mxe: none
+          #  android: none
+          #  libbacktrace: 1
+          #  tiles: 1
+          #  sound: 0
+          #  artifact: linux-with-graphics-x64
+          #  ext: tar.gz
+          #  content: application/gzip
+          #- name: Android x64
+          #  os: ubuntu-latest
+          #  mxe: none
+          #  android: arm64
+          #  artifact: android-x64
+          #  ext: apk
+          #  content: application/apk
           #- name: Android x64 Sound
           #  os: ubuntu-latest
           #  mxe: none
@@ -186,13 +186,13 @@ jobs:
           unzip -q '${{ github.workspace }}/UndeadPeopleTileset-master.zip'
           cp -r '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/data' '${{ github.workspace }}'
           cp -r '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/gfx' '${{ github.workspace }}'
-      - name: udp (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          curl -o '${{ github.workspace }}/UndeadPeopleTileset-master.zip' -L https://github.com/Theawesomeboophis/UndeadPeopleTileset/archive/refs/heads/master.zip
-          unzip -q '${{ github.workspace }}/UndeadPeopleTileset-master.zip'
-          mv '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/data' '${{ github.workspace }}'
-          mv '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/gfx' '${{ github.workspace }}'
+      #- name: udp (Windows)
+      #  if: runner.os == 'Windows'
+      #  run: |
+      #    curl -o '${{ github.workspace }}/UndeadPeopleTileset-master.zip' -L https://github.com/Theawesomeboophis/UndeadPeopleTileset/archive/refs/heads/master.zip
+      #    unzip -q '${{ github.workspace }}/UndeadPeopleTileset-master.zip'
+      #    mv '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/data' '${{ github.workspace }}'
+      #    mv '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/gfx' '${{ github.workspace }}'
       #- name: MyRespectedModdersWork
       #  run: |
       #    git clone --depth=1 https://github.com/SurFlurer/MyRespectedModdersWork '${{ github.workspace }}/MyRespectedModdersWork'
@@ -238,8 +238,8 @@ jobs:
         if: runner.os == 'Windows'
         env:
           # Enable pretty backtraces
-          BACKTRACE: 1
-          CDDA_STRIPPED_PDB: 1
+          BACKTRACE: 0
+          CDDA_STRIPPED_PDB: 0
           VCPKG_OVERLAY_TRIPLETS: ${{ github.workspace }}\.github\vcpkg_triplets
         run: |
           msbuild -m -p:Configuration=Release -p:Platform=${{ matrix.arch }} "-target:Cataclysm-vcpkg-static;JsonFormatter-vcpkg-static" msvc-full-features\Cataclysm-vcpkg-static.sln
