@@ -2181,16 +2181,6 @@
     "replace": "peanutbutter"
   },
   {
-    "id": "dragonskin",
-    "type": "MIGRATION",
-    "replace": "ballistic_vest_esapi"
-  },
-  {
-    "id": "stillsuit",
-    "type": "MIGRATION",
-    "replace": "h20survivor_jumpsuit"
-  },
-  {
     "id": "m1911-460",
     "type": "MIGRATION",
     "replace": "m1911"
