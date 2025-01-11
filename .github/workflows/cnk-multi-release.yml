@@ -33,7 +33,7 @@ jobs:
         run: |
           echo "tag_name=cdda-experimental-${{ steps.get-timestamp.outputs.time }}" >> $GITHUB_OUTPUT
           echo "release_name=Cataclysm-DDA experimental build ${{ steps.get-timestamp.outputs.time }}" >> $GITHUB_OUTPUT
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: |
           gh release create ${{ steps.generate_env_vars.outputs.tag_name }} --generate-notes --prerelease --title "${{ steps.generate_env_vars.outputs.release_name }}"
   builds:
@@ -89,7 +89,7 @@ jobs:
     env:
         ZSTD_CLEVEL: 17
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 #        with:
 #          ref: 'cdda-experimental-2023-03-07-0219'
       - name: Get soundpack
@@ -209,7 +209,7 @@ jobs:
           EOL
       - name: Compile translations (windows)
         if: runner.os == 'Windows'
-        shell: bash
+        shell: msys2 {0}
         run: |
           lang/compile_mo.sh zh_CN
       - name: Build libbacktrace
