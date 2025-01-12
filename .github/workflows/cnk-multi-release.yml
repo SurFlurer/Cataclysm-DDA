@@ -182,10 +182,10 @@ jobs:
       - name: remove_tileset(win)
         if: runner.os == 'Windows'
         run: |
-          rd /S /Q '${{ github.workspace }}/data/gfx/Altica/'
-          rd /S /Q '${{ github.workspace }}/data/gfx/Ultica_iso/'
-          rd /S /Q '${{ github.workspace }}/data/gfx/PenAndPaper/'
-          rd /S /Q '${{ github.workspace }}/data/gfx/ChibiUltica/'
+          del '${{ github.workspace }}/data/gfx/Altica/' -Recurse -Force
+          del '${{ github.workspace }}/data/gfx/Ultica_iso/' -Recurse -Force
+          del '${{ github.workspace }}/data/gfx/PenAndPaper/' -Recurse -Force
+          del '${{ github.workspace }}/data/gfx/ChibiUltica/' -Recurse -Force
       - name: udp (Linux)
         if: runner.os != 'Windows'
         run: |
