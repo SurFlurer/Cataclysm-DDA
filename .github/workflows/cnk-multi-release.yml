@@ -182,10 +182,10 @@ jobs:
       - name: remove_tileset(win)
         if: runner.os == 'Windows'
         run: |
-          del '${{ github.workspace }}/data/gfx/Altica/' -Recurse -Force
-          del '${{ github.workspace }}/data/gfx/Ultica_iso/' -Recurse -Force
-          del '${{ github.workspace }}/data/gfx/PenAndPaper/' -Recurse -Force
-          del '${{ github.workspace }}/data/gfx/ChibiUltica/' -Recurse -Force
+          del '${{ github.workspace }}\data\gfx\Altica\' -Recurse -Force
+          del '${{ github.workspace }}\data\gfx\Ultica_iso\' -Recurse -Force
+          del '${{ github.workspace }}\data\gfx\PenAndPaper\' -Recurse -Force
+          del '${{ github.workspace }}\data\gfx\ChibiUltica\' -Recurse -Force
       - name: udp (Linux)
         if: runner.os != 'Windows'
         run: |
@@ -196,10 +196,10 @@ jobs:
       #- name: udp (Windows)
       #  if: runner.os == 'Windows'
       #  run: |
-      #    curl -o '${{ github.workspace }}/UndeadPeopleTileset-master.zip' -L https://github.com/Theawesomeboophis/UndeadPeopleTileset/archive/refs/heads/master.zip
-      #    unzip -q '${{ github.workspace }}/UndeadPeopleTileset-master.zip'
-      #    mv '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/data' '${{ github.workspace }}'
-      #    mv '${{ github.workspace }}/UndeadPeopleTileset-master/TILESETS/gfx' '${{ github.workspace }}'
+      #    curl -o '${{ github.workspace }}\UndeadPeopleTileset-master.zip' -L https://github.com/Theawesomeboophis/UndeadPeopleTileset/archive/refs/heads/master.zip
+      #    unzip -q '${{ github.workspace }}\UndeadPeopleTileset-master.zip'
+      #    mv '${{ github.workspace }}\UndeadPeopleTileset-master\TILESETS\data' '${{ github.workspace }}'
+      #    mv '${{ github.workspace }}\UndeadPeopleTileset-master\TILESETS\gfx' '${{ github.workspace }}'
       #- name: MyRespectedModdersWork
       #  run: |
       #    git clone --depth=1 https://github.com/SurFlurer/MyRespectedModdersWork '${{ github.workspace }}/MyRespectedModdersWork'
