@@ -1797,7 +1797,7 @@ std::optional<int> iuse::fishing_rod( Character *p, item *it, const tripoint_bub
     p->add_msg_if_player( _( "You cast your line and wait to hook something…" ) );
     p->assign_activity( ACT_FISH, to_moves<int>( 5_hours ), 0, 0, it->tname() );
     p->activity.targets.emplace_back( *p, it );
-    p->activity.coord_set = g->get_fishable_locations( 60, *found );
+    p->activity.coord_set = g->get_fishable_locations_abs( 60, *found );
     return 0;
 }
 
@@ -4942,7 +4942,7 @@ std::optional<int> iuse::handle_ground_graffiti( Character &p, item *it, const s
                           .text( here.has_graffiti_at( where ) ? here.graffiti_at( where ) : std::string() )
                           .identifier( "graffiti" )
                           .query_string();
-    if( popup.canceled() ) {
+    if( popup.cancelled() ) {
         return std::nullopt;
     }
 
@@ -5339,13 +5339,18 @@ std::optional<int> iuse::gunmod_attach( Character *p, item *it, const tripoint_b
 
         modded_gun.put_in( mod_copy, pocket_type::MOD );
 
+#if !defined(IMGUI)
+        if( !game_menus::inv::compare_items( *loc, modded_gun, _( "Attach modification?" ) ) ) {
+#else
         if( !game_menus::inv::compare_item_menu( *loc, modded_gun, _( "Attach modification?" ) ).show() ) {
+#endif
             continue;
         }
 
         p->gunmod_add( *loc, *it );
         return 0;
-    } while( true );
+    }
+    while( true );
 }
 
 std::optional<int> iuse::toolmod_attach( Character *p, item *it, const tripoint_bub_ms & )
