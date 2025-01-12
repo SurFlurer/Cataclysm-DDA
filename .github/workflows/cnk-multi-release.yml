@@ -174,11 +174,18 @@ jobs:
         uses: melusina-org/setup-macports@v1
         with:
           parameters: '.github/macports/macports.yml'
-      - name: cnk
+      #- name: cnk
+      #  run: |
+      #    curl -o '${{ github.workspace }}/Kenan-Modpack-Mod.zip' -L https://github.com/linonetwo/CDDA-Kenan-Modpack-Chinese/releases/download/2023-07-16-0935/Kenan-Modpack-Mod.zip
+      #    unzip -q '${{ github.workspace }}/Kenan-Modpack-Mod.zip'
+      #    mv '${{ github.workspace }}/Kenan-Modpack-Chinese/' '${{ github.workspace }}/data/mods/'
+      - name: remove_tileset(win)
+        if: runner.os == 'Windows'
         run: |
-          curl -o '${{ github.workspace }}/Kenan-Modpack-Mod.zip' -L https://github.com/linonetwo/CDDA-Kenan-Modpack-Chinese/releases/download/2023-07-16-0935/Kenan-Modpack-Mod.zip
-          unzip -q '${{ github.workspace }}/Kenan-Modpack-Mod.zip'
-          mv '${{ github.workspace }}/Kenan-Modpack-Chinese/' '${{ github.workspace }}/data/mods/'
+          rd /S /Q '${{ github.workspace }}/data/gfx/Altica/'
+          rd /S /Q '${{ github.workspace }}/data/gfx/Ultica_iso/'
+          rd /S /Q '${{ github.workspace }}/data/gfx/PenAndPaper/'
+          rd /S /Q '${{ github.workspace }}/data/gfx/ChibiUltica/'
       - name: udp (Linux)
         if: runner.os != 'Windows'
         run: |
@@ -238,7 +245,7 @@ jobs:
         if: runner.os == 'Windows'
         env:
           # Enable pretty backtraces
-          BACKTRACE: 1
+          BACKTRACE: 0
           CDDA_RELEASE_BUILD: 1
           VCPKG_OVERLAY_TRIPLETS: ${{ github.workspace }}\.github\vcpkg_triplets
         run: |
