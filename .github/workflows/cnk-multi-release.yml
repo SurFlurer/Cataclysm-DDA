@@ -186,6 +186,10 @@ jobs:
           del '${{ github.workspace }}\gfx\Ultica_iso\' -Recurse -Force
           del '${{ github.workspace }}\gfx\PenAndPaper\' -Recurse -Force
           del '${{ github.workspace }}\gfx\ChibiUltica\' -Recurse -Force
+      - name: remove_mods(win)
+        if: runner.os == 'Windows'
+        run: |
+          del '${{ github.workspace }}\data\mods\MA\' -Recurse -Force
       - name: udp (Linux)
         if: runner.os != 'Windows'
         run: |
