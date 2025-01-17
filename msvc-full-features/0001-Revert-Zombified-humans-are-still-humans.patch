@@ -1,0 +1,64 @@
+From 33d6f662c771ad601a4613c0705c4bfea8f9a7f8 Mon Sep 17 00:00:00 2001
+From: Surflurer <22912139+Surflurer@users.noreply.github.com>
+Date: Sun, 12 Jan 2025 23:35:53 +0800
+Subject: [PATCH] Revert "Zombified humans are still humans"
+
+This reverts commit 33a358d0dda20ff51e648b4d6f31a2958d28ba46.
+---
+ src/activity_handlers.cpp      | 7 ++++---
+ src/activity_item_handling.cpp | 7 ++++---
+ 2 files changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/src/activity_handlers.cpp b/src/activity_handlers.cpp
+index 4bdb71e159..4b6219e3ba 100644
+--- a/src/activity_handlers.cpp
++++ b/src/activity_handlers.cpp
+@@ -236,6 +236,7 @@ static const skill_id skill_survival( "survival" );
+ 
+ static const species_id species_FERAL( "FERAL" );
+ static const species_id species_HUMAN( "HUMAN" );
++static const species_id species_ZOMBIE( "ZOMBIE" );
+ 
+ static const ter_str_id ter_t_dirt( "t_dirt" );
+ static const ter_str_id ter_t_tree( "t_tree" );
+@@ -621,9 +622,9 @@ static void set_up_butchery( player_activity &act, Character &you, butcher_type
+     }
+ 
+     // TODO: Extract this bool into a function
+-    const bool is_human = corpse.id == mtype_id::NULL_ID() ||
+-                          corpse.in_species( species_HUMAN ) ||
+-                          corpse.in_species( species_FERAL );
++    const bool is_human = corpse.id == mtype_id::NULL_ID() || ( ( corpse.in_species( species_HUMAN ) ||
++                          corpse.in_species( species_FERAL ) ) &&
++                          !corpse.in_species( species_ZOMBIE ) );
+ 
+     // applies to all butchery actions except for dissections
+     if( is_human && action != butcher_type::DISSECT && !you.okay_with_eating_humans() ) {
+diff --git a/src/activity_item_handling.cpp b/src/activity_item_handling.cpp
+index 4f85b34410..5a5aa945ea 100644
+--- a/src/activity_item_handling.cpp
++++ b/src/activity_item_handling.cpp
+@@ -126,6 +126,7 @@ static const requirement_id requirement_data_mining_standard( "mining_standard"
+ 
+ static const species_id species_FERAL( "FERAL" );
+ static const species_id species_HUMAN( "HUMAN" );
++static const species_id species_ZOMBIE( "ZOMBIE" );
+ 
+ static const ter_str_id ter_t_stump( "t_stump" );
+ static const ter_str_id ter_t_trunk( "t_trunk" );
+@@ -1219,9 +1220,9 @@ static activity_reason_info can_do_activity_there( const activity_id &act, Chara
+             for( item &body : corpses ) {
+                 const mtype &corpse = *body.get_mtype();
+                 // TODO: Extract this bool into a function
+-                const bool is_human = corpse.id == mtype_id::NULL_ID() ||
+-                                      corpse.in_species( species_HUMAN ) ||
+-                                      corpse.in_species( species_FERAL );
++                const bool is_human = corpse.id == mtype_id::NULL_ID() || ( ( corpse.in_species( species_HUMAN ) ||
++                                      corpse.in_species( species_FERAL ) ) &&
++                                      !corpse.in_species( species_ZOMBIE ) );
+                 if( is_human && !you.okay_with_eating_humans() ) {
+                     return activity_reason_info::fail( do_activity_reason::REFUSES_THIS_WORK );
+                 }
+-- 
+2.45.2.windows.1
+

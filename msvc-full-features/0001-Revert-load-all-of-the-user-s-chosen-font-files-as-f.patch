@@ -1,0 +1,68 @@
+From 0f9b7759a01403b8fc7e772d5285380e54a9485e Mon Sep 17 00:00:00 2001
+From: Surflurer <22912139+Surflurer@users.noreply.github.com>
+Date: Sun, 12 Jan 2025 14:53:46 +0800
+Subject: [PATCH] =?UTF-8?q?Revert=20"load=20all=20of=20the=20user=E2=80=99?=
+ =?UTF-8?q?s=20chosen=20font=20files=20as=20fallbacks=20for=20imgui=20to?=
+ =?UTF-8?q?=20use"?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This reverts commit d4ff850fffe05b1376088e3f1cb8a0f950c7d8a2.
+
+Revert "warn about missing font files via printf, not debugmsg"
+
+This reverts commit 0e7b175532fb4c76f5bd08e790edfde06cf4dcb8.
+---
+ src/cata_imgui.cpp | 21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
+
+diff --git a/src/cata_imgui.cpp b/src/cata_imgui.cpp
+index 269e84c42f..34f92db75a 100644
+--- a/src/cata_imgui.cpp
++++ b/src/cata_imgui.cpp
+@@ -366,7 +366,8 @@ static void AddGlyphRangesMisc( UNUSED ImFontGlyphRangesBuilder *b )
+ }
+ 
+ 
+-// Load all fonts that exist in typefaces list
++// Load the first font that exists in typefaces, falling back to unifont
++// if none of them exist.
+ // - typefaces is a list of paths.
+ static void load_font( ImGuiIO &io, const std::vector<font_config> &typefaces,
+                        const ImWchar *ranges )
+@@ -374,23 +375,21 @@ static void load_font( ImGuiIO &io, const std::vector<font_config> &typefaces,
+     std::vector<font_config> io_typefaces{ typefaces };
+     ensure_unifont_loaded( io_typefaces );
+ 
+-    ImFontConfig config = ImFontConfig();
+-
+-    bool first = true;
+     auto it = std::begin( io_typefaces );
+     for( ; it != std::end( io_typefaces ); ++it ) {
+         if( !file_exist( it->path ) ) {
+-            printf( "Font file '%s' does not exist.\n", it->path.c_str() );
+-        } else {
+-            config.MergeMode = !first;
+-            config.FontBuilderFlags = it->imgui_config();
+-            io.Fonts->AddFontFromFileTTF( it->path.c_str(), fontheight, &config, ranges );
+-            first = false;
++            debugmsg( "Font file '%s' does not exist.", it->path );
+         }
++        break;
+     }
+-    if( first ) {
++    if( it == std::end( io_typefaces ) ) {
+         debugmsg( "No fonts were found in the fontdata file." );
+     }
++
++    ImFontConfig config = ImFontConfig();
++    config.FontBuilderFlags = it->imgui_config();
++
++    io.Fonts->AddFontFromFileTTF( it->path.c_str(), fontheight, &config, ranges );
+ }
+ 
+ static void check_font( const ImFont *font )
+-- 
+2.45.2.windows.1
+

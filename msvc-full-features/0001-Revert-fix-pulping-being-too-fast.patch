@@ -1,0 +1,28 @@
+From 8744845de65682205449cf76458072e8c930e6b1 Mon Sep 17 00:00:00 2001
+From: Surflurer <22912139+Surflurer@users.noreply.github.com>
+Date: Sat, 11 Jan 2025 22:50:55 +0800
+Subject: [PATCH] Revert "fix pulping being too fast"
+
+This reverts commit 900a7337fa0e6fa21cdfa5436947c8a97f22bdc5.
+---
+ src/activity_actor.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/activity_actor.cpp b/src/activity_actor.cpp
+index 72bce822be..cc074a93aa 100644
+--- a/src/activity_actor.cpp
++++ b/src/activity_actor.cpp
+@@ -8082,8 +8082,8 @@ void pulp_activity_actor::do_turn( player_activity &act, Character &you )
+                 }
+ 
+                 float stamina_ratio = static_cast<float>( you.get_stamina() ) / you.get_stamina_max();
+-                moves += to_moves<int>( 6_seconds ) / std::max( 0.25f,
+-                         stamina_ratio ) * you.exertion_adjusted_move_multiplier( act.exertion_level() );
++                moves += 100 / std::max( 0.25f,
++                                         stamina_ratio ) * you.exertion_adjusted_move_multiplier( act.exertion_level() );
+                 if( stamina_ratio < 0.33 || you.is_npc() ) {
+                     you.set_moves( std::min( 0, you.get_moves() - moves ) );
+                     return;
+-- 
+2.45.2.windows.1
+

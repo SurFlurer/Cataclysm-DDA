@@ -1,0 +1,25 @@
+From abf2ae03b08af730e9f41b9e27f7f7e655499993 Mon Sep 17 00:00:00 2001
+From: Surflurer <22912139+Surflurer@users.noreply.github.com>
+Date: Sat, 11 Jan 2025 23:00:16 +0800
+Subject: [PATCH] no craft message in iteminfo
+
+---
+ src/item.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/item.cpp b/src/item.cpp
+index 8eccf0cb57..699de5a267 100644
+--- a/src/item.cpp
++++ b/src/item.cpp
+@@ -6103,7 +6103,7 @@ void item::final_info( std::vector<iteminfo> &info, const iteminfo_query *parts,
+     }
+ 
+     // Recipes using this item as an ingredient
+-    if( parts->test( iteminfo_parts::DESCRIPTION_APPLICABLE_RECIPES ) ) {
++    if( false && parts->test( iteminfo_parts::DESCRIPTION_APPLICABLE_RECIPES ) ) {
+         // with the inventory display allowing you to select items, showing the things you could make with contained items could be confusing.
+         const itype_id &tid = typeId();
+         const inventory &crafting_inv = player_character.crafting_inventory();
+-- 
+2.45.2.windows.1
+
