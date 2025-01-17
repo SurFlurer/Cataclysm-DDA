@@ -1,0 +1,223 @@
+[
+  {
+    "type": "recipe",
+    "activity_level": "LIGHT_EXERCISE",
+    "result": "geiger_off",
+    "category": "CC_ELECTRONIC",
+    "subcategory": "CSC_ELECTRONIC_TOOLS",
+    "skill_used": "electronics",
+    "difficulty": 5,
+    "time": "35 m",
+    "reversible": true,
+    "decomp_learn": 5,
+    "book_learn": [ [ "advanced_electronics", 4 ], [ "textbook_electronics", 4 ], [ "atomic_survival", 3 ] ],
+    "using": [ [ "soldering_standard", 14 ] ],
+    "proficiencies": [ { "proficiency": "prof_elec_soldering" }, { "proficiency": "prof_elec_semiconductors" } ],
+    "qualities": [ { "id": "SCREW", "level": 1 } ],
+    "components": [ [ [ "power_supply", 1 ] ], [ [ "amplifier", 2 ] ], [ [ "scrap_aluminum", 6 ] ], [ [ "cable", 10 ] ] ]
+  },
+  {
+    "type": "recipe",
+    "activity_level": "LIGHT_EXERCISE",
+    "result": "rad_monitor",
+    "category": "CC_ELECTRONIC",
+    "subcategory": "CSC_ELECTRONIC_TOOLS",
+    "skill_used": "electronics",
+    "difficulty": 7,
+    "time": "35 m",
+    "reversible": true,
+    "decomp_learn": 7,
+    "book_learn": [ [ "advanced_electronics", 6 ], [ "textbook_electronics", 6 ], [ "atomic_survival", 5 ] ],
+    "proficiencies": [
+      { "proficiency": "prof_plasticworking", "time_multiplier": 1.5 },
+      { "proficiency": "prof_elec_soldering" },
+      { "proficiency": "prof_elec_semiconductors" }
+    ],
+    "using": [ [ "soldering_standard", 14 ] ],
+    "qualities": [ { "id": "SCREW", "level": 1 } ],
+    "components": [ [ [ "processor", 1 ] ], [ [ "e_scrap", 1 ] ], [ [ "amplifier", 1 ] ], [ [ "plastic_chunk", 1 ] ] ]
+  },
+  {
+    "result": "flashbang",
+    "type": "recipe",
+    "activity_level": "LIGHT_EXERCISE",
+    "category": "CC_WEAPON",
+    "subcategory": "CSC_WEAPON_EXPLOSIVE",
+    "skill_used": "fabrication",
+    "skills_required": [ "chemistry", 5 ],
+    "difficulty": 6,
+    "time": "40 m",
+    "reversible": true,
+    "book_learn": [ [ "recipe_labchem", 5 ], [ "textbook_anarch", 7 ] ],
+    "proficiencies": [ { "proficiency": "prof_intro_chemistry" } ],
+    "qualities": [ { "id": "SCREW", "level": 1 } ],
+    "using": [ [ "small_grenade_case", 1 ] ],
+    "components": [
+      [ [ "pilot_light", 1 ] ],
+      [ [ "super_glue", 4 ], [ "duct_tape", 10 ], [ "cordage", 1, "LIST" ] ],
+      [ [ "oxy_powder", 75 ] ],
+      [ [ "incendiary", 50 ] ]
+    ]
+  },
+  {
+    "type": "recipe",
+    "activity_level": "LIGHT_EXERCISE",
+    "result": "portable_game",
+    "category": "CC_ELECTRONIC",
+    "subcategory": "CSC_ELECTRONIC_TOOLS",
+    "skill_used": "electronics",
+    "skills_required": [ "computer", 5 ],
+    "difficulty": 8,
+    "time": "1 h",
+    "book_learn": [ [ "textbook_electronics", 7 ], [ "textbook_robots", 6 ] ],
+    "using": [ [ "soldering_standard", 10 ], [ "glue_any", 1 ] ],
+    "qualities": [ { "id": "SCREW", "level": 1 } ],
+    "proficiencies": [
+      { "proficiency": "prof_plasticworking", "time_multiplier": 1.5 },
+      { "proficiency": "prof_elec_circuits" },
+      { "proficiency": "prof_elec_soldering" },
+      { "proficiency": "prof_elec_integrated_circuits" }
+    ],
+    "components": [
+      [ [ "processor", 1 ] ],
+      [ [ "RAM", 2 ] ],
+      [ [ "amplifier", 1 ] ],
+      [ [ "cable", 2 ] ],
+      [ [ "plastic_chunk", 2 ] ],
+      [ [ "small_lcd_screen", 1 ] ]
+    ]
+  },
+  {
+    "type": "recipe",
+    "activity_level": "LIGHT_EXERCISE",
+    "result": "landmine",
+    "category": "CC_OTHER",
+    "subcategory": "CSC_OTHER_TRAPS",
+    "skill_used": "traps",
+    "skills_required": [ "mechanics", 3 ],
+    "difficulty": 5,
+    "time": "30 m",
+    "reversible": true,
+    "book_learn": [ [ "manual_traps_mil", 5 ] ],
+    "qualities": [ { "id": "SCREW", "level": 1 } ],
+    "proficiencies": [ { "proficiency": "prof_traps" }, { "proficiency": "prof_trapsetting" } ],
+    "components": [
+      [ [ "super_glue", 150 ], [ "duct_tape", 75 ] ],
+      [ [ "scrap", 3 ], [ "steel_chunk", 1 ], [ "canister_empty", 1 ], [ "clay_canister", 1 ], [ "can_food", 1 ] ],
+      [ [ "bb", 200 ], [ "nails", 100, "LIST" ] ],
+      [
+        [ "gunpowder", 720 ],
+        [ "chem_black_powder", 720 ],
+        [ "shot_bird", 24 ],
+        [ "shot_00", 12 ],
+        [ "shot_slug", 12 ],
+        [ "shot_flechette", 12 ],
+        [ "shot_he", 3 ],
+        [ "gasoline", 600 ],
+        [ "diesel", 600 ],
+        [ "biodiesel", 600 ],
+        [ "grenade", 1 ]
+      ]
+    ]
+  },
+  {
+    "id": "prac_traps_military",
+    "type": "practice",
+    "activity_level": "NO_EXERCISE",
+    "category": "CC_PRACTICE",
+    "subcategory": "CSC_PRACTICE_DEVICES",
+    "name": "military traps",
+    "description": "Practice setting booby traps safely.",
+    "skill_used": "traps",
+    "practice_data": { "min_difficulty": 0, "max_difficulty": 3, "skill_limit": 3 },
+    "proficiencies": [ { "proficiency": "prof_traps", "time_multiplier": 1, "skill_penalty": 0 } ],
+    "time": "1 h",
+    "using": [ [ "cordage_short", 1 ] ],
+    "qualities": [ { "id": "CUT", "level": 2 } ],
+    "components": [ [ [ "clay_canister", 1 ], [ "can_drink", 1 ], [ "can_food", 1 ], [ "canister_empty", 1 ] ] ],
+    "autolearn": false,
+    "book_learn": [ [ "manual_traps_mil_basic", 1 ], [ "manual_traps_mil", 1 ] ],
+    "flags": [ "BLIND_HARD" ]
+  },
+  {
+    "id": "prac_traps_military_advanced",
+    "type": "practice",
+    "activity_level": "NO_EXERCISE",
+    "category": "CC_PRACTICE",
+    "subcategory": "CSC_PRACTICE_DEVICES",
+    "name": "military traps (advanced)",
+    "description": "Practice setting and disarming booby traps and mines safely.",
+    "skill_used": "traps",
+    "practice_data": { "min_difficulty": 3, "max_difficulty": 3, "skill_limit": 6 },
+    "proficiencies": [
+      { "proficiency": "prof_traps", "time_multiplier": 0.2, "skill_penalty": 0 },
+      { "proficiency": "prof_trapsetting", "time_multiplier": 1, "skill_penalty": 0 },
+      { "proficiency": "prof_disarming", "time_multiplier": 1, "skill_penalty": 0 }
+    ],
+    "time": "1 h",
+    "qualities": [ { "id": "SCREW", "level": 1 } ],
+    "components": [
+      [ [ "super_glue", 1 ], [ "duct_tape", 25 ] ],
+      [ [ "scrap", 3 ], [ "steel_chunk", 1 ], [ "canister_empty", 1 ], [ "clay_canister", 1 ], [ "can_food", 1 ] ],
+      [ [ "bb", 60 ], [ "nails", 30, "LIST" ] ]
+    ],
+    "autolearn": false,
+    "book_learn": [ [ "manual_traps_mil", 3 ] ],
+    "flags": [ "BLIND_HARD" ]
+  },
+  {
+    "type": "recipe",
+    "activity_level": "ACTIVE_EXERCISE",
+    "result": "reinforced_glass_pane",
+    "category": "CC_OTHER",
+    "subcategory": "CSC_OTHER_MATERIALS",
+    "skill_used": "fabrication",
+    "difficulty": 2,
+    "time": "40 m",
+    "book_learn": [ [ "textbook_fabrication", 3 ], [ "textbook_mechanics", 3 ], [ "welding_book", 5 ] ],
+    "using": [ [ "welding_standard", 80 ], [ "glue_strong", 250 ] ],
+    "proficiencies": [
+      { "proficiency": "prof_metalworking" },
+      { "proficiency": "prof_welding_basic", "skill_penalty": 0.5 },
+      { "proficiency": "prof_welding" }
+    ],
+    "qualities": [ { "id": "SAW_M", "level": 1 } ],
+    "components": [ [ [ "glass_sheet", 1 ] ], [ [ "mc_wire", 8 ] ] ]
+  },
+  {
+    "result": "goggles_swim",
+    "type": "recipe",
+    "activity_level": "LIGHT_EXERCISE",
+    "category": "CC_ARMOR",
+    "subcategory": "CSC_ARMOR_HEAD",
+    "skill_used": "fabrication",
+    "difficulty": 4,
+    "time": "45 m",
+    "autolearn": true,
+    "components": [
+      [ [ "goggles_ski", 1 ], [ "goggles_welding", 1 ], [ "glasses_safety", 1 ] ],
+      [ [ "duct_tape", 120 ], [ "medical_tape", 120 ] ],
+      [ [ "super_glue", 1 ] ]
+    ],
+    "proficiencies": [ { "proficiency": "prof_plasticworking" } ]
+  },
+  {
+    "result": "goggles_welding",
+    "type": "recipe",
+    "activity_level": "LIGHT_EXERCISE",
+    "category": "CC_ARMOR",
+    "subcategory": "CSC_ARMOR_HEAD",
+    "skill_used": "mechanics",
+    "difficulty": 2,
+    "skills_required": [ "fabrication", 1 ],
+    "time": "1 h",
+    "autolearn": true,
+    "book_learn": [ [ "textbook_fabrication", 3 ], [ "welding_book", 3 ] ],
+    "components": [
+      [ [ "goggles_ski", 1 ], [ "goggles_swim", 1 ], [ "glasses_safety", 1 ] ],
+      [ [ "eclipse_glasses", 1 ], [ "glass_tinted", 3 ] ],
+      [ [ "duct_tape", 40 ], [ "medical_tape", 40 ] ]
+    ],
+    "proficiencies": [ { "proficiency": "prof_plasticworking" } ]
+  }
+]

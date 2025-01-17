@@ -1,0 +1,35 @@
+[
+  {
+    "id": "compass_text_template",
+    "type": "widget",
+    "style": "text",
+    "var": "compass_text",
+    "width": 6,
+    "text_align": "left"
+  },
+  {
+    "id": "compass_text_template_no_label",
+    "type": "widget",
+    "copy-from": "compass_text_template",
+    "flags": [ "W_LABEL_NONE" ]
+  },
+  {
+    "id": "compass_legend_text",
+    "type": "widget",
+    "label": "Compass Legend",
+    "style": "text",
+    "var": "compass_legend_text",
+    "width": 0,
+    "height": 3,
+    "text_align": "left",
+    "flags": [ "W_LABEL_NONE" ]
+  },
+  {
+    "id": "compass_all_layout",
+    "type": "widget",
+    "label": "Compass",
+    "style": "layout",
+    "arrange": "rows",
+    "widgets": [ "compass_legend_text" ]
+  }
+]

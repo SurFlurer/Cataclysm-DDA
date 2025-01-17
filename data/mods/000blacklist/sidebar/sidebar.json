@@ -1,0 +1,138 @@
+[
+  {
+    "id": "surflurer_custom_sidebar",
+    "type": "widget",
+    "style": "sidebar",
+    "label": { "str": "Surflurer", "ctxt": "UI sidebar" },
+    "width": 36,
+    "separator": ": ",
+    "padding": 2,
+    "widgets": [
+      "s_hitpoints_all_narrow_nums_layout",
+      "s_stats_narrow_layout",
+      "s_move_count_cost_layout",
+      "s_stamina_activity_weary_layout",
+      "s_needs_desc_layout_label",
+      "power_desc",
+      "compass_all_layout",
+      "place_date_time_layout",
+      "overmap_full_width",
+      "wind_temp_layout",
+      "light_moon_layout",
+      "vehicle_acf_label_layout",
+      "cardio_health_num_layout",
+      "bodygraph_hp_layout"
+    ]
+  },
+  {
+    "id": "s_hitpoints_all_narrow_nums_layout",
+    "type": "widget",
+    "style": "layout",
+    "label": "Hit Points (num)",
+    "arrange": "rows",
+    "widgets": [ "hitpoint_nums_top_layout", "hitpoint_nums_bottom_layout" ]
+  },
+  {
+    "id": "s_stats_narrow_layout",
+    "type": "widget",
+    "style": "layout",
+    "label": "Stats",
+    "arrange": "rows",
+    "widgets": [ "mood_focus_layout", "str_dex_layout", "int_per_layout" ]
+  },
+  {
+    "id": "s_move_count_cost_layout",
+    "type": "widget",
+    "style": "layout",
+    "label": "Move count/cost",
+    "arrange": "columns",
+    "widgets": [ "move_mode_desc", "speed_num" ]
+  },
+  {
+    "id": "s_stamina_activity_weary_layout",
+    "type": "widget",
+    "style": "layout",
+    "label": "Stamina/Weariness",
+    "arrange": "columns",
+    "widgets": [ "stamina_num_label", "weariness_desc" ]
+  },
+  {
+    "id": "eat_water_row",
+    "type": "widget",
+    "style": "layout",
+    "label": "Food/Water",
+    "arrange": "columns",
+    "widgets": [ "hunger_desc_label", "thirst_desc_label" ]
+  },
+  {
+    "id": "weight_sleep_row",
+    "type": "widget",
+    "style": "layout",
+    "label": "Food/Water",
+    "arrange": "columns",
+    "widgets": [ "weight_desc_label", "sleepiness_desc_label" ]
+  },
+  {
+    "id": "pain_temp_row",
+    "type": "widget",
+    "style": "layout",
+    "label": "Food/Water",
+    "arrange": "columns",
+    "widgets": [ "pain_desc_label", "body_temp_desc_label" ]
+  },
+  {
+    "id": "s_needs_desc_layout_label",
+    "type": "widget",
+    "style": "layout",
+    "label": "Needs",
+    "arrange": "rows",
+    "widgets": [ "eat_water_row", "weight_sleep_row", "pain_temp_row" ]
+  },
+  {
+    "id": "power_desc",
+    "type": "widget",
+    "label": "Bionic Power",
+    "style": "text",
+    "var": "power_text"
+  },
+  {
+    "id": "wind_temp_layout",
+    "type": "widget",
+    "label": "Wind/Temp",
+    "style": "layout",
+    "arrange": "columns",
+    "widgets": [ "wind_desc", "env_temp_desc" ]
+  },
+  {
+    "id": "light_moon_layout",
+    "type": "widget",
+    "label": "Environment",
+    "style": "layout",
+    "arrange": "columns",
+    "widgets": [ "lighting_desc", "moon_phase_desc" ]
+  },
+  {
+    "id": "place_desc_layout",
+    "type": "widget",
+    "label": "Place/Date/Time",
+    "style": "layout",
+    "arrange": "columns",
+    "widgets": [ "territory_desc_label", "place_desc" ]
+  },
+  {
+    "id": "place_date_time_layout",
+    "type": "widget",
+    "label": "Place/Date/Time",
+    "style": "layout",
+    "arrange": "rows",
+    "widgets": [ "place_desc_layout", "date_desc_label", "time_desc_label" ]
+  },
+  {
+    "id": "cardio_health_num_layout",
+    "type": "widget",
+    "style": "layout",
+    "label": "Pain/Health",
+    "arrange": "columns",
+    "widgets": [ "cardio_fit_num", "health_num" ]
+  }
+]

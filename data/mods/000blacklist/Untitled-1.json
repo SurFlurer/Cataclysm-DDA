@@ -1,0 +1,16 @@
+{
+  "type": "effect_on_condition",
+  "id": "eoc_ketou",
+  "effect": [
+    { "u_location_variable": { "context_val": "loc" }, "terrain": "t_wall", "target_max_radius": 1 },
+    {
+      "if": { "math": [ "v_loc", "<=", "0" ] },
+      "then": [
+        { "u_message": "需要初始化石油量" },
+        { "math": [ "v_loc", "=", "rand(100)" ] },
+        { "u_message": "设置石油量为：<global_val:<context_val:loc>>" }
+      ],
+      "else": [ { "u_message": "不用初始化，当前石油量为：<global_val:<context_val:loc>>" } ]
+    }
+  ]
+}

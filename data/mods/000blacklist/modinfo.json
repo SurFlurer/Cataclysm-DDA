@@ -1,0 +1,12 @@
+[
+  {
+    "type": "MOD_INFO",
+    "id": "delete_waste",
+    "name": "删除无用物品",
+    "authors": [ "Surflurer" ],
+    "maintainers": [ "Surflurer" ],
+    "description": "禁用一些东西",
+    "category": "content",
+    "dependencies": [ "dda" ]
+  }
+]

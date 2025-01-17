@@ -1,0 +1,41 @@
+[
+  {
+    "//": "Blacklists items that didn't exist prior to 2000, plus alien & extradimenisonally-sourced items such as bionics",
+    "type": "ITEM_BLACKLIST",
+    "whitelist": false,
+    "items": [ "napkin", "gum", "spork" ]
+  },
+  {
+    "id": "spork",
+    "type": "MIGRATION",
+    "replace": "napkin_to_delete"
+  },
+  {
+    "id": "gum",
+    "type": "MIGRATION",
+    "replace": "napkin_to_delete"
+  },
+  {
+    "id": "napkin",
+    "type": "MIGRATION",
+    "replace": "napkin_to_delete"
+  },
+  {
+    "id": "napkin_to_delete",
+    "copy-from": "flesh",
+    "type": "COMESTIBLE",
+    "name": { "str": "napkin" },
+    "description": "A chunk of raw meat.  You could eat it as-is, but cooking it is better.",
+    "weight": "1 g",
+    "volume": "1 ml",
+    "price": "5 USD",
+    "price_postapoc": "50 cent",
+    "spoils_in": "1 seconds",
+    "calories": 402,
+    "fun": -10,
+    "cooks_like": "meat_cooked",
+    "vitamins": [ [ "calcium", 2 ], [ "iron", 12 ] ],
+    "flags": [ "SMOKABLE", "RAW", "PREDATOR_FUN" ],
+    "smoking_result": "meat_smoked"
+  }
+]
