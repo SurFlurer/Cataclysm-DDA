@@ -33,7 +33,7 @@ jobs:
         run: |
           echo "tag_name=cdda-experimental-${{ steps.get-timestamp.outputs.time }}" >> $GITHUB_OUTPUT
           echo "release_name=Cataclysm-DDA experimental build ${{ steps.get-timestamp.outputs.time }}" >> $GITHUB_OUTPUT
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: |
           gh release create ${{ steps.generate_env_vars.outputs.tag_name }} --generate-notes --prerelease --title "${{ steps.generate_env_vars.outputs.release_name }}"
   builds:
@@ -42,38 +42,39 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          #- name: Windows Tiles x64 MSVC
-          #  artifact: windows-tiles-x64-msvc
-          #  arch: x64
-          #  os: windows-2019
-          #  mxe: none
-          #  ext: zip
-          #  content: application/zip
-          #  sound: 0
+          - name: Windows Tiles x64 MSVC
+            artifact: windows-with-graphics-x64
+            arch: x64
+            os: windows-2019
+            mxe: none
+            ext: zip
+            content: application/zip
+            sound: 0
           #- name: Linux Tiles x64
           #  os: ubuntu-20.04
           #  mxe: none
           #  android: none
+          #  libbacktrace: 1
           #  tiles: 1
           #  sound: 0
-          #  artifact: linux-tiles-x64
+          #  artifact: linux-with-graphics-x64
           #  ext: tar.gz
           #  content: application/gzip
-          - name: Android x64
-            os: ubuntu-latest
-            mxe: none
-            android: arm64
-            artifact: android-x64
-            ext: apk
-            content: application/apk
-          - name: Android x64 Sound
-            os: ubuntu-latest
-            mxe: none
-            sound: 1
-            android: arm64
-            artifact: android-sound-x64
-            ext: apk
-            content: application/apk
+          #- name: Android x64
+          #  os: ubuntu-latest
+          #  mxe: none
+          #  android: arm64
+          #  artifact: android-x64
+          #  ext: apk
+          #  content: application/apk
+          #- name: Android x64 Sound
+          #  os: ubuntu-latest
+          #  mxe: none
+          #  sound: 1
+          #  android: arm64
+          #  artifact: android-sound-x64
+          #  ext: apk
+          #  content: application/apk
           #- name: macOS Tiles Universal Binary (x64 and arm64)
           #  os: macos-12
           #  mxe: none
@@ -88,7 +89,7 @@ jobs:
     env:
         ZSTD_CLEVEL: 17
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 #        with:
 #          ref: 'cdda-experimental-2023-03-07-0219'
       - name: Get soundpack
@@ -96,23 +97,31 @@ jobs:
         run: |
           git clone --depth=1 --shallow-submodules --recurse-submodules https://github.com/Fris0uman/CDDA-Soundpacks '${{ github.workspace }}/CDDA-Soundpacks'
           mv '${{ github.workspace }}/CDDA-Soundpacks/sound/CC-Sounds' '${{ github.workspace }}/data/sound'
-      - name: Install dependencies (windows msvc) (0/3)
+      - name: Install dependencies (windows msvc) (0/4)
         if: runner.os == 'Windows'
         uses: lukka/get-cmake@latest
-      - name: Install dependencies (windows msvc) (1/3)
+      - name: Install dependencies (windows msvc) (1/4)
         if: runner.os == 'Windows'
-        uses: microsoft/setup-msbuild@v1.3.1
-      - name: Install dependencies (windows msvc) (2/3)
+        uses: microsoft/setup-msbuild@v2
+      - name: Install dependencies (windows msvc) (2/4)
         if: runner.os == 'Windows'
         uses: lukka/run-vcpkg@v11
         id: runvcpkg
         with:
           vcpkgDirectory: '${{ runner.workspace }}/b/vcpkg'
-          vcpkgGitCommitId: '5b1214315250939257ef5d62ecdcbca18cf4fb1c'
-      - name: Install dependencies (windows msvc) (3/3)
+          vcpkgGitCommitId: '3b57fb2e1ff55613db14d2aaf0a30529289c7050'
+      - name: Install dependencies (windows msvc) (3/4)
         if: runner.os == 'Windows'
         run: |
           vcpkg integrate install --vcpkg-root '${{ runner.workspace }}\b\vcpkg'
+      - name: Install dependencies (windows msvc) (4/4)
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: mingw64
+          install: >-
+            gettext
+            make
       - name: Install dependencies (windows mxe)
         if: matrix.mxe != 'none'
         run: |
@@ -134,8 +143,18 @@ jobs:
         if: runner.os == 'Linux' && matrix.mxe == 'none' && matrix.android == 'none' 
         run: |
           sudo apt-get update
-          sudo apt-get install libncursesw5-dev libsdl2-dev libsdl2-ttf-dev libsdl2-image-dev \
-            libsdl2-mixer-dev libpulse-dev ccache gettext parallel unzip
+          sudo apt-get install libsdl2-dev
+          git clone https://github.com/libsdl-org/SDL.git --branch release-2.0.20 --depth 1
+          cd SDL
+          mkdir build
+          cd build
+          ../configure
+          make -j$((`nproc`+0))
+          sudo make install
+          cp ../LICENSE.txt ${{ github.workspace }}/LICENSE-SDL.txt
+          sudo apt-get install libncursesw5-dev libsdl2-ttf-dev libsdl2-image-dev \
+            libsdl2-mixer-dev libpulse-dev ccache gettext parallel
+          sudo apt-get install unzip
       - name: Install runtime dependencies (mac)
         if: runner.os == 'macOS'
         uses: BrettDong/setup-sdl2-frameworks@v1
@@ -147,9 +166,14 @@ jobs:
       - name: Install build dependencies (mac)
         if: runner.os == 'macOS'
         run: |
-          HOMEBREW_NO_AUTO_UPDATE=yes HOMEBREW_NO_INSTALL_CLEANUP=yes brew install gettext ccache parallel unzip
-          pip3 install mac_alias==2.2.0 dmgbuild==1.4.2 biplist
-      - name: cnk
+          HOMEBREW_NO_AUTO_UPDATE=yes HOMEBREW_NO_INSTALL_CLEANUP=yes brew install unzip
+          HOMEBREW_NO_AUTO_UPDATE=yes HOMEBREW_NO_INSTALL_CLEANUP=yes brew install gettext ccache parallel dylibbundler
+          pip3 install dmgbuild biplist
+      - name: install macports (mac)
+        if: runner.os == 'macOS' && matrix.tiles == 1
+        uses: melusina-org/setup-macports@v1
+        with:
+          parameters: '.github/macports/macports.yml'
         run: |
           curl -o '${{ github.workspace }}/Kenan-Modpack-Mod.zip' -L https://github.com/linonetwo/CDDA-Kenan-Modpack-Chinese/releases/download/2023-07-16-0935/Kenan-Modpack-Mod.zip
           unzip -q '${{ github.workspace }}/Kenan-Modpack-Mod.zip'
@@ -184,21 +208,31 @@ jobs:
           EOL
       - name: Compile translations (windows)
         if: runner.os == 'Windows'
-        shell: bash
+        shell: msys2 {0}
         run: |
           lang/compile_mo.sh zh_CN
+      - name: Build libbacktrace
+        if: matrix.libbacktrace == 1
+        run: |
+          git clone https://github.com/ianlancetaylor/libbacktrace.git
+          cd libbacktrace
+          git checkout 14818b7783eeb9a56c3f0fca78cefd3143f8c5f6
+          ./configure
+          make -j$((`nproc`+0))
+          cp LICENSE ${{ github.workspace }}/LICENSE-libbacktrace.txt
+          sudo make install
       - name: Build CDDA (linux)
         if: runner.os == 'Linux' && matrix.mxe == 'none' && matrix.android == 'none'
         run: |
           make -j$((`nproc`+0)) TILES=${{ matrix.tiles }} SOUND=${{ matrix.tiles }} RELEASE=1 LOCALIZE=1 LANGUAGES=zh_CN BACKTRACE=0 PCH=0 bindist
-          mv cataclysmdda-0.F.tar.gz cdda-${{ matrix.artifact }}-${{ needs.release.outputs.timestamp }}.tar.gz
+          mv cataclysmdda-0.I.tar.gz cdda-${{ matrix.artifact }}-${{ needs.release.outputs.timestamp }}.tar.gz
       - name: Build CDDA (windows mxe)
         if: matrix.mxe != 'none'
         env:
           PLATFORM: /opt/mxe/usr/bin/${{ matrix.mxe }}-w64-mingw32.static.gcc12-
         run: |
           make -j$((`nproc`+0)) CROSS="${PLATFORM}" TILES=1 SOUND=1 RELEASE=1 LOCALIZE=1 LANGUAGES=all BACKTRACE=1 PCH=0 bindist
-          mv cataclysmdda-0.F.zip cdda-${{ matrix.artifact }}-${{ needs.release.outputs.timestamp }}.zip
+          mv cataclysmdda-0.I.zip cdda-${{ matrix.artifact }}-${{ needs.release.outputs.timestamp }}.zip
       - name: Build CDDA (windows msvc)
         if: runner.os == 'Windows'
         env:
@@ -209,7 +243,7 @@ jobs:
         run: |
           msbuild -m -p:Configuration=Release -p:Platform=${{ matrix.arch }} "-target:Cataclysm-vcpkg-static;JsonFormatter-vcpkg-static" msvc-full-features\Cataclysm-vcpkg-static.sln
           .\build-scripts\windist.ps1
-          mv cataclysmdda-0.F.zip cdda-${{ matrix.artifact }}-${{ needs.release.outputs.timestamp }}.zip
+          mv cataclysmdda-0.I.zip cdda-${{ matrix.artifact }}-${{ needs.release.outputs.timestamp }}.zip
       - name: Build CDDA (osx)
         if: runner.os == 'macOS'
         run: |
@@ -217,7 +251,7 @@ jobs:
           mv Cataclysm.dmg cdda-${{ matrix.artifact }}-${{ needs.release.outputs.timestamp }}.dmg
       - name: Set up JDK 8 (android)
         if: runner.os == 'Linux' && matrix.android != 'none' && matrix.mxe == 'none'
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           java-version: '11'
           distribution: 'adopt'   
