@@ -190,6 +190,15 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           del '${{ github.workspace }}\data\mods\MA\' -Recurse -Force
+      - name: apply_patch
+        run: |
+          git config --global user.email "runner@github.com"
+          git config --global user.name "runner"
+          git am '${{ github.workspace }}/msvc-full-features/0001-Revert-fix-pulping-being-too-fast.patch'
+          git am '${{ github.workspace }}/msvc-full-features/0001-no-craft-message-in-iteminfo.patch'
+          git am '${{ github.workspace }}/msvc-full-features/0001-Revert-load-all-of-the-user-s-chosen-font-files-as-f.patch'
+          git am '${{ github.workspace }}/msvc-full-features/0001-Revert-Zombified-humans-are-still-humans.patch'
+          git am '${{ github.workspace }}/msvc-full-features/0001-do-not-check-morale-consistency.patch'
       - name: udp (Linux)
         if: runner.os != 'Windows'
         run: |
