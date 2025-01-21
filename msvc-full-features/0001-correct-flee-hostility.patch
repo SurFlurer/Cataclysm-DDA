@@ -1,0 +1,25 @@
+From 2b2973eade95dda40584f9a9698ebb141a3fc4e0 Mon Sep 17 00:00:00 2001
+From: Surflurer <22912139+Surflurer@users.noreply.github.com>
+Date: Tue, 21 Jan 2025 16:33:36 +0800
+Subject: [PATCH] correct flee hostility
+
+---
+ src/npcmove.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/npcmove.cpp b/src/npcmove.cpp
+index 5ebdb00b35..dcc22d718c 100644
+--- a/src/npcmove.cpp
++++ b/src/npcmove.cpp
+@@ -1146,7 +1146,7 @@ void npc::act_on_danger_assessment()
+                 add_msg_debug( debugmode::DF_NPC_COMBATAI, "%s upgrades reposition to flat out retreat.", name );
+                 mem_combat.repositioning = false; // we're not just moving, we're running.
+                 warn_about( "run_away", run_away_for );
+-                if( !is_player_ally() ) {
++                if( !is_enemy() ) {
+                     set_attitude( NPCATT_FLEE_TEMP );
+                 }
+                 if( mem_combat.panic > 5 && is_player_ally() && sees( player_character.pos_bub() ) ) {
+-- 
+2.45.2.windows.1
+
