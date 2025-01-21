@@ -16,7 +16,7 @@ index 5ebdb00b35..dcc22d718c 100644
                  mem_combat.repositioning = false; // we're not just moving, we're running.
                  warn_about( "run_away", run_away_for );
 -                if( !is_player_ally() ) {
-+                if( !is_enemy() ) {
++                if( is_enemy() ) {
                      set_attitude( NPCATT_FLEE_TEMP );
                  }
                  if( mem_combat.panic > 5 && is_player_ally() && sees( player_character.pos_bub() ) ) {
