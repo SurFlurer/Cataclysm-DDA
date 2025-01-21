@@ -1,0 +1,25 @@
+From 60c9013a8f712c7bc4ea8c51031b92c69417ddc7 Mon Sep 17 00:00:00 2001
+From: Surflurer <22912139+Surflurer@users.noreply.github.com>
+Date: Tue, 21 Jan 2025 16:36:38 +0800
+Subject: [PATCH] faster autodrive
+
+---
+ src/vehicle_autodrive.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/vehicle_autodrive.cpp b/src/vehicle_autodrive.cpp
+index 7ca3de4de4..a04e9f9d15 100644
+--- a/src/vehicle_autodrive.cpp
++++ b/src/vehicle_autodrive.cpp
+@@ -151,7 +151,7 @@ static constexpr int TURNING_INCREMENT = 15;
+ static constexpr int NUM_ORIENTATIONS = 360 / TURNING_INCREMENT;
+ // min and max speed in tiles/s
+ static constexpr int MIN_SPEED_TPS = 1;
+-static constexpr int MAX_SPEED_TPS = 3;
++static constexpr int MAX_SPEED_TPS = 5;
+ // 16 tiles/s is roughly 55 knots, helicopter efficiency is greatest around 50-70 knots.
+ static constexpr int MAX_AIR_SPEED_TPS = 16;
+ static constexpr int VMIPH_PER_TPS = static_cast<int>( vehicles::vmiph_per_tile );
+-- 
+2.45.2.windows.1
+
