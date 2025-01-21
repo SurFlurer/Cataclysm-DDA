@@ -1702,13 +1702,13 @@ static const std::vector<std::function<player_activity()>> test_activities {
     //player_activity( hacksaw_activity_actor( p, loc ) ),
     [] { return player_activity( haircut_activity_actor() ); },
     //player_activity( harvest_activity_actor( p ) ),
-    [] { return player_activity( hotwire_car_activity_actor( 1, get_avatar().get_location() ) ); },
+    [] { return player_activity( hotwire_car_activity_actor( 1, get_avatar().pos_abs() ) ); },
     //player_activity( insert_item_activity_actor() ),
-    [] { return player_activity( lockpick_activity_actor::use_item( 1, item_location(), get_avatar().get_location() ) ); },
+    [] { return player_activity( lockpick_activity_actor::use_item( 1, item_location(), get_avatar().pos_abs() ) ); },
     //player_activity( longsalvage_activity_actor() ),
     [] { return player_activity( meditate_activity_actor() ); },
     [] { return player_activity( migration_cancel_activity_actor() ); },
-    [] { return player_activity( milk_activity_actor( 1, {get_avatar().get_location()}, {std::string()} ) ); },
+    [] { return player_activity( milk_activity_actor( 1, {get_avatar().pos_abs()}, {std::string()} ) ); },
     [] { return player_activity( mop_activity_actor( 1 ) ); },
     //player_activity( move_furniture_activity_actor( p, false ) ),
     [] { return player_activity( move_items_activity_actor( {}, {}, false, tripoint_rel_ms::north ) ); },
@@ -1815,7 +1815,7 @@ TEST_CASE( "activity_interruption_by_distractions", "[activity][interruption]" )
             CHECK( dists.empty() );
 
             THEN( "interruption by zombie moving towards dummy" ) {
-                zombie.set_dest( get_map().getglobal( dummy.pos_bub() ) );
+                zombie.set_dest( get_map().get_abs( dummy.pos_bub() ) );
                 int turns = 0;
                 do {
                     move_monster_turn( zombie );
@@ -1842,7 +1842,7 @@ TEST_CASE( "activity_interruption_by_distractions", "[activity][interruption]" )
             CHECK( dists.empty() );
 
             THEN( "interruption by zombie moving towards dummy" ) {
-                zombie.set_dest( get_map().getglobal( dummy.pos_bub() ) );
+                zombie.set_dest( get_map().get_abs( dummy.pos_bub() ) );
                 int turns = 0;
                 do {
                     move_monster_turn( zombie );

@@ -1375,6 +1375,8 @@ class Character : public Creature, public visitable
          *  Defaults to true
          */
         bool purifiable( const trait_id &flag ) const;
+        /** Returns true if a conflict has destroyed a bionic */
+        bool handle_bio_mut_conflict( const bionic_id &bio, const trait_id &mut );
         /** Returns a dream's description selected randomly from the player's highest mutation category */
         std::string get_category_dream( const mutation_category_id &cat, int strength ) const;
         /** Returns true if the player has the entered trait in cached_mutations */
@@ -2793,6 +2795,7 @@ class Character : public Creature, public visitable
         int get_focus() const {
             return std::max( 1, focus_pool / 1000 );
         }
+        int get_effective_focus() const;
         void mod_focus( int amount ) {
             focus_pool += amount * 1000;
             focus_pool = std::max( focus_pool, 0 );
@@ -3200,7 +3203,7 @@ class Character : public Creature, public visitable
         void on_item_acquire( const item &it );
         /** Called when effect intensity has been changed */
         void on_effect_int_change( const efftype_id &eid, int intensity,
-                                   const bodypart_id &bp = bodypart_id( "bp_null" ) ) override;
+                                   const bodypart_id &bp = bodypart_str_id::NULL_ID() ) override;
         /** Called when a mutation is gained */
         void on_mutation_gain( const trait_id &mid );
         /** Called when a mutation is lost */
@@ -3768,14 +3771,13 @@ class Character : public Creature, public visitable
         // Returns a multiplier indicating the keenness of a player's hearing.
         float hearing_ability() const;
 
-        using trap_map = std::map<tripoint, std::string>;
+        using trap_map = std::map<tripoint_abs_ms, std::string>;
         // Use @ref trap::can_see to check whether a character knows about a
         // specific trap - it will consider visible and known traps.
         bool knows_trap( const tripoint_bub_ms &pos ) const;
         void add_known_trap( const tripoint_bub_ms &pos, const trap &t );
 
         // see Creature::sees
-        bool sees( const tripoint &t, bool is_avatar = false, int range_mod = 0 ) const override;
         bool sees( const tripoint_bub_ms &t, bool is_avatar = false, int range_mod = 0 ) const override;
         // see Creature::sees
         bool sees( const Creature &critter ) const override;

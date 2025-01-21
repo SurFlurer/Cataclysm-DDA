@@ -788,7 +788,7 @@ int get_local_windpower( int windpower, const oter_id &omter, const tripoint_abs
         return 0;
     }
     rl_vec2d windvec = convert_wind_to_coord( winddirection );
-    const tripoint_bub_ms triblocker( get_map().bub_from_abs( location ) + point( windvec.x,
+    const tripoint_bub_ms triblocker( get_map().get_bub( location ) + point( windvec.x,
                                       windvec.y ) );
     // Over map terrain may modify the effect of wind.
     if( ( omter->get_type_id() == oter_type_forest ) ||
@@ -900,7 +900,7 @@ void weather_manager::update_weather()
     if( weather_id == WEATHER_NULL || calendar::turn >= nextweather ) {
         w_point &w = *weather_precise;
         const weather_generator &weather_gen = get_cur_weather_gen();
-        w = weather_gen.get_weather( player_character.get_location(), calendar::turn,
+        w = weather_gen.get_weather( player_character.pos_abs(), calendar::turn,
                                      g->get_seed() );
         weather_type_id old_weather = weather_id;
         std::string eternal_weather_option = get_option<std::string>( "ETERNAL_WEATHER" );

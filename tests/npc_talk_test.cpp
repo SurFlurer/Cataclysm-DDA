@@ -121,7 +121,7 @@ static std::string gen_dynamic_line( dialogue &d )
 
 static void change_om_type( const std::string &new_type )
 {
-    const tripoint_abs_omt omt_pos( coords::project_to<coords::omt>( get_map().getglobal(
+    const tripoint_abs_omt omt_pos( coords::project_to<coords::omt>( get_map().get_abs(
                                         get_player_character().pos_bub() ) ) );
     overmap_buffer.ter_set( omt_pos, oter_id( new_type ) );
 }
@@ -339,7 +339,7 @@ TEST_CASE( "npc_talk_location", "[npc_talk]" )
     dialogue d;
     prep_test( d );
 
-    REQUIRE( !overmap_buffer.find_camp( get_avatar().global_omt_location().xy() ) );
+    REQUIRE( !overmap_buffer.find_camp( get_avatar().pos_abs_omt().xy() ) );
     change_om_type( "pond_field_north" );
     d.add_topic( "TALK_TEST_LOCATION" );
     d.gen_responses( d.topic_stack.back() );

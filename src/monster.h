@@ -217,7 +217,9 @@ class monster : public Creature
         bool can_move_to( const tripoint_bub_ms &p ) const;
         bool can_reach_to( const tripoint_bub_ms &p ) const;
         bool will_move_to( const tripoint_bub_ms &p ) const;
+        bool will_move_to( map *here, const tripoint_bub_ms &p ) const;
         bool know_danger_at( const tripoint_bub_ms &p ) const;
+        bool know_danger_at( map *here, const tripoint_bub_ms &p ) const;
 
         bool will_reach( const point_bub_ms &p ); // Do we have plans to get to (x, y)?
         int  turns_to_reach( const point_bub_ms &p ); // How long will it take?
@@ -367,7 +369,7 @@ class monster : public Creature
         bool melee_attack( Creature &target, float accuracy );
         void melee_attack( Creature &p, bool ) = delete;
         void deal_projectile_attack( Creature *source, dealt_projectile_attack &attack,
-                                     bool print_messages = true,
+                                     const double &missed_by = 0, bool print_messages = true,
                                      const weakpoint_attack &wp_attack = weakpoint_attack() ) override;
         void deal_damage_handle_type( const effect_source &source, const damage_unit &du, bodypart_id bp,
                                       int &damage, int &pain ) override;

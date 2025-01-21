@@ -1750,7 +1750,7 @@ std::optional<item> item_pocket::remove_item( const item_location &it )
     return remove_item( *it );
 }
 
-static void move_to_parent_pocket_recursive( const tripoint &pos, item &it,
+static void move_to_parent_pocket_recursive( const tripoint_bub_ms &pos, item &it,
         const item_location &loc, Character *carrier )
 {
     if( loc ) {
@@ -1775,7 +1775,7 @@ static void move_to_parent_pocket_recursive( const tripoint &pos, item &it,
         carrier->add_msg_player_or_npc( m_bad, _( "Your %s falls to the ground." ),
                                         _( "<npcname>'s %s falls to the ground." ), it.display_name() );
     } else {
-        add_msg_if_player_sees( tripoint_bub_ms( pos ), m_bad, _( "The %s falls to the ground." ),
+        add_msg_if_player_sees( pos, m_bad, _( "The %s falls to the ground." ),
                                 it.display_name() );
     }
     here.add_item_or_charges( pos, it );
@@ -1813,7 +1813,7 @@ void item_pocket::overflow( const tripoint_bub_ms &pos, const item_location &loc
             if( !is_type( pocket_type::MIGRATION ) && can_contain( *iter, true ).success() ) {
                 ++iter;
             } else {
-                move_to_parent_pocket_recursive( pos.raw(), *iter, loc, carrier );
+                move_to_parent_pocket_recursive( pos, *iter, loc, carrier );
                 iter = contents.erase( iter );
             }
             continue;
@@ -1828,7 +1828,7 @@ void item_pocket::overflow( const tripoint_bub_ms &pos, const item_location &loc
         if( cont_copy_type.first->second ) {
             ++iter;
         } else {
-            move_to_parent_pocket_recursive( pos.raw(), *iter, loc, carrier );
+            move_to_parent_pocket_recursive( pos, *iter, loc, carrier );
             iter = contents.erase( iter );
         }
     }
@@ -1855,7 +1855,7 @@ void item_pocket::overflow( const tripoint_bub_ms &pos, const item_location &loc
             if( overflow_count > 0 ) {
                 ammo.charges -= overflow_count;
                 item dropped_ammo( ammo.typeId(), ammo.birthday(), overflow_count );
-                move_to_parent_pocket_recursive( pos.raw(), *iter, loc, carrier );
+                move_to_parent_pocket_recursive( pos, *iter, loc, carrier );
                 total_qty -= overflow_count;
             }
             if( ammo.count() == 0 ) {
@@ -1874,7 +1874,7 @@ void item_pocket::overflow( const tripoint_bub_ms &pos, const item_location &loc
             return left.volume() > right.volume();
         } );
         while( remaining_volume() < 0_ml && !contents.empty() ) {
-            move_to_parent_pocket_recursive( pos.raw(), contents.front(), loc, carrier );
+            move_to_parent_pocket_recursive( pos, contents.front(), loc, carrier );
             contents.pop_front();
         }
     }
@@ -1883,7 +1883,7 @@ void item_pocket::overflow( const tripoint_bub_ms &pos, const item_location &loc
             return left.weight() > right.weight();
         } );
         while( remaining_weight() < 0_gram && !contents.empty() ) {
-            move_to_parent_pocket_recursive( pos.raw(), contents.front(), loc, carrier );
+            move_to_parent_pocket_recursive( pos, contents.front(), loc, carrier );
             contents.pop_front();
         }
     }
@@ -2411,7 +2411,7 @@ void item_pocket::load_presets()
     std::ifstream fin;
     cata_path file = PATH_INFO::pocket_presets();
 
-    fs::path file_path = file.get_unrelative_path();
+    std::filesystem::path file_path = file.get_unrelative_path();
     fin.open( file_path, std::ifstream::in | std::ifstream::binary );
 
     if( fin.good() ) {

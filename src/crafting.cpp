@@ -766,17 +766,17 @@ static item_location set_item_inventory( Character &p, item &newit )
  * Helper for @ref set_item_map_or_vehicle
  * This is needed to still get a valid item_location if overflow occurs
  */
-static item_location set_item_map( const tripoint &loc, item &newit )
+static item_location set_item_map( const tripoint_bub_ms &loc, item &newit )
 {
     // Includes loc
-    for( const tripoint_bub_ms &tile : closest_points_first( tripoint_bub_ms( loc ), 2 ) ) {
+    for( const tripoint_bub_ms &tile : closest_points_first( loc, 2 ) ) {
         // Pass false to disallow overflow, null_item_reference indicates failure.
         item *it_on_map = &get_map().add_item_or_charges( tile, newit, false );
         if( it_on_map != &null_item_reference() ) {
-            return item_location( map_cursor( tripoint_bub_ms( tile ) ), it_on_map );
+            return item_location( map_cursor( tile ), it_on_map );
         }
     }
-    debugmsg( "Could not place %s on map near (%d, %d, %d)", newit.tname(), loc.x, loc.y, loc.z );
+    debugmsg( "Could not place %s on map near (%d, %d, %d)", newit.tname(), loc.x(), loc.y(), loc.z() );
     return item_location();
 }
 
@@ -807,7 +807,7 @@ static item_location set_item_map_or_vehicle( const Character &p, const tripoint
                       "Not enough space on the %1$s. <npcname> drops the %2$s on the ground." ),
             vp->part().name(), newit.tname() );
 
-        return set_item_map( loc.raw(), newit );
+        return set_item_map( loc, newit );
 
     } else {
         if( here.has_furn( loc ) ) {
@@ -823,7 +823,7 @@ static item_location set_item_map_or_vehicle( const Character &p, const tripoint
                 pgettext( "item", "<npcname> puts the %s on the ground." ),
                 newit.tname() );
         }
-        return set_item_map( loc.raw(), newit );
+        return set_item_map( loc, newit );
     }
 }
 
@@ -2709,7 +2709,7 @@ void Character::disassemble_all( bool one_pass )
     bool found_any = false;
     std::vector<item_location> to_disassemble;
     for( item &it : get_map().i_at( pos_bub() ) ) {
-        to_disassemble.emplace_back( map_cursor( get_location() ), &it );
+        to_disassemble.emplace_back( map_cursor( pos_abs() ), &it );
     }
     for( item_location &it_loc : to_disassemble ) {
         // Prevent disassembling an in process disassembly because it could have been created by a previous iteration of this loop
@@ -2926,7 +2926,6 @@ void Character::complete_disassemble( item_location &target, const recipe &dis )
             item act_item = newit;
 
             if( act_item.has_temperature() ) {
-                // TODO: fix point types
                 act_item.set_item_temperature( get_weather().get_temperature( loc ) );
             }
 

@@ -88,7 +88,6 @@ static const ammo_effect_str_id ammo_effect_IGNITE( "IGNITE" );
 static const ammo_effect_str_id ammo_effect_LASER( "LASER" );
 static const ammo_effect_str_id ammo_effect_LIGHTNING( "LIGHTNING" );
 static const ammo_effect_str_id ammo_effect_MATCHHEAD( "MATCHHEAD" );
-static const ammo_effect_str_id ammo_effect_MULTI_EFFECTS( "MULTI_EFFECTS" );
 static const ammo_effect_str_id ammo_effect_NON_FOULING( "NON_FOULING" );
 static const ammo_effect_str_id ammo_effect_NO_EMBED( "NO_EMBED" );
 static const ammo_effect_str_id ammo_effect_NO_ITEM_DAMAGE( "NO_ITEM_DAMAGE" );
@@ -1056,30 +1055,15 @@ int Character::fire_gun( const tripoint_bub_ms &target, int shots, item &gun, it
 
         dispersion_sources dispersion = total_gun_dispersion( gun, recoil_total(), proj.shot_spread );
 
-        bool first = true;
-        bool headshot = false;
-        bool multishot = proj.count > 1;
         dealt_projectile_attack shot;
-        for( int projectile_number = 0; projectile_number < proj.count; ++projectile_number ) {
-            if( !first && !proj.multi_projectile_effects ) {
-                proj.proj_effects.erase( proj.proj_effects.begin(), proj.proj_effects.end() );
-            }
-            projectile_attack( shot, proj, pos_bub(), aim,
-                               dispersion, this, in_veh, wp_attack, first );
-            first = false;
-            if( shot.headshot ) {
-                headshot = true;
-            }
-            if( proj.count > 1 && shot.proj.count == 1 ) {
-                // Point-blank shots don't act like shot, everything hits the same target.
-                multishot = false;
-                break;
-            }
-        }
+        projectile_attack( shot, proj, pos_bub(), aim, dispersion, this, in_veh, wp_attack );
         if( !shot.targets_hit.empty() ) {
             hits++;
         }
         for( std::pair<Creature *const, std::pair<int, int>> &hit_entry : shot.targets_hit ) {
+            if( hit_entry.second.first == 0 ) {
+                continue;
+            }
             if( monster *const m = hit_entry.first->as_monster() ) {
                 cata::event e = cata::event::make<event_type::character_ranged_attacks_monster>( getID(), gun_id,
                                 m->type->id );
@@ -1089,13 +1073,13 @@ int Character::fire_gun( const tripoint_bub_ms &target, int shots, item &gun, it
                                 c->getID(), c->get_name() );
                 get_event_bus().send_with_talker( this, c, e );
             }
-            if( multishot ) {
+            if( shot.proj.multishot ) {
                 // TODO: Pull projectile name from the ammo entry.
                 multi_projectile_hit_message( hit_entry.first, hit_entry.second.first, hit_entry.second.second,
                                               n_gettext( "projectile", "projectiles", hit_entry.second.first ) );
             }
         }
-        if( headshot ) {
+        if( shot.headshot ) {
             get_event_bus().send<event_type::character_gets_headshot>( getID() );
         }
         curshot++;
@@ -1556,12 +1540,12 @@ dealt_projectile_attack Character::throw_item( const tripoint_bub_ms &target, co
 
     const double missed_by = dealt_attack.missed_by;
 
-    if( critter && dealt_attack.hit_critter != nullptr && dealt_attack.headshot &&
+    if( critter && dealt_attack.last_hit_critter != nullptr && dealt_attack.headshot &&
         !critter->has_flag( mon_flag_IMMOBILE ) &&
         !critter->has_flag( json_flag_CANNOT_MOVE ) ) {
         practice( skill_throw, final_xp_mult, MAX_SKILL );
         get_event_bus().send<event_type::character_gets_headshot>( getID() );
-    } else if( critter && dealt_attack.hit_critter != nullptr && missed_by > 0.0f &&
+    } else if( critter && dealt_attack.last_hit_critter != nullptr && missed_by > 0.0f &&
                !critter->has_flag( mon_flag_IMMOBILE ) &&
                !critter->has_flag( json_flag_CANNOT_MOVE ) ) {
         practice( skill_throw, final_xp_mult / ( 1.0f + missed_by ), MAX_SKILL );
@@ -2203,10 +2187,6 @@ static projectile make_gun_projectile( const item &gun )
 
         proj.critical_multiplier = ammo->critical_multiplier;
         proj.count = ammo->count;
-        proj.multi_projectile_effects = ammo->multi_projectile_effects;
-        if( fx.count( ammo_effect_MULTI_EFFECTS ) ) {
-            proj.multi_projectile_effects = true;
-        }
         proj.shot_spread = ammo->shot_spread * gun.gun_shot_spread_multiplier();
         if( !ammo->drop.is_null() && x_in_y( ammo->drop_chance, 1.0 ) ) {
             item drop( ammo->drop );
@@ -2973,9 +2953,9 @@ bool target_ui::handle_cursor_movement( const std::string &action, bool &skip_re
                 set_view_offset( you->view_offset + edge_scroll );
             }
         }
-    } else if( const std::optional<tripoint> delta = ctxt.get_direction( action ) ) {
+    } else if( const std::optional<tripoint_rel_ms> delta = ctxt.get_direction_rel_ms( action ) ) {
         // Shift view/cursor with directional keys
-        shift_view_or_cursor( *delta );
+        shift_view_or_cursor( delta->raw() );
     } else if( action == "SELECT" &&
                ( mouse_pos = ctxt.get_coordinates( g->w_terrain, g->ter_view_p.raw().xy() ) ) ) {
         // Set pos by clicking with mouse
@@ -3206,7 +3186,7 @@ bool target_ui::try_reacquire_target( bool critter, tripoint_bub_ms &new_dst )
     }
 
     // Try to re-acquire target tile or tile where the target creature used to be
-    tripoint_bub_ms local_lt = get_map().bub_from_abs( *you->last_target_pos );
+    tripoint_bub_ms local_lt = get_map().get_bub( *you->last_target_pos );
     if( dist_fn( local_lt ) <= range ) {
         new_dst = local_lt;
         // Abort aiming if a creature moved in
@@ -3255,10 +3235,10 @@ int target_ui::dist_fn( const tripoint_bub_ms &p )
 void target_ui::set_last_target()
 {
     if( !you->last_target_pos.has_value() ||
-        you->last_target_pos.value() != get_map().getglobal( dst ) ) {
+        you->last_target_pos.value() != get_map().get_abs( dst ) ) {
         you->aim_cache_dirty = true;
     }
-    you->last_target_pos = get_map().getglobal( dst );
+    you->last_target_pos = get_map().get_abs( dst );
     if( dst_critter ) {
         you->last_target = g->shared_from( *dst_critter );
     } else {
@@ -3423,7 +3403,7 @@ void target_ui::recalc_aim_turning_penalty()
     if( lt_ptr ) {
         curr_recoil_pos = lt_ptr->pos_bub();
     } else if( you->last_target_pos ) {
-        curr_recoil_pos = get_map().bub_from_abs( *you->last_target_pos );
+        curr_recoil_pos = get_map().get_bub( *you->last_target_pos );
     } else {
         curr_recoil_pos = src;
     }

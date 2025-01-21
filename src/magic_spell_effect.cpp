@@ -585,7 +585,7 @@ static void damage_targets( const spell &sp, Creature &caster,
                         val.amount = roll_remainder( val.amount / multishot );
                     }
                     for( int i = 0; i < multishot; ++i ) {
-                        cr->deal_projectile_attack( cr, atk, true );
+                        cr->deal_projectile_attack( cr, atk, atk.missed_by, true );
                     }
                 } else if( sp.has_flag( spell_flag::SPLIT_DAMAGE ) ) {
                     int amount_of_bp = target_bdpts.size();
@@ -603,7 +603,7 @@ static void damage_targets( const spell &sp, Creature &caster,
                         }
                     }
                 } else {
-                    cr->deal_projectile_attack( &caster, atk, true );
+                    cr->deal_projectile_attack( &caster, atk, atk.missed_by, true );
                 }
             }
 
@@ -613,7 +613,7 @@ static void damage_targets( const spell &sp, Creature &caster,
                         val.amount = cr->get_hp() * sp.damage( caster ) / 100.0;
                     }
                 }
-                cr->deal_projectile_attack( &caster, atk, true );
+                cr->deal_projectile_attack( &caster, atk, atk.missed_by, true );
             }
         } else if( sp.damage( caster ) < 0 ) {
             sp.heal( target, caster );
@@ -651,7 +651,7 @@ static void damage_targets( const spell &sp, Creature &caster,
                 cr->add_damage_over_time( sp.damage_over_time( { cr->get_random_body_part() }, caster ) );
             }
         } else {
-            cr->add_damage_over_time( sp.damage_over_time( { body_part_bp_null }, caster ) );
+            cr->add_damage_over_time( sp.damage_over_time( { bodypart_str_id::NULL_ID().id() }, caster ) );
         }
     }
 }
@@ -1479,7 +1479,7 @@ void spell_effect::map( const spell &sp, Creature &caster, const tripoint_bub_ms
         // revealing the map only makes sense for the avatar
         return;
     }
-    const tripoint_abs_omt center = you->global_omt_location();
+    const tripoint_abs_omt center = you->pos_abs_omt();
     overmap_buffer.reveal( center.xy(), sp.aoe( caster ), center.z() );
 }
 
@@ -1772,11 +1772,11 @@ void spell_effect::dash( const spell &sp, Creature &caster, const tripoint_bub_m
     std::vector<tripoint_abs_ms> trajectory;
     trajectory.reserve( trajectory_local.size() );
     for( const tripoint_bub_ms &local_point : trajectory_local ) {
-        trajectory.push_back( here.getglobal( local_point ) );
+        trajectory.push_back( here.get_abs( local_point ) );
     }
     avatar *caster_you = caster.as_avatar();
     auto walk_point = trajectory.begin();
-    if( here.bub_from_abs( *walk_point ) == source ) {
+    if( here.get_bub( *walk_point ) == source ) {
         ++walk_point;
     }
     // save the amount of moves the caster has so we can restore them after the dash
@@ -1784,14 +1784,14 @@ void spell_effect::dash( const spell &sp, Creature &caster, const tripoint_bub_m
     creature_tracker &creatures = get_creature_tracker();
     while( walk_point != trajectory.end() ) {
         if( caster_you != nullptr ) {
-            if( creatures.creature_at( here.bub_from_abs( *walk_point ) ) ||
-                !g->walk_move( here.bub_from_abs( *walk_point ), false ) ) {
+            if( creatures.creature_at( here.get_bub( *walk_point ) ) ||
+                !g->walk_move( here.get_bub( *walk_point ), false ) ) {
                 if( walk_point != trajectory.begin() ) {
                     --walk_point;
                 }
                 break;
             } else if( walk_point != trajectory.begin() ) {
-                sp.create_field( here.bub_from_abs( *( walk_point - 1 ) ), caster );
+                sp.create_field( here.get_bub( *( walk_point - 1 ) ), caster );
                 g->draw_ter();
             }
         }
@@ -1805,7 +1805,7 @@ void spell_effect::dash( const spell &sp, Creature &caster, const tripoint_bub_m
 
     tripoint_bub_ms far_target;
     calc_ray_end( coord_to_angle( source, target ), sp.aoe( caster ),
-                  here.bub_from_abs( *walk_point ),
+                  here.get_bub( *walk_point ),
                   far_target );
 
     spell_effect::override_parameters params( sp, caster );
@@ -1900,7 +1900,7 @@ void spell_effect::effect_on_condition( const spell &sp, Creature &caster,
         }
         Creature *victim = creatures.creature_at<Creature>( potential_target );
         dialogue d( victim ? get_talker_for( victim ) : nullptr, get_talker_for( caster ) );
-        const tripoint_abs_ms target_abs = get_map().getglobal( potential_target );
+        const tripoint_abs_ms target_abs = get_map().get_abs( potential_target );
         write_var_value( var_type::context, "spell_location", &d,
                          target_abs.to_string() );
         d.amend_callstack( string_format( "Spell: %s Caster: %s", sp.id().c_str(), caster.disp_name() ) );

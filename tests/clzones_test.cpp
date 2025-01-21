@@ -51,7 +51,7 @@ int _count_items_or_charges( const T &items, const itype_id &id )
     return n;
 }
 
-int count_items_or_charges( const tripoint src, const itype_id &id,
+int count_items_or_charges( const tripoint_bub_ms src, const itype_id &id,
                             const std::optional<vpart_reference> &vp )
 {
     if( vp ) {
@@ -80,9 +80,9 @@ TEST_CASE( "zone_unloading_ammo_belts", "[zones][items][ammo_belt][activities][u
     clear_avatar();
     clear_map();
 
-    tripoint_abs_ms const start = here.getglobal( tripoint_bub_ms::zero + tripoint::east );
+    tripoint_abs_ms const start = here.get_abs( tripoint_bub_ms::zero + tripoint::east );
     bool const move_act = GENERATE( true, false );
-    dummy.set_location( start );
+    dummy.set_pos_abs_only( start );
 
     if( in_vehicle ) {
         REQUIRE( here.add_vehicle( vehicle_prototype_shopping_cart, tripoint_bub_ms::zero + tripoint::east,
@@ -116,10 +116,11 @@ TEST_CASE( "zone_unloading_ammo_belts", "[zones][items][ammo_belt][activities][u
         process_activity( dummy );
 
         THEN( "check that the ammo and linkages are both unloaded and the ammo belt is removed" ) {
-            CHECK( count_items_or_charges( tripoint::east, itype_belt223, vp ) == 0 );
-            CHECK( count_items_or_charges( tripoint::east,
+            CHECK( count_items_or_charges( tripoint_bub_ms::zero + tripoint::east, itype_belt223, vp ) == 0 );
+            CHECK( count_items_or_charges( tripoint_bub_ms::zero + tripoint::east,
                                            itype_ammolink223, vp ) == belt_ammo_count_before_unload );
-            CHECK( count_items_or_charges( tripoint::east, itype_556, vp ) == belt_ammo_count_before_unload );
+            CHECK( count_items_or_charges( tripoint_bub_ms::zero + tripoint::east, itype_556,
+                                           vp ) == belt_ammo_count_before_unload );
         }
     }
 }

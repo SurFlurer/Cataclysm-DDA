@@ -1029,10 +1029,6 @@ struct islot_ammo : common_ranged_data {
      */
     int count = 1;
     /**
-     * Whether this multi-projectile shot has its effects applied to all projectiles
-     */
-    bool multi_projectile_effects = false;
-    /**
      * Spread/dispersion between projectiles fired from the same round.
      */
     int shot_spread = 0;
@@ -1378,6 +1374,9 @@ struct itype {
 
         // itemgroup used to generate the recipes within nanofabricator templates.
         item_group_id nanofab_template_group;
+
+        // list of traits.
+        string_id<Trait_group> trait_group;
 
         // used for corpses placed by mapgen
         mtype_id source_monster = mtype_id::NULL_ID();

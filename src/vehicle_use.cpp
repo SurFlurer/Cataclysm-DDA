@@ -1322,7 +1322,7 @@ void vehicle::open_or_close( const int part_index, const bool opening )
     part_open_or_close( part_index, opening );
     insides_dirty = true;
     map &here = get_map();
-    here.set_transparency_cache_dirty( sm_pos.z );
+    here.set_transparency_cache_dirty( sm_pos.z() );
     const tripoint_bub_ms part_location = mount_to_tripoint( parts[part_index].mount );
     here.set_seen_cache_dirty( tripoint_bub_ms( part_location ) );
     const int dist = rl_dist( get_player_character().pos_bub(), part_location );
@@ -1804,13 +1804,13 @@ bool vehicle::use_vehicle_tool( vehicle &veh, const tripoint_bub_ms &vp_pos,
           tool_type == itype_large_repairkit
         ) ) {
         act.index = INT_MIN; // tell activity the item doesn't really exist
-        act.coords.push_back( vp_pos.raw() ); // tell it to search for the tool on `pos`
+        act.coords.push_back( get_map().get_abs( vp_pos ) ); // tell it to search for the tool on `pos`
         act.str_values.push_back( tool_type.str() ); // specific tool on the rig
     }
 
     //Hack for heat_activity_actor.
     if( act.id() == ACT_HEATING ) {
-        act.coords.push_back( vp_pos.raw() );
+        act.coords.push_back( get_map().get_abs( vp_pos ) );
     }
 
     const int used_charges = ammo_in_tool - tool.ammo_remaining();
@@ -1825,7 +1825,7 @@ bool vehicle::use_vehicle_tool( vehicle &veh, const tripoint_bub_ms &vp_pos,
     return true;
 }
 
-void vehicle::build_interact_menu( veh_menu &menu, const tripoint &p, bool with_pickup )
+void vehicle::build_interact_menu( veh_menu &menu, const tripoint_bub_ms &p, bool with_pickup )
 {
     const optional_vpart_position ovp = get_map().veh_at( p );
     if( !ovp ) {
@@ -2448,6 +2448,6 @@ void vehicle::interact_with( const tripoint_bub_ms &p, bool with_pickup )
     veh_menu menu( *this, _( "Select an action" ) );
     do {
         menu.reset();
-        build_interact_menu( menu, p.raw(), with_pickup );
+        build_interact_menu( menu, p, with_pickup );
     } while( menu.query() );
 }

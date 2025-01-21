@@ -580,12 +580,12 @@ void mapgen_river_curved_not( mapgendata &dat )
         for( int y = 0; y < east_edge; y++ ) {
             int circle_edge = ( ( SEEX * 2 - x ) * ( SEEX * 2 - x ) ) + ( y * y );
             if( circle_edge <= 8 ) {
-                m->ter_set( point( x, y ), grass_or_dirt() );
+                m->ter_set( point_bub_ms( x, y ), grass_or_dirt() );
             }
             if( circle_edge == 9 && one_in( 25 ) ) {
-                m->ter_set( point( x, y ), clay_or_sand() );
+                m->ter_set( point_bub_ms( x, y ), clay_or_sand() );
             } else if( circle_edge <= 36 ) {
-                m->ter_set( point( x, y ), ter_t_water_moving_sh );
+                m->ter_set( point_bub_ms( x, y ), ter_t_water_moving_sh );
             }
         }
     }
@@ -617,7 +617,7 @@ void mapgen_river_straight( mapgendata &dat )
         int shallow_edge = rng( 4, 6 );
         line( m, grass_or_dirt(), point_bub_ms( x, 0 ), point_bub_ms( x, ground_edge ), dat.zlevel() );
         if( one_in( 25 ) ) {
-            m->ter_set( point( x, ++ground_edge ), clay_or_sand() );
+            m->ter_set( point_bub_ms( x, ++ground_edge ), clay_or_sand() );
         }
         line( m, ter_t_water_moving_sh, point_bub_ms( x, ++ground_edge ), point_bub_ms( x, shallow_edge ),
               dat.zlevel() );
@@ -650,7 +650,7 @@ void mapgen_river_curved( mapgendata &dat )
         int shallow_edge = rng( 4, 6 );
         line( m, grass_or_dirt(), point_bub_ms( x, 0 ), point_bub_ms( x, ground_edge ), dat.zlevel() );
         if( one_in( 25 ) ) {
-            m->ter_set( point( x, ++ground_edge ), clay_or_sand() );
+            m->ter_set( point_bub_ms( x, ++ground_edge ), clay_or_sand() );
         }
         line( m, ter_t_water_moving_sh, point_bub_ms( x, ++ground_edge ), point_bub_ms( x, shallow_edge ),
               dat.zlevel() );
@@ -661,7 +661,7 @@ void mapgen_river_curved( mapgendata &dat )
         line( m, grass_or_dirt(), point_bub_ms( ground_edge, y ), point_bub_ms( SEEX * 2 - 1, y ),
               dat.zlevel() );
         if( one_in( 25 ) ) {
-            m->ter_set( point( --ground_edge, y ), clay_or_sand() );
+            m->ter_set( point_bub_ms( --ground_edge, y ), clay_or_sand() );
         }
         line( m, ter_t_water_moving_sh, point_bub_ms( shallow_edge, y ), point_bub_ms( --ground_edge, y ),
               dat.zlevel() );
@@ -774,7 +774,7 @@ void mapgen_forest( mapgendata &dat )
     for( int bd_x = 0; bd_x < 2; bd_x++ ) {
         for( int bd_y = 0; bd_y < 2; bd_y++ ) {
             // Use the corners of the overmap tiles as hash seeds.
-            point_abs_ms global_corner = m->getglobal( tripoint_bub_ms( bd_x * SEEX * 2, bd_y * SEEY * 2,
+            point_abs_ms global_corner = m->get_abs( tripoint_bub_ms( bd_x * SEEX * 2, bd_y * SEEY * 2,
                                          m->get_abs_sub().z() ) ).xy();
             uint32_t net_hash = std::hash<uint32_t> {}( global_corner.x() ) ^ ( std::hash<int> {}( global_corner.y() )
                                 << 1 );
@@ -1118,7 +1118,7 @@ void mapgen_forest( mapgendata &dat )
     for( int x = 0; x < SEEX * 2; x++ ) {
         for( int y = 0; y < SEEY * 2; y++ ) {
             const ter_furn_id feature = get_feathered_feature( point( x, y ) );
-            m->ter_set( point( x, y ), feature.ter );
+            m->ter_set( point_bub_ms( x, y ), feature.ter );
             m->furn_set( point_bub_ms( x, y ), feature.furn );
             set_terrain_dependent_furniture( feature.ter, point_bub_ms( x, y ) );
         }
@@ -2202,7 +2202,7 @@ void mremove_trap( map *m, const tripoint_bub_ms &p, trap_id type )
 void mtrap_set( map *m, const tripoint_bub_ms &p, trap_id type, bool avoid_creatures )
 {
     if( avoid_creatures ) {
-        Creature *c = get_creature_tracker().creature_at( m->getglobal( p ), true );
+        Creature *c = get_creature_tracker().creature_at( m->get_abs( p ), true );
         if( c ) {
             return;
         }
@@ -2213,7 +2213,7 @@ void mtrap_set( map *m, const tripoint_bub_ms &p, trap_id type, bool avoid_creat
 void mtrap_set( tinymap *m, const point_omt_ms &p, trap_id type, bool avoid_creatures )
 {
     if( avoid_creatures ) {
-        Creature *c = get_creature_tracker().creature_at( m->getglobal( tripoint_omt_ms( p,
+        Creature *c = get_creature_tracker().creature_at( m->get_abs( tripoint_omt_ms( p,
                       m->get_abs_sub().z() ) ), true );
         if( c ) {
             return;
