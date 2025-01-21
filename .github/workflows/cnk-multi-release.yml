@@ -201,6 +201,7 @@ jobs:
           git am '${{ github.workspace }}/msvc-full-features/0001-do-not-check-morale-consistency.patch'
           git am '${{ github.workspace }}/msvc-full-features/0001-correct-flee-hostility.patch'
           git am '${{ github.workspace }}/msvc-full-features/0001-faster-autodrive.patch'
+          git am '${{ github.workspace }}/msvc-full-features/0001-stack-more-comestibles.patch'
       - name: udp (Linux)
         if: runner.os != 'Windows'
         run: |
