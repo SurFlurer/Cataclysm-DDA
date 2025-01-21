@@ -1,0 +1,25 @@
+From 94202af4e6837168c17bd8d28dea2c39e0c992f4 Mon Sep 17 00:00:00 2001
+From: Surflurer <22912139+Surflurer@users.noreply.github.com>
+Date: Tue, 21 Jan 2025 16:46:59 +0800
+Subject: [PATCH] stack more comestibles
+
+---
+ src/itype.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/itype.h b/src/itype.h
+index f2665163f3..3350e7ad04 100644
+--- a/src/itype.h
++++ b/src/itype.h
+@@ -1543,7 +1543,7 @@ struct itype {
+         }
+ 
+         bool count_by_charges() const {
+-            return stackable_ || ammo || ( comestible && phase != phase_id::SOLID );
++            return stackable_ || ammo || ( comestible && ( phase != phase_id::SOLID ) || ( comestible->spoils == 0_turns && pockets.size() == 1 ) ) ;
+         }
+ 
+         int charges_default() const;
+-- 
+2.45.2.windows.1
+
