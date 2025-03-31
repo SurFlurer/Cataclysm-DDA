@@ -1,15 +1,19 @@
 #include "talker_monster.h"
 
+#include <optional>
+#include <vector>
+
 #include "character.h"
+#include "coordinates.h"
+#include "creature.h"
+#include "damage.h"
+#include "debug.h"
 #include "effect.h"
-#include "item.h"
-#include "magic.h"
+#include "map.h"
+#include "messages.h"
 #include "monster.h"
 #include "mtype.h"
-#include "point.h"
-#include "vehicle.h"
-
-class time_duration;
+#include "units.h"
 
 std::string talker_monster_const::disp_name() const
 {
@@ -21,14 +25,14 @@ std::string talker_monster_const::get_name() const
     return me_mon_const->get_name();
 }
 
-int talker_monster_const::posx() const
+int talker_monster_const::posx( const map &here ) const
 {
-    return me_mon_const->posx();
+    return me_mon_const->posx( here );
 }
 
-int talker_monster_const::posy() const
+int talker_monster_const::posy( const map &here ) const
 {
-    return me_mon_const->posy();
+    return me_mon_const->posy( here );
 }
 
 int talker_monster_const::posz() const
@@ -36,14 +40,9 @@ int talker_monster_const::posz() const
     return me_mon_const->posz();
 }
 
-tripoint talker_monster_const::pos() const
+tripoint_bub_ms talker_monster_const::pos_bub( const map &here ) const
 {
-    return me_mon_const->pos_bub().raw();
-}
-
-tripoint_bub_ms talker_monster_const::pos_bub() const
-{
-    return me_mon_const->pos_bub();
+    return me_mon_const->pos_bub( here );
 }
 
 tripoint_abs_ms talker_monster_const::pos_abs() const
@@ -192,7 +191,9 @@ int talker_monster_const::get_grab_strength() const
 
 bool talker_monster_const::can_see_location( const tripoint_bub_ms &pos ) const
 {
-    return me_mon_const->sees( pos );
+    const map &here = get_map();
+
+    return me_mon_const->sees( here, pos );
 }
 
 int talker_monster_const::get_volume() const
@@ -220,9 +221,9 @@ bool talker_monster::get_is_alive() const
     return !me_mon->is_dead();
 }
 
-void talker_monster::die()
+void talker_monster::die( map *here )
 {
-    me_mon->die( nullptr );
+    me_mon->die( here, nullptr );
 }
 
 void talker_monster::set_all_parts_hp_cur( int set )

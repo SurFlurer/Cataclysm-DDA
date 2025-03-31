@@ -7,7 +7,7 @@
     "entries": [
       {
         "distribution": [
-          { "item": "cig", "prob": 70, "count": [ 1, 10 ], "container-item": "null", "entry-wrapper": "box_cigarette" },
+          { "group": "cigarettes_opened", "prob": 70, "entry-wrapper": "box_cigarette" },
           {
             "collection": [
               { "item": "tobacco", "count": [ 1, 20 ], "container-item": "null", "entry-wrapper": "bag_plastic" },
@@ -229,7 +229,7 @@
       { "item": "coin_quarter", "prob": 5 },
       { "item": "RPG_die", "prob": 5 },
       { "item": "metal_RPG_die", "prob": 1 },
-      { "item": "memory_card_unread", "count": [ 1, 5 ], "prob": 30 }
+      { "group": "civilian_memory_cards", "count": [ 1, 2 ], "prob": 30 }
     ]
   },
   {

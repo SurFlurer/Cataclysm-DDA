@@ -17,6 +17,7 @@
 #include "character.h"
 #include "character_attire.h"
 #include "color.h"
+#include "coordinates.h"
 #include "creature.h"
 #include "display.h"
 #include "effect.h"
@@ -39,7 +40,7 @@
 #include "translation.h"
 #include "translations.h"
 #include "type_id.h"
-#include "ui.h"
+#include "uilist.h"
 #include "units.h"
 #include "veh_type.h"
 #include "vehicle.h"
@@ -49,7 +50,6 @@
 #include "weather_gen.h"
 
 class item;
-struct mutation_branch;
 
 static const bionic_id bio_sleep_shutdown( "bio_sleep_shutdown" );
 
@@ -811,7 +811,7 @@ void Character::update_bodytemp()
             add_msg( m_bad,
                      _( "The wind is very strong; you should find some more wind-resistant clothing for your %s." ),
                      body_part_name( bp ) );
-        } else if( conv_temp <= BODYTEMP_COLD && windchill < units::from_kelvin_delta( -30 ) &&
+        } else if( conv_temp <= BODYTEMP_COLD && windchill < units::from_fahrenheit_delta( -30 ) &&
                    one_in( 50 ) ) {
             add_msg( m_bad, _( "Your clothing is not providing enough protection from the wind for your %s!" ),
                      body_part_name( bp ) );
@@ -1301,8 +1301,9 @@ bodypart_id Character::body_window( const std::string &menu_header,
                                                  static_cast<int>( infect * 100 ) ), c_light_green ) + "\n";
                 treatment_rank += 60 + infect * 10;
             } else {
-                desc += colorize( _( "It has a deep wound that looks infected.  Antibiotics might be required." ),
-                                  c_red );
+                desc += colorize(
+                            _( "It has a deep wound that looks to have a septic infection.  Antibiotics might be required." ),
+                            c_red );
             }
             desc += "\n";
         }

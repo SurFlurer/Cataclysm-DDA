@@ -13,7 +13,6 @@
 #include "calendar.h"
 #include "character.h"
 #include "character_id.h"
-#include "colony.h"
 #include "color.h"
 #include "computer.h"
 #include "coordinates.h"
@@ -27,7 +26,6 @@
 #include "field_type.h"
 #include "flag.h"
 #include "game.h"
-#include "game_constants.h"
 #include "game_inventory.h"
 #include "input.h"
 #include "input_context.h"
@@ -38,13 +36,13 @@
 #include "localized_comparator.h"
 #include "map.h"
 #include "map_iterator.h"
+#include "map_scale_constants.h"
 #include "mapdata.h"
 #include "messages.h"
 #include "mission.h"
 #include "monster.h"
 #include "mtype.h"
 #include "mutation.h"
-#include "npc.h"
 #include "omdata.h"
 #include "options.h"
 #include "output.h"
@@ -63,8 +61,9 @@
 #include "translations.h"
 #include "trap.h"
 #include "type_id.h"
-#include "ui.h"
+#include "uilist.h"
 #include "ui_manager.h"
+#include "units.h"
 
 static const efftype_id effect_amigara( "amigara" );
 
@@ -129,7 +128,7 @@ static const ter_str_id ter_t_missile( "t_missile" );
 static const ter_str_id ter_t_open_air( "t_open_air" );
 static const ter_str_id ter_t_rad_platform( "t_rad_platform" );
 static const ter_str_id ter_t_radio_tower( "t_radio_tower" );
-static const ter_str_id ter_t_reinforced_glass( "t_reinforced_glass" );
+static const ter_str_id ter_t_reinforced_glass_lab( "t_reinforced_glass_lab" );
 static const ter_str_id ter_t_reinforced_glass_shutter( "t_reinforced_glass_shutter" );
 static const ter_str_id ter_t_reinforced_glass_shutter_open( "t_reinforced_glass_shutter_open" );
 static const ter_str_id ter_t_sewage( "t_sewage" );
@@ -298,14 +297,14 @@ bool computer_session::hack_attempt( Character &you, int Security ) const
     return successful_attempt;
 }
 
-static item *pick_usb()
+static item *pick_estorage( units::ememory can_hold_ememory )
 {
-    auto filter = []( const item & it ) {
-        return it.typeId() == itype_usb_drive;
+    auto filter = [&can_hold_ememory]( const item & it ) {
+        return it.is_estorage() && it.remaining_ememory() >= can_hold_ememory;
     };
 
     item_location loc = game_menus::inv::titled_filter_menu( filter, get_avatar(),
-                        _( "Choose drive:" ) );
+                        _( "Choose device:" ) );
     if( loc ) {
         return &*loc;
     }
@@ -392,10 +391,11 @@ bool computer_session::can_activate( computer_action action )
 
         case COMPACT_RELEASE:
         case COMPACT_RELEASE_DISARM:
-            return get_map().has_nearby_ter( get_player_character().pos_bub(), ter_t_reinforced_glass, 25 );
+            return get_map().has_nearby_ter( get_player_character().pos_bub(), ter_t_reinforced_glass_lab,
+                                             25 );
 
         case COMPACT_RELEASE_BIONICS:
-            return get_map().has_nearby_ter( get_player_character().pos_bub(), ter_t_reinforced_glass, 3 );
+            return get_map().has_nearby_ter( get_player_character().pos_bub(), ter_t_reinforced_glass_lab, 3 );
 
         case COMPACT_TERMINATE: {
             map &here = get_map();
@@ -407,9 +407,9 @@ bool computer_session::can_activate( computer_action action )
                 }
                 const ter_id &t_north = here.ter( p + tripoint::north );
                 const ter_id &t_south = here.ter( p + tripoint::south );
-                if( ( t_north == ter_t_reinforced_glass &&
+                if( ( t_north == ter_t_reinforced_glass_lab &&
                       t_south == ter_t_concrete_wall ) ||
-                    ( t_south == ter_t_reinforced_glass &&
+                    ( t_south == ter_t_reinforced_glass_lab &&
                       t_north == ter_t_concrete_wall ) ) {
                     return true;
                 }
@@ -551,7 +551,7 @@ void computer_session::action_release()
                    false,
                    "environment",
                    "alarm" );
-    get_map().translate_radius( ter_t_reinforced_glass, ter_t_thconc_floor, 25.0,
+    get_map().translate_radius( ter_t_reinforced_glass_lab, ter_t_thconc_floor, 25.0,
                                 player_character.pos_bub(),
                                 true );
     query_any( _( "Containment shields opened.  Press any key…" ) );
@@ -570,7 +570,7 @@ void computer_session::action_release_bionics()
                    false,
                    "environment",
                    "alarm" );
-    get_map().translate_radius( ter_t_reinforced_glass, ter_t_thconc_floor, 3.0,
+    get_map().translate_radius( ter_t_reinforced_glass_lab, ter_t_thconc_floor, 3.0,
                                 player_character.pos_bub(),
                                 true );
     query_any( _( "Containment shields opened.  Press any key…" ) );
@@ -589,11 +589,11 @@ void computer_session::action_terminate()
         }
         const ter_id &t_north = here.ter( p + tripoint::north );
         const ter_id &t_south = here.ter( p + tripoint::south );
-        if( ( t_north == ter_t_reinforced_glass &&
+        if( ( t_north == ter_t_reinforced_glass_lab &&
               t_south == ter_t_concrete_wall ) ||
-            ( t_south == ter_t_reinforced_glass &&
+            ( t_south == ter_t_reinforced_glass_lab &&
               t_north == ter_t_concrete_wall ) ) {
-            mon->die( &player_character );
+            mon->die( &here, &player_character );
         }
     }
     query_any( _( "Subjects terminated.  Press any key…" ) );
@@ -1025,20 +1025,22 @@ void computer_session::action_repeater_mod()
 
 void computer_session::action_download_software()
 {
-    if( item *const usb = pick_usb() ) {
-        mission *miss = mission::find( comp.mission_id );
-        if( miss == nullptr ) {
-            debugmsg( _( "Computer couldn't find its mission!" ) );
-            return;
-        }
+    mission *miss = mission::find( comp.mission_id );
+    if( miss == nullptr ) {
+        debugmsg( _( "Computer couldn't find its mission!" ) );
+        return;
+    }
+    item software( miss->get_item_id(), calendar::turn_zero );
+    units::ememory downloaded_size = software.ememory_size();
+
+    if( item *const estorage = pick_estorage( downloaded_size ) ) {
         get_player_character().mod_moves( -to_moves<int>( 1_seconds ) * 0.3 );
-        item software( miss->get_item_id(), calendar::turn_zero );
         software.mission_id = comp.mission_id;
-        usb->clear_items();
-        usb->put_in( software, pocket_type::SOFTWARE );
-        print_line( _( "Software downloaded." ) );
+        estorage->put_in( software, pocket_type::E_FILE_STORAGE );
+        print_line( string_format( _( "%s downloaded." ), software.tname() ) );
     } else {
-        print_error( _( "USB drive required!" ) );
+        print_error( string_format( _( "Electronic storage device with %s free required!" ),
+                                    units::display( downloaded_size ) ) );
     }
     query_any();
 }
@@ -1074,14 +1076,16 @@ void computer_session::action_blood_anal()
                         print_line( _( "Result: Unknown blood type.  Unknown pathogen found." ) );
                     }
                     print_line( _( "Pathogen bonded to erythrocytes and leukocytes." ) );
+                    item software( itype_software_blood_data, calendar::turn_zero );
+                    units::ememory downloaded_size = software.ememory_size();
                     if( query_bool( _( "Download data?" ) ) ) {
-                        if( item *const usb = pick_usb() ) {
+                        if( item *const estorage = pick_estorage( downloaded_size ) ) {
                             item software( itype_software_blood_data, calendar::turn_zero );
-                            usb->clear_items();
-                            usb->put_in( software, pocket_type::SOFTWARE );
-                            print_line( _( "Software downloaded." ) );
+                            estorage->put_in( software, pocket_type::E_FILE_STORAGE );
+                            print_line( string_format( _( "%s downloaded." ), software.tname() ) );
                         } else {
-                            print_error( _( "USB drive required!" ) );
+                            print_error( string_format( _( "Electronic storage device with %s free required!" ),
+                                                        units::display( downloaded_size ) ) );
                         }
                     }
                 } else {

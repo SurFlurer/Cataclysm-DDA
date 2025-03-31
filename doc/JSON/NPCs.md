@@ -1015,7 +1015,7 @@ Condition | Type | Description
 --- | --- | ---
 `"is_season"` | string or [variable object](#variable-object) | `true` if the current season matches `is_season`, which must be one of "`spring"`, `"summer"`, `"autumn"`, or `"winter"`.
 `"is_day"` | simple string | `true` if it is currently daytime (sun is at or above the [civil dawn](https://en.wikipedia.org/wiki/Dawn#Civil_dawn) point)
-`"u_is_outside"`<br/>`"npc_is_outside"`  | simple string | `true` if you or the NPC is on a tile without a roof.
+`"u_is_outside"`<br/>`"npc_is_outside"`<br/>`"is_outside"`  | simple string or object | `true` if you or the NPC is on a tile without a roof. if `is_outside`, you can pass a variable with coordinates to check if this tile is outside, like `{ "is_outside": { "context_val": "loc" } }`
 `"u_is_underwater"`<br/>`"npc_is_underwater"`  | simple string | `true` if you or the NPC is underwater.
 `"one_in_chance"` | int or [variable object](#variable-object) | `true` if a one in `one_in_chance` random chance occurs.
 `"x_in_y_chance"` | object | `true` if a `x` in `y` random chance occurs. `x` and `y` are either ints  or [variable object](#variable-object).
@@ -1361,6 +1361,7 @@ _some functions support array arguments or kwargs, denoted with square brackets 
 | school_level(`s`/`v`)    |  ✅   |   ❌  | u, n  | Return the highest level of spells known of that school.<br/>Argument is school ID.<br/><br/>Example:<br/>`"condition": { "math": [ "u_school_level('MAGUS') >= 3"] }`|
 | school_level_adjustment(`s`/`v`)    |   ✅  |  ✅   | u, n  | Return or set temporary caster level adjustment. Only useable by EoCs that trigger on the event `opens_spellbook`. Old values will be reset to 0 before the event triggers. To avoid overwriting values from other EoCs, it is recommended to adjust the values here with `+=` or `-=` instead of setting it to an absolute value.<br/>Argument is school ID.<br/><br/>Example:<br/>`{ "math": [ "u_school_level_adjustment('MAGUS')++"] }`|
 | skill(`s`/`v`)    |  ✅  |   ✅   | u, n  | Return or set skill level<br/><br/>Example:<br/>`"condition": { "math": [ "u_skill('driving') >= 5"] }`<br/>`"condition": { "math": [ "u_skill(someskill) >= 5"] }`|
+| spell_difficulty(`s`/`v`)    |  ✅  |   ✅   | u,n | Returns the difficulty of the given spell id, modified by temporary difficulty modifiers if the character knows the spell; otherwise just the base difficulty calculations.  <br/> Example:<br/>`"math": [ "_difficulty = u_spell_difficulty('test_spell_id')"] }`|
 | skill_exp(`s`/`v`)    |  ✅  |   ✅   | u, n  | Return or set skill experience<br/> Argument is skill ID. <br/><br/> Optional kwargs:<br/>`format`: `s`/`v` - must be `percentage` or `raw`.<br/><br/>Example:<br/>`{ "math": [ "u_skill_exp('driving', 'format': crt_format)--"] }`|
 | spell_exp(`s`/`v`)    |  ✅  |   ✅   | u, n  | Return or set spell xp<br/> Example:<br/>`"condition": { "math": [ "u_spell_exp('SPELL_ID') >= 5"] }`|
 | spell_exp_for_level(`s`/`v`, `d`/`v`)    |  ✅  |   ❌   | g  | Return the amount of XP necessary for a spell level for the given spell. Arguments are spell id and desired level.  <br/> Example:<br/>`"math": [ "spell_exp_for_level('SPELL_ID', u_spell_level('SPELL_ID') ) * 5"] }`|
@@ -1391,6 +1392,7 @@ _some functions support array arguments or kwargs, denoted with square brackets 
 | climate_control_str_chill()    |  ✅   |   ❌  | u, n  | return amount of chill climate control that character currently has (character feels better in cold places with it), in warmth points; default 0, affected by CLIMATE_CONTROL_HEAT enchantment.<br/><br/>Example:<br/>`"condition": { "math": [ "n_climate_control_str_chill() < 0" ] }`|
 | calories()    |  ✅   |   ✅  | u, n  | Return amount of calories character has. If used on item, return amount of calories this item gives when consumed (not affected by enchantments or mutations).  Optional kwargs:<br/>`format`: `s`/`v` - return the value in specific format.  Can be `percent` (return percent to the healthy amount of calories, `100` being the target, bmi 25, or 110000 kcal) or `raw`.  If now used, `raw` is used by default.<br/>`dont_affect_weariness`: `true`/`false` (default false) When assigning value, whether the gained/spent calories should be tracked by weariness.<br/><br/>Example:<br/>`"condition": { "math": [ "u_calories() < 0" ] }`<br/>`"condition": { "math": [ "u_calories('format': 'percent') > 0" ] }`<br/>`"condition": { "math": [ "u_calories() = 110000" ] }`|
 | get_calories_daily()  |  ✅   |   ❌  | g  | Return amount of calories character consumed before, up to 30 days, in kcal. Calorie diary is something only character has, so it can't be used with NPCs. Optional kwargs:<br/>`day`: `d/v` - picks the date the value would be pulled from, from 0 to 30. Default 0, meaning amount of calories you consumed today.<br/>`type`: `s/v` - picks the data that would be pulled. Possible values are: `spent` - how much calories character spent in different activities throughout the day; `gained` - how much calories character ate that day; `ingested` - how much calories character processed that day; `total` - `gained` minus `spent`. Default is `total`;<br/><br/>Example:<br/>`"condition": { "math": [ "get_calories_daily() > 1000" ] }`<br/> `{ "math": [ "foo = get_calories_daily('type':'gained', 'day':'1')" ] }`|
+| quality( `s` / `v` )  |  ✅   |   ❌  | u, n | Return the level of a specified item tool quality. Only usable on item talkers.<br/>Argument is the quality ID. Returns the lowest integer value if the item lacks the specified quality.<br/>Optional kwargs:<br/>`strict`: `true` / `false` (default false) When true the item must be empty to have the boiling quality.<br/><br/>Example<br/>`"condition: { "math": [ " u_quality('HACK') > 0 " ] }`<br/>`{ "math": [ "_cut_quality = u_quality('CUT') " ] }`<br/>`condition: { "math": [ " u_quality('BOIL', 'strict': true ) > 0" ] }`
 
 #### List of Character and item aspects
 These can be read or written to with `val()`.
@@ -1404,7 +1406,7 @@ These can be read or written to with `val()`.
 | `bmi_permil` | ❌ | Current BMI per mille (Body Mass Index x 1000) |
 | `body_temp` | ❌ | Current body temperature. |
 | `body_temp_delta` | ❌ | Difference in temperature between the hottest/coldest part and what feels like the hottest/coldest part. |
-| `cash` | ❌ | Amount of money |
+| `cash` | ✅ | Amount of money |
 | `dodge` | ❌ | Current effective dodge |
 | `exp` | ✅ | Total experience earned. |
 | `sleepiness` | ✅ | Current sleepiness level. |
@@ -1422,10 +1424,10 @@ These can be read or written to with `val()`.
 | `morale` | ✅* | The current morale. Assigment only works for monsters. |
 | `owed` | ✅ | Amount of money the Character owes the avatar. |
 | `pkill` | ✅ | Current painkiller level. |
-| `pos_x`<br/>`pos_y`<br/>`pos_z` | ✅ | Coordinate in the reality bubble |
-| `power` | ✅ | Bionic or item power in millijoule. |
-| `power_percentage` | ✅ | Percentage of max bionic or item power |
-| `power_max` | ❌ | Max bionic or item power in millijoule. |
+| `pos_x`<br/>`pos_y`<br/>`pos_z` | ✅ | Absolute coordinate of the character |
+| `power` | ✅ | Bionic or item power. Bionic power is returned in millijoules. Item power is returned in battery charges. |
+| `power_percentage` | ✅ | Percentage of max bionic or item power. |
+| `power_max` | ❌ | Max bionic or item power. Bionic power is returned in millijoules. Item power is returned in battery charges. |
 | `rad` | ✅ | Current radiation level. |
 | `size` | ❌ | Size category from 1 (tiny) to 5 (huge). |
 | `sleep_deprivation` | ✅ | Current sleep deprivation level. |
@@ -1439,6 +1441,11 @@ These can be read or written to with `val()`.
 | `volume` | ❌ | Current volume in mL. Only works for monsters |
 | `weight` | ❌ | Current weight in mg. |
 | `count`  | ❌ | Count of an item. |
+| `vehicle_facing`  | ❌ | Angle that the vehicle is facing. Only works for vehicles. 0 is North |
+| `current_speed`  | ❌ | Vehicle's current speed. Only works for vehicles. |
+| `unloaded_weight`  | ❌ | How much the vehicle would weigh without passengers or cargo. Only works for vehicles. |
+| `friendly_passenger_count`  | ❌ | How many people plus monsters are onboard that are not hostile. Only works for vehicles. |
+| `hostile_passenger_count`  | ❌ | How many people plus monsters are onboard that are not friendly. Only works for vehicles. |
 
 
 #### Math functions defined in JSON

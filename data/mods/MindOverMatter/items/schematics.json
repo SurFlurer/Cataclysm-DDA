@@ -87,7 +87,7 @@
     "id": "schematics_grenade_inferno",
     "type": "BOOK",
     "name": { "str_sp": "inferno grenade schematics" },
-    "description": "This is a hand-written design document to enhance the normal explosive power of a grenade using matrix crystal dust.  In pen below is the note \"EXTREMELY DANGEROUS\".",
+    "description": "This is a design document to create a grenade using matrix crystal dust that explodes in a sea of pure flame.  In pen below is the note \"EXTREMELY DANGEROUS\".  You're not sure you could replicate the exact process with the tools available to you, but you could definitely come up with your own version.",
     "copy-from": "schematics_generic",
     "skill": "fabrication",
     "required_level": 5,
@@ -166,6 +166,20 @@
     "time": "60 m",
     "symbol": "ç",
     "color": "green"
+  },
+  {
+    "id": "schematics_panaceus",
+    "type": "BOOK",
+    "name": { "str_sp": "compound XV471 schematics" },
+    "description": "This document details the chemical process necessary to create what it calls Compound XV471, which it claims is a pharmaceutical treatment for a wide variety of ills.  According to this, it acts as a near-universal antivenin, an antifungal, an antiparasitic, an antibiotic, cures several common diseases such as influenza or the common cold, improves the immune system generally, and even increases strength, agility, and overall bodily function.  You would think it was too good to be true if you hadn't seen so many other bizarre things since the Cataclysm.",
+    "copy-from": "schematics_generic",
+    "skill": "chemistry",
+    "required_level": 6,
+    "max_level": 6,
+    "intelligence": 12,
+    "time": "60 m",
+    "symbol": "ç",
+    "color": "white"
   },
   {
     "id": "schematics_noetic_resilience",

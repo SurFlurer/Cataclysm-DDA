@@ -4,6 +4,7 @@
 #include <climits>
 #include <clocale>
 #include <iterator>
+#include <limits>
 #include <stdexcept>
 
 #include "cached_options.h"
@@ -322,14 +323,14 @@ void options_manager::add_external( const std::string &sNameIn, const std::strin
             thisOpt.bDefault = false;
             break;
         case cOpt::CVT_INT:
-            thisOpt.iMin = INT_MIN;
-            thisOpt.iMax = INT_MAX;
+            thisOpt.iMin = std::numeric_limits<int>::lowest();
+            thisOpt.iMax = std::numeric_limits<int>::max();
             thisOpt.iDefault = 0;
             thisOpt.iSet = 0;
             break;
         case cOpt::CVT_FLOAT:
-            thisOpt.fMin = FLT_MIN;
-            thisOpt.fMax = FLT_MAX;
+            thisOpt.fMin = std::numeric_limits<float>::lowest();
+            thisOpt.fMax = std::numeric_limits<float>::max();
             thisOpt.fDefault = 0;
             thisOpt.fSet = 0;
             thisOpt.fStep = 1;
@@ -2390,6 +2391,11 @@ void options_manager::add_options_graphics()
         add( "USE_DRAW_ASCII_LINES_ROUTINE", page_id, to_translation( "SDL ASCII lines" ),
              to_translation( "If true, use SDL ASCII line drawing routine instead of Unicode Line Drawing characters.  Use this option when your selected font doesn't contain necessary glyphs." ),
              true, COPT_CURSES_HIDE
+           );
+
+        add( "IMGUI_LOAD_CHINESE", page_id, to_translation( "Chinese glyph ranges in ImGui" ),
+             to_translation( "If true, ImGui will add glyphs of full Chinese, include zh_CN, zh_TW, ja. Use this option when your need all Chinese glyphs.  Requires restart." ),
+             false, COPT_CURSES_HIDE
            );
     } );
 #endif // TILES

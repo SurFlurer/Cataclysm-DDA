@@ -534,6 +534,18 @@
   },
   {
     "type": "effect_on_condition",
+    "id": "EOC_ARVORE_SYLPH_UNDINE_FAE_BAN_UNWEARING_IRON_OR_STEEL",
+    "eoc_type": "EVENT",
+    "required_event": "character_takeoff_item",
+    "condition": { "u_has_any_trait": [ "ARVORE", "SYLPH", "UNDINE" ] },
+    "effect": [
+      {
+        "run_eocs": [ "EOC_ARVORE_SYLPH_UNDINE_FAE_BAN_WEARING_IRON_FOLLOWUP", "EOC_ARVORE_SYLPH_UNDINE_FAE_BAN_WEARING_STEEL_FOLLOWUP" ]
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
     "id": "EOC_ARVORE_SYLPH_UNDINE_FAE_BAN_WIELDING_IRON_OR_STEEL",
     "eoc_type": "EVENT",
     "required_event": "character_wields_item",
@@ -553,10 +565,7 @@
       "true_eocs": [
         {
           "id": "EOC_ARVORE_SYLPH_UNDINE_FAE_BAN_WEARING_IRON_RESULT_TRUE",
-          "effect": [
-            { "u_add_effect": "effect_arvore_sylph_undine_wearing_iron", "duration": "PERMANENT" },
-            { "run_eocs": "EOC_ARVORE_SYLPH_UNDINE_FAE_BAN_WEARING_IRON_FOLLOWUP", "time_in_future": 60 }
-          ]
+          "effect": [ { "u_add_effect": "effect_arvore_sylph_undine_wearing_iron", "duration": "PERMANENT" } ]
         }
       ],
       "false_eocs": [
@@ -595,10 +604,7 @@
       "true_eocs": [
         {
           "id": "EOC_ARVORE_SYLPH_UNDINE_FAE_BAN_WEARING_STEEL_RESULT_TRUE",
-          "effect": [
-            { "u_add_effect": "effect_arvore_sylph_undine_wearing_steel", "duration": "PERMANENT" },
-            { "run_eocs": "EOC_ARVORE_SYLPH_UNDINE_FAE_BAN_WEARING_STEEL_FOLLOWUP", "time_in_future": 60 }
-          ],
+          "effect": [ { "u_add_effect": "effect_arvore_sylph_undine_wearing_steel", "duration": "PERMANENT" } ],
           "false_effect": [ { "u_lose_effect": "effect_arvore_sylph_undine_wearing_steel" } ]
         }
       ],
@@ -624,6 +630,19 @@
   },
   {
     "type": "effect_on_condition",
+    "id": "EOC_IERDE_SALAMANDER_FAE_BAN_UNWEARING_IRON_OR_STEEL",
+    "eoc_type": "EVENT",
+    "required_event": "character_takeoff_item",
+    "condition": { "u_has_any_trait": [ "IERDE", "SALAMANDER", "IRON_ALLERGY" ] },
+    "effect": [
+      {
+        "run_eocs": [ "EOC_IERDE_SALAMANDER_FAE_BAN_WEARING_IRON_FOLLOWUP", "EOC_IERDE_SALAMANDER_FAE_BAN_WEARING_STEEL_FOLLOWUP" ],
+        "time_in_future": 1
+      }
+    ]
+  },
+  {
+    "type": "effect_on_condition",
     "id": "EOC_IERDE_SALAMANDER_FAE_BAN_WIELDING_IRON_OR_STEEL",
     "eoc_type": "EVENT",
     "required_event": "character_wields_item",
@@ -643,10 +662,7 @@
       "true_eocs": [
         {
           "id": "EOC_IERDE_SALAMANDER_FAE_BAN_WEARING_IRON_RESULT_TRUE",
-          "effect": [
-            { "u_add_effect": "effect_ierde_salamander_wearing_iron", "duration": "PERMANENT" },
-            { "run_eocs": "EOC_IERDE_SALAMANDER_FAE_BAN_WEARING_IRON_FOLLOWUP", "time_in_future": 60 }
-          ]
+          "effect": [ { "u_add_effect": "effect_ierde_salamander_wearing_iron", "duration": "PERMANENT" } ]
         }
       ],
       "false_eocs": [
@@ -685,10 +701,7 @@
       "true_eocs": [
         {
           "id": "EOC_IERDE_SALAMANDER_FAE_BAN_WEARING_STEEL_RESULT_TRUE",
-          "effect": [
-            { "u_add_effect": "effect_ierde_salamander_wearing_steel", "duration": "PERMANENT" },
-            { "run_eocs": "EOC_IERDE_SALAMANDER_FAE_BAN_WEARING_STEEL_FOLLOWUP", "time_in_future": 60 }
-          ],
+          "effect": [ { "u_add_effect": "effect_ierde_salamander_wearing_steel", "duration": "PERMANENT" } ],
           "false_effect": [ { "u_lose_effect": "effect_ierde_salamander_wearing_steel" } ]
         }
       ],
