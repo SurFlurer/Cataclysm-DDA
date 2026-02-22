@@ -1,0 +1,97 @@
+name: "Experimental Release (Android x64)"
+concurrency: release-candidate-android
+
+on:
+  push:
+    branches:
+      - 0.I-branch
+    paths:
+      - '.github/workflows/release_android.yml'
+      - 'android/**'
+      - 'build-scripts/generate-release-notes.js'
+      - 'data/**'
+      - 'doc/**'
+      - 'gfx/**'
+      - 'lang/po/*.po'
+      - 'LICENSE*'
+      - 'Makefile'
+      - 'README*'
+      - 'src/**'
+  workflow_dispatch:
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  REPOSITORY_NAME: ${{ github.event.repository.name }}
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    permissions: write-all
+    outputs:
+      timestamp: ${{ steps.get-timestamp.outputs.time }}
+    steps:
+      - name: Get build timestamp
+        id: get-timestamp
+        run: |
+          echo "time=$(/bin/date -u "+%Y-%m-%d-%H%M")" >> $GITHUB_OUTPUT
+      - name: Generate environmental variables
+        id: generate_env_vars
+        run: |
+          echo "tag_name=cdda-0.I-${{ steps.get-timestamp.outputs.time }}" >> $GITHUB_OUTPUT
+          echo "release_name=Cataclysm-DDA 0.I release candidate ${{ steps.get-timestamp.outputs.time }}" >> $GITHUB_OUTPUT
+      - uses: actions/checkout@v4
+      - name: Generate Release Notes
+        id: generate-release-notes
+        run: |
+          npm install @actions/github
+          node build-scripts/generate-release-notes.js '${{ secrets.GITHUB_TOKEN }}' '${{ steps.generate_env_vars.outputs.tag_name }}' "$(git log -1 --format='%H')" > notes.txt
+      - run: |
+          gh release create ${{ steps.generate_env_vars.outputs.tag_name }} --notes-file notes.txt --prerelease --title "${{ steps.generate_env_vars.outputs.release_name }}" --target "$(git log -1 --format='%H')"
+
+  builds:
+    needs: release
+    name: Android x64
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+
+      - name: Create VERSION.TXT
+        shell: bash
+        run: |
+          cat >VERSION.txt <<EOL
+          build type: android-x64
+          build number: ${{ needs.release.outputs.timestamp }}
+          commit sha: ${{ github.sha }}
+          commit url: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+          EOL
+
+      - name: Set up JDK (android)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+
+      - name: Setup Build and Dependencies (android)
+        run: |
+          sudo apt-get update
+          sudo apt-get install gettext
+
+      - name: Build CDDA (android x64)
+        working-directory: ./android
+        run: |
+          echo "${{ secrets.KEYSTORE }}" > release.keystore.asc
+          gpg -d --passphrase "${{ secrets.KEYSTORE_PASSWORD }}" --batch release.keystore.asc > app/release.keystore
+          echo "${{ secrets.KEYSTORE_PROPERTIES }}" > keystore.properties.asc
+          gpg -d --passphrase "${{ secrets.KEYSTORE_PASSWORD }}" --batch keystore.properties.asc > keystore.properties
+          export UPSTREAM_BUILD_NUMBER="$((11581 + ${{ github.run_number }}))"
+          chmod +x gradlew
+          ./gradlew -Pj=$((`nproc`+0)) -Pabi_arm_32=false assembleExperimentalRelease
+          mv ./app/build/outputs/apk/experimental/release/*.apk ../cdda-android-x64-${{ needs.release.outputs.timestamp }}.apk
+
+      - name: Upload to GitHub Release
+        run: |
+          gh release upload cdda-0.I-${{ needs.release.outputs.timestamp }} cdda-android-x64-${{ needs.release.outputs.timestamp }}.apk
