@@ -626,6 +626,18 @@ bool cataimgui::client::any_window_shown()
     return any_window_shown;
 }
 
+bool cataimgui::client::want_text_input()
+{
+    return ImGui::GetCurrentContext() != nullptr && ImGui::GetIO().WantTextInput;
+}
+
+void cataimgui::client::clear_text_focus()
+{
+    if( ImGui::GetCurrentContext() != nullptr ) {
+        ImGui::ClearActiveID();
+    }
+}
+
 static ImGuiKey cata_key_to_imgui( int cata_key )
 {
     switch( cata_key ) {
