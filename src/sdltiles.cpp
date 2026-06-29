@@ -2230,14 +2230,6 @@ void draw_terminal_size_preview()
     }
 }
 
-// Mark the frame dirty after an Android keyboard / shortcut-bar state change so
-// the strip is rebuilt to reflect the new state on the next draw pass.
-static void android_request_repaint()
-{
-    needupdate = true;
-    ui_manager::redraw_invalidated();
-}
-
 // Draw quick shortcuts on top of the game view
 void draw_quick_shortcuts()
 {
@@ -2503,16 +2495,6 @@ bool is_string_input( input_context &ctx )
            || category == "HELP_KEYBINDINGS";
 }
 
-// True when the soft keyboard is legitimately wanted for this context and CDDA
-// must not auto-hide it or convert keystrokes to quick shortcuts: a legacy
-// string-input/curses context, an inventory quantity field, or a focused ImGui
-// text widget (ImGui drives SDL text-input itself; CDDA defers to it).
-static bool android_wants_text_input( input_context &ctx )
-{
-    return is_string_input( ctx ) || ctx.allow_text_entry
-           || cataimgui::client::want_text_input();
-}
-
 int get_key_event_from_string( const std::string &str )
 {
     if( !str.empty() ) {
@@ -2718,7 +2700,8 @@ static void CheckMessages()
 
             // If we were in an allow_text_entry input context, and text input is still active, and we're auto-managing keyboard, hide it.
             if( touch_input_context.allow_text_entry &&
-                !android_wants_text_input( *new_input_context ) &&
+                !new_input_context->allow_text_entry &&
+                !is_string_input( *new_input_context ) &&
                 SDL_IsTextInputActive() &&
                 get_option<bool>( "ANDROID_AUTO_KEYBOARD" ) ) {
                 StopTextInput();
@@ -2923,7 +2906,6 @@ static void CheckMessages()
             if( !quick_shortcuts_toggle_handled ) {
                 quick_shortcuts_enabled = !quick_shortcuts_enabled;
                 quick_shortcuts_toggle_handled = true;
-                android_request_repaint();
                 refresh_display();
 
                 // Display an Android toast message
@@ -3106,7 +3088,7 @@ static void CheckMessages()
                         last_input = input_event( lc, input_event_t::keyboard_char );
 #if defined(__ANDROID__)
                         if( !android_is_hardware_keyboard_available() ) {
-                            if( !android_wants_text_input( touch_input_context ) ) {
+                            if( !is_string_input( touch_input_context ) && !touch_input_context.allow_text_entry ) {
                                 if( get_option<bool>( "ANDROID_AUTO_KEYBOARD" ) ) {
                                     StopTextInput();
                                 }
@@ -3116,7 +3098,7 @@ static void CheckMessages()
                                     !inp_mngr.get_keyname( lc, input_event_t::keyboard_char ).empty() ) {
                                     qsl.remove( last_input );
                                     add_quick_shortcut( qsl, last_input, false, true );
-                                    android_request_repaint();
+                                    ui_manager::redraw_invalidated();
                                     refresh_display();
                                 }
                             } else if( lc == '\n' || lc == KEY_ESCAPE ) {
@@ -3138,17 +3120,11 @@ static void CheckMessages()
                 if( ev.key.keysym.sym == SDLK_AC_BACK ) {
                     if( ticks - ac_back_down_time <= static_cast<uint32_t>
                         ( get_option<int>( "ANDROID_INITIAL_DELAY" ) ) ) {
-                        if( cataimgui::client::want_text_input() ) {
-                            // ImGui owns the keyboard while a text widget is
-                            // focused. Defocus it so ImGui releases text input
-                            // and the keyboard dismisses.
-                            cataimgui::client::clear_text_focus();
-                        } else if( SDL_IsTextInputActive() ) {
+                        if( SDL_IsTextInputActive() ) {
                             StopTextInput();
                         } else {
                             StartTextInput();
                         }
-                        android_request_repaint();
                     }
                     ac_back_down_time = 0;
                 }
@@ -3180,7 +3156,7 @@ static void CheckMessages()
                         last_input = input_event( lc, input_event_t::keyboard_char );
 #if defined(__ANDROID__)
                         if( !android_is_hardware_keyboard_available() ) {
-                            if( !android_wants_text_input( touch_input_context ) ) {
+                            if( !is_string_input( touch_input_context ) && !touch_input_context.allow_text_entry ) {
                                 if( get_option<bool>( "ANDROID_AUTO_KEYBOARD" ) ) {
                                     StopTextInput();
                                 }
@@ -3189,7 +3165,7 @@ static void CheckMessages()
                                                              touch_input_context.get_category() )];
                                 qsl.remove( last_input );
                                 add_quick_shortcut( qsl, last_input, false, true );
-                                android_request_repaint();
+                                ui_manager::redraw_invalidated();
                                 refresh_display();
                             } else if( lc == '\n' || lc == KEY_ESCAPE ) {
                                 if( get_option<bool>( "ANDROID_AUTO_KEYBOARD" ) ) {
@@ -3549,8 +3525,8 @@ static void CheckMessages()
                     is_three_finger_touch = false;
                     finger_down_time = 0;
                     finger_repeat_time = 0;
-                    // ensure virtual joystick and quick shortcuts are updated properly
-                    android_request_repaint();
+                    needupdate = true; // ensure virtual joystick and quick shortcuts are updated properly
+                    ui_manager::redraw_invalidated();
                     refresh_display(); // as above, but actually redraw it now as well
                 } else if( ev.tfinger.fingerId == 1 ) {
                     if( is_two_finger_touch ) {

@@ -94,10 +94,6 @@ class client
 #endif
         bool auto_size_frame_active();
         bool any_window_shown();
-        // True if an ImGui text-entry widget is focused and wants character input.
-        static bool want_text_input();
-        // Drop the active ImGui item so a focused text widget releases input.
-        static void clear_text_focus();
 };
 
 void point_to_imvec2( point *src, ImVec2 *dest );
